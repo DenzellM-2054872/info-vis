@@ -16,6 +16,8 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "info-vis": "file:"
+    "axios": "^1.7.9",
+    "info-vis": "file:",
+    "node-fetch": "^3.3.2"
   }
 }
