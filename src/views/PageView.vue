@@ -7,10 +7,12 @@ import { ref } from 'vue'
 const gameName = ref('') 
 const tag = ref('')
 const puuid = ref('')
-
+const gameIDS = ref([''])
 const errors = ref([''])
+
 //typing is annoying if you dont add an empy string
 errors.value = []
+gameIDS.value = []
 
 async function searchHandler(){
     errors.value = []
@@ -30,14 +32,20 @@ async function searchHandler(){
     console.log(gameName.value)
     console.log(tag.value)
     try{
-        let response = await axios.get("/getSummoner", {headers:{'gameName': gameName.value, 'tagLine': tag.value.slice(1)}});
-        puuid.value = response.data['puuid']
-
+        let response_id = await axios.get("/getSummoner", {headers:{'gameName': gameName.value, 'tagLine': tag.value.slice(1)}});
+        puuid.value = response_id.data['puuid']
+        let response_games = await axios.get("/getGameIDs", {headers:{'puuid': puuid.value}});
+        gameIDS.value = response_games.data
     }catch(error){
         puuid.value = "the requested profile couldn't be found"
         
     }
+}
 
+async function gameSearch(id: string){
+    console.log(id)
+    let response_game = await axios.get("/getGameTimeline", {headers:{'matchid': id}});
+    
 }
 </script>
 
@@ -54,10 +62,14 @@ async function searchHandler(){
                 </ul>
             </p>
         </div>
+
         <p v-if="puuid.length">    
             {{ puuid }}
-            </p>
+        </p>
         
+        <li v-for="ID in gameIDS">
+            <p @click="gameSearch(ID)">{{ ID }}</p>
+        </li>
     </div>
   </template>
   
