@@ -2,6 +2,8 @@
 import axios from "axios";
 import { Summoner } from "../classes/summoner.ts";
 import { ref } from 'vue'
+import type { JsonSourceFile } from "typescript";
+import Participant from "@/classes/Participant.ts";
 
 
 const gameName = ref('') 
@@ -44,7 +46,15 @@ async function searchHandler(){
 
 async function gameSearch(id: string){
     console.log(id)
-    let response_game = await axios.get("/getGameTimeline", {headers:{'matchid': id}});
+    // let response_game = await axios.get("/getGameTimeline", {headers:{'matchid': id}});
+    let response_game = await axios.get("/getGameSummary", {headers:{'matchid': id}});
+    let participants: Array<Participant> = []
+    response_game.data['info']['participants'].forEach((element:{[Name: string]: any}) => {
+        participants.push(new Participant(element))
+
+        console.log(participants[participants.length-1]._playerName)
+    });
+    console.log()
     
 }
 </script>

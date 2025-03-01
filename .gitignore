@@ -29,6 +29,6 @@ coverage
 
 *.tsbuildinfo
 
-
+game_data/
 #Api key
 api_key.txt

@@ -82,7 +82,7 @@ app.get('/', (req, res) => {
 
     try {
       const response = await axios.get(`/lol/match/v5/matches/${matchId}/timeline`)
-      writeFileSync(`game_data/${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
+      writeFileSync(`game_data/timeline_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
       res.send(response.data);
       
     } catch (error) {
@@ -91,6 +91,25 @@ app.get('/', (req, res) => {
     }
 
   });
+
+  app.get('/getGameSummary', async (req, res) => { 
+    let matchId = req.headers['matchid'];
+    console.log(matchId)
+
+    try {
+      const response = await axios.get(`/lol/match/v5/matches/${matchId}`)
+      writeFileSync(`game_data/overview_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
+      res.send(response.data);
+      
+    } catch (error) {
+      console.log(error)
+      res.status(404).send("requested game couldn't be found");
+    }
+
+  });
+
+
   app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
   });
+
