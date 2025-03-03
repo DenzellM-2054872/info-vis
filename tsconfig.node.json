@@ -9,6 +9,7 @@
     "eslint.config.*"
   ],
   "compilerOptions": {
+    "resolveJsonModule": true,
     "noEmit": true,
     "noResolve": false,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",

@@ -5,6 +5,7 @@ import { ref, type Ref } from 'vue'
 import type { JsonSourceFile } from "typescript";
 import GameOverview from "@/classes/GameOverview.ts";
 import GamerOverview from "@/classes/GameOverview.ts";
+import Champions from "@/classes/Champion.ts";
 
 
 const gameName = ref('') 
@@ -35,11 +36,11 @@ async function searchHandler(){
         puuid.value = response_id.data['puuid']
         let response_games = await axios.get("/getGameIDs", {headers:{'puuid': puuid.value}});
         gameIDS.value = response_games.data
-
-        // gameIDS.value.forEach(async gameID => {
-        let response_game = await axios.get("/getGameSummary", {headers:{'matchid': gameIDS.value[0]}});
-        overviews.value.push(new GameOverview(puuid.value, response_game.data['info']))
-        // });
+        let test = new Champions();
+        gameIDS.value.forEach(async gameID => {
+            let response_game = await axios.get("/getGameSummary", {headers:{'matchid': gameID}});
+            overviews.value.push(new GameOverview(puuid.value, response_game.data['info']))
+        });
     }catch(error){
         puuid.value = "the requested profile couldn't be found"
         
@@ -70,7 +71,7 @@ async function gameView(overview: GameOverview){
         </p>
         
         <li v-for="overview in overviews">
-            <p @click="gameView(overview)">{{ overview._ID }}</p>
+            <p @click="gameView(overview)">{{ Champions.nameFromID(overview._participants[overview._mainParticipant]._champID) }}</p>
         </li>
     </div>
   </template>
