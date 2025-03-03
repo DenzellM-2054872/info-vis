@@ -7,7 +7,7 @@ import fs from 'fs';
 import e from 'express';
 
 const riotToken = fs.readFileSync('api_key.txt','utf8');
-const inst = rateLimit(rateLimit(axios.create(), {maxRPS: 17}), {maxRequests: 100, perMilliseconds:120000});
+const inst = rateLimit(rateLimit(axios.create(), {maxRPS: 15}), {maxRequests: 100, perMilliseconds:120000});
 inst.defaults.baseURL = 'https://europe.api.riotgames.com';
 inst.defaults.headers.common['X-Riot-Token'] = riotToken;
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -97,9 +97,10 @@ app.get('/', (req, res) => {
     console.log(matchId)
 
     try {
-      if (fs.existsSync(`game_data/overview_${matchId}`)){
-        const response = fs.readFileSync(`game_data/overview_${matchId}`)
+      if (fs.existsSync(`game_data/overview_${matchId}.json`)){
+        const response = fs.readFileSync(`game_data/overview_${matchId}.json`)
         res.send(response);
+        console.log('sending chached data')
         return
       }
       const response = await inst.get(`/lol/match/v5/matches/${matchId}`)
