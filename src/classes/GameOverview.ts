@@ -1,13 +1,20 @@
-enum Status {win, loss, remake}
+import Participant from "./Participant";
 
-class GamerOverview {
+
+export default class GamerOverview {
     _ID: string
-    _champID: string
-    _status: Status
+    _winningTeam: number
+    _participants: Array<Participant>
+    _mainParticipant: number
 
-    constructor(ID: string, champID: string, status: Status) {
-        this._ID = ID;
-        this._champID = champID;
-        this._status = status;
+    constructor(mainID: string, input: {[Name: string]: any}) {
+        this._ID = `EUW1_${input['gameId']}`;
+        this._winningTeam = input['teams'][0]['win'] ? 1:2;
+        this._mainParticipant = -1
+        this._participants = []
+        for (let i = 0; i < input['participants'].length; i++) {
+            this._participants.push(new Participant(input['participants'][i]));
+            if(input['participants'][i]['puuid'] == mainID) {this._mainParticipant = i}
+        }
     }
 }

@@ -1,23 +1,22 @@
 <script setup lang="ts">
 import axios from "axios";
 import { Summoner } from "../classes/summoner.ts";
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import type { JsonSourceFile } from "typescript";
-import Participant from "@/classes/Participant.ts";
+import GameOverview from "@/classes/GameOverview.ts";
+import GamerOverview from "@/classes/GameOverview.ts";
 
 
 const gameName = ref('') 
 const tag = ref('')
 const puuid = ref('')
-const gameIDS = ref([''])
-const errors = ref([''])
-
-//typing is annoying if you dont add an empy string
-errors.value = []
-gameIDS.value = []
+const gameIDS: Ref<Array<string>> = ref([])
+const errors: Ref<Array<string>> = ref([])
+const overviews: Ref<Array<GameOverview>> = ref([])
 
 async function searchHandler(){
     errors.value = []
+    overviews.value = []
 
     if(gameName.value.length == 0){
         errors.value.push("please fill in a game name")
@@ -31,31 +30,24 @@ async function searchHandler(){
 
     if(errors.value.length != 0) return;
 
-    console.log(gameName.value)
-    console.log(tag.value)
     try{
         let response_id = await axios.get("/getSummoner", {headers:{'gameName': gameName.value, 'tagLine': tag.value.slice(1)}});
         puuid.value = response_id.data['puuid']
         let response_games = await axios.get("/getGameIDs", {headers:{'puuid': puuid.value}});
         gameIDS.value = response_games.data
+
+        // gameIDS.value.forEach(async gameID => {
+        let response_game = await axios.get("/getGameSummary", {headers:{'matchid': gameIDS.value[0]}});
+        overviews.value.push(new GameOverview(puuid.value, response_game.data['info']))
+        // });
     }catch(error){
         puuid.value = "the requested profile couldn't be found"
         
     }
 }
 
-async function gameSearch(id: string){
-    console.log(id)
-    // let response_game = await axios.get("/getGameTimeline", {headers:{'matchid': id}});
-    let response_game = await axios.get("/getGameSummary", {headers:{'matchid': id}});
-    let participants: Array<Participant> = []
-    response_game.data['info']['participants'].forEach((element:{[Name: string]: any}) => {
-        participants.push(new Participant(element))
-
-        console.log(participants[participants.length-1]._playerName)
-    });
-    console.log()
-    
+async function gameView(overview: GameOverview){
+    console.log(overview)   
 }
 </script>
 
@@ -77,8 +69,8 @@ async function gameSearch(id: string){
             {{ puuid }}
         </p>
         
-        <li v-for="ID in gameIDS">
-            <p @click="gameSearch(ID)">{{ ID }}</p>
+        <li v-for="overview in overviews">
+            <p @click="gameView(overview)">{{ overview._ID }}</p>
         </li>
     </div>
   </template>

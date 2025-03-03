@@ -2,18 +2,18 @@ import express from 'express'
 import cors from 'cors'
 
 import axios from 'axios'
+import rateLimit from 'axios-rate-limit';
 import { readFileSync, writeFileSync } from 'fs';
 import e from 'express';
 
-
 const riotToken = readFileSync('api_key.txt','utf8');
-axios.defaults.baseURL = 'https://europe.api.riotgames.com';
-axios.defaults.headers.common['X-Riot-Token'] = riotToken;
+const inst = rateLimit(rateLimit(axios.create(), {maxRPS: 17}), {maxRequests: 100, perMilliseconds:120000});
+inst.defaults.baseURL = 'https://europe.api.riotgames.com';
+inst.defaults.headers.common['X-Riot-Token'] = riotToken;
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 const app = express();
 const port = 3000;
-const allowed = []
 app.use(cors({origin: `http://localhost:5173`}));
 
 app.get('/', (req, res) => {
@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
     console.log(gameName)
     console.log(tag)
     try {
-      const response = await axios.get(`/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`)
+      const response = await inst.get(`/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`)
       res.send(response.data);
       
     } catch (error) {
@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
     }
 
     try {
-      const response = await axios.get(`/lol/match/v5/matches/by-puuid/${puuid}/ids?${startTime}&${endTime}&${queue}&${type}&${count}`)
+      const response = await inst.get(`/lol/match/v5/matches/by-puuid/${puuid}/ids?${startTime}&${endTime}&${queue}&${type}&${count}`)
       res.send(response.data);
       
     } catch (error) {
@@ -81,7 +81,7 @@ app.get('/', (req, res) => {
     console.log(matchId)
 
     try {
-      const response = await axios.get(`/lol/match/v5/matches/${matchId}/timeline`)
+      const response = await inst.get(`/lol/match/v5/matches/${matchId}/timeline`)
       writeFileSync(`game_data/timeline_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
       res.send(response.data);
       
@@ -97,8 +97,8 @@ app.get('/', (req, res) => {
     console.log(matchId)
 
     try {
-      const response = await axios.get(`/lol/match/v5/matches/${matchId}`)
-      writeFileSync(`game_data/overview_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
+      const response = await inst.get(`/lol/match/v5/matches/${matchId}`)
+      // writeFileSync(`game_data/overview_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
       res.send(response.data);
       
     } catch (error) {
