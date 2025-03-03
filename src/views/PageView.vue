@@ -36,7 +36,7 @@ async function searchHandler(){
         puuid.value = response_id.data['puuid']
         let response_games = await axios.get("/getGameIDs", {headers:{'puuid': puuid.value}});
         gameIDS.value = response_games.data
-        let test = new Champions();
+
         gameIDS.value.forEach(async gameID => {
             let response_game = await axios.get("/getGameSummary", {headers:{'matchid': gameID}});
             overviews.value.push(new GameOverview(puuid.value, response_game.data['info']))
@@ -47,14 +47,20 @@ async function searchHandler(){
     }
 }
 
-async function gameView(overview: GameOverview){
-    console.log(overview)   
+function getChampImage(overview: GameOverview){
+    return new URL(Champions.portraitPathFromID(overview._participants[overview._mainParticipant]._champID), import.meta.url).href   
 }
+
+function getGameStatus(overview: GameOverview){
+    if(overview._mainTeam == overview._winningTeam) return "game_win";
+    return "game_loss";
+}
+
 </script>
 
 <template>
     <div class="page">
-        <div>
+        <div class="wrap" >
             <input v-model="gameName" placeholder="Summoner name"></input>
             <input v-model="tag" placeholder="#tag"></input>
             <button @click="searchHandler">Search</button>
@@ -69,14 +75,68 @@ async function gameView(overview: GameOverview){
         <p v-if="puuid.length">    
             {{ puuid }}
         </p>
-        
+
         <li v-for="overview in overviews">
-            <p @click="gameView(overview)">{{ Champions.nameFromID(overview._participants[overview._mainParticipant]._champID) }}</p>
+            <div :class="getGameStatus(overview)" class="game_overview" >
+                <div class="slanted-edge">
+                    <p>{{ Champions.nameFromID(overview._participants[overview._mainParticipant]._champID) }}</p>
+                </div>
+                <img :src="getChampImage(overview)" />
+            </div>
         </li>
     </div>
   </template>
   
   <style>
+    .page > li::marker{
+        color: #00000000;
+    }
+
+    .game_overview > .slanted-edge {
+        --p: 70px; /* control the shape (can be percentage) */
+        height: inherit;
+        width:85%;
+        margin-left: 15%;
+        aspect-ratio: 1;
+        clip-path: polygon(var(--p) 0,100% 0,100% 100%,0 100%);
+        background-color: gray;
+        
+    }
+
+    .game_win{
+        border-color: #2c6d0d;
+    }
+
+    .game_win > .slanted-edge {
+        background-color: #89EC5B;
+    }
+
+    .game_loss{
+        border-color: #b31b1b;
+    }
+    .game_loss > .slanted-edge {
+        background-color: #E75F5F;
+    }
+
+    .game_overview{
+        width: 100%;
+        height: 150px;
+        overflow: clip;
+        margin-top: 10px;
+        border-style: solid;
+        border-radius: 25px;
+    }
+  .game_overview > img{
+    height: 220%;
+    margin-top: -28%;
+    margin-left: -35%;
+  }
+  .wrap{
+    display: flex;
+    align-items: center;
+    align-self: center;
+    margin-top: 120px;
+  }
   @media (min-width: 1024px) {
     .about {
       min-height: 100vh;

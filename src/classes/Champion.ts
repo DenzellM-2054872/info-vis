@@ -17,10 +17,15 @@ export default class Champions {
     }
 
     static portraitPathFromID(id: number){
-        
+        const name = Champions.codeNameFromID(id)
+        return(`/public/centered/${name}_0.jpg`)
 
-        // @ts-expect-error Parameter 'name' implicitly has an 'any' type.ts(7006)
-        const champID: string = keys[id]
+    }
+    static codeNameFromID(id: number){
+        const typedKeys = keys as KeysType
+        const typedData = data as DataType
+        const champID: string = typedKeys[id]
+        return typedData[champID].id
     }
 
     static nameFromID(id: number){

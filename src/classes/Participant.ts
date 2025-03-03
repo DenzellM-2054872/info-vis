@@ -1,7 +1,7 @@
 export default class Participant {
     _playerID: string;
     _playerName: string;
-    _champID: string;
+    _champID: number;
     _kills: number;
     _deaths: number;
     _assists: number;

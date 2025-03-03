@@ -6,6 +6,7 @@ export default class GamerOverview {
     _winningTeam: number
     _participants: Array<Participant>
     _mainParticipant: number
+    _mainTeam: number
 
     constructor(mainID: string, input: {[Name: string]: any}) {
         this._ID = `EUW1_${input['gameId']}`;
@@ -16,5 +17,7 @@ export default class GamerOverview {
             this._participants.push(new Participant(input['participants'][i]));
             if(input['participants'][i]['puuid'] == mainID) {this._mainParticipant = i}
         }
+        this._mainTeam = 1;
+        if(this._mainParticipant >= 6) this._mainTeam = 2;
     }
 }

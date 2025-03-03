@@ -32,3 +32,4 @@ coverage
 game_data/
 #Api key
 api_key.txt
+remove_skins.py
