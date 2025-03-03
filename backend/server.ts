@@ -3,10 +3,10 @@ import cors from 'cors'
 
 import axios from 'axios'
 import rateLimit from 'axios-rate-limit';
-import { readFileSync, writeFileSync } from 'fs';
+import fs from 'fs';
 import e from 'express';
 
-const riotToken = readFileSync('api_key.txt','utf8');
+const riotToken = fs.readFileSync('api_key.txt','utf8');
 const inst = rateLimit(rateLimit(axios.create(), {maxRPS: 17}), {maxRequests: 100, perMilliseconds:120000});
 inst.defaults.baseURL = 'https://europe.api.riotgames.com';
 inst.defaults.headers.common['X-Riot-Token'] = riotToken;
@@ -82,7 +82,7 @@ app.get('/', (req, res) => {
 
     try {
       const response = await inst.get(`/lol/match/v5/matches/${matchId}/timeline`)
-      writeFileSync(`game_data/timeline_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
+      fs.writeFileSync(`game_data/timeline_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
       res.send(response.data);
       
     } catch (error) {
@@ -97,8 +97,13 @@ app.get('/', (req, res) => {
     console.log(matchId)
 
     try {
+      if (fs.existsSync(`game_data/overview_${matchId}`)){
+        const response = fs.readFileSync(`game_data/overview_${matchId}`)
+        res.send(response);
+        return
+      }
       const response = await inst.get(`/lol/match/v5/matches/${matchId}`)
-      // writeFileSync(`game_data/overview_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
+      fs.writeFileSync(`game_data/overview_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
       res.send(response.data);
       
     } catch (error) {
