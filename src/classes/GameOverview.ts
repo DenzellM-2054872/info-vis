@@ -7,6 +7,7 @@ export default class GamerOverview {
     _participants: Array<Participant>
     _mainParticipant: number
     _mainTeam: number
+    _gameAge: number
 
     constructor(mainID: string, input: {[Name: string]: any}) {
         this._ID = `EUW1_${input['gameId']}`;
@@ -19,5 +20,6 @@ export default class GamerOverview {
         }
         this._mainTeam = 1;
         if(this._mainParticipant >= 6) this._mainTeam = 2;
+        this._gameAge = input['gameCreation']
     }
 }
