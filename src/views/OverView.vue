@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { Summoner } from "../classes/summoner.ts";
-import { ref, type Ref } from 'vue'
+import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import type { JsonSourceFile } from "typescript";
 import GameOverview from "@/classes/GameOverview.ts";
 import GamerOverview from "@/classes/GameOverview.ts";
@@ -14,6 +14,15 @@ const puuid = ref('')
 const gameIDS: Ref<Array<string>> = ref([])
 const errors: Ref<Array<string>> = ref([])
 const overviews: Ref<Array<GameOverview>> = ref([])
+const sortedOverviews: ComputedRef<Array<GameOverview>> = ref(computed(() => {
+    const sorted = overviews.value.sort((a: GameOverview, b: GameOverview) => {
+        console.log("floepsie")
+        if(a._gameAge > b._gameAge) return -1;
+        if(a._gameAge < b._gameAge) return  1;
+        return 0
+    })
+    return sorted;
+}))
 
 async function searchHandler(){
     errors.value = []
@@ -56,6 +65,7 @@ function getGameStatus(overview: GameOverview){
     return "game_loss";
 }
 
+
 </script>
 
 <template>
@@ -76,7 +86,7 @@ function getGameStatus(overview: GameOverview){
             {{ puuid }}
         </p>
 
-        <li v-for="overview in overviews">
+        <li v-for="overview in sortedOverviews">
             <div :class="getGameStatus(overview)" class="game_overview" >
                 <div class="slanted-edge">
                     <p>{{ Champions.nameFromID(overview._participants[overview._mainParticipant]._champID) }}</p>
