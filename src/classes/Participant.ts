@@ -2,6 +2,7 @@ export default class Participant {
     _playerID: string;
     _playerName: string;
     _champID: number;
+    _keystoneID: number;
     _kills: number;
     _deaths: number;
     _assists: number;
@@ -14,6 +15,6 @@ export default class Participant {
         this._kills = input['kills'];
         this._deaths = input['deaths'];
         this._assists = input['assists'];
-        this._assists = input['assists'];
+        this._keystoneID = input['perks']['styles'][0]['selections'][0]['perk'];
     }
 }

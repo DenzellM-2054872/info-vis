@@ -6,6 +6,7 @@ import type { JsonSourceFile } from "typescript";
 import GameOverview from "@/classes/GameOverview.ts";
 import GamerOverview from "@/classes/GameOverview.ts";
 import Champions from "@/classes/Champion.ts";
+import Runes from "@/classes/Runes.ts";
 
 
 const gameName = ref('') 
@@ -16,7 +17,6 @@ const errors: Ref<Array<string>> = ref([])
 const overviews: Ref<Array<GameOverview>> = ref([])
 const sortedOverviews: ComputedRef<Array<GameOverview>> = ref(computed(() => {
     const sorted = overviews.value.sort((a: GameOverview, b: GameOverview) => {
-        console.log("floepsie")
         if(a._gameAge > b._gameAge) return -1;
         if(a._gameAge < b._gameAge) return  1;
         return 0
@@ -60,6 +60,15 @@ function getChampImage(overview: GameOverview){
     return new URL(Champions.portraitPathFromID(overview._participants[overview._mainParticipant]._champID), import.meta.url).href   
 }
 
+
+function getKeystoneImage(overview: GameOverview){
+    let path = Runes.runePathFromID(overview._participants[overview._mainParticipant]._keystoneID);
+    if(path){
+        return new URL(path, import.meta.url).href   
+    }
+    return new URL('public/missing.webp', import.meta.url).href 
+}
+
 function getGameStatus(overview: GameOverview){
     if(overview._mainTeam == overview._winningTeam) return "game_win";
     return "game_loss";
@@ -88,10 +97,11 @@ function getGameStatus(overview: GameOverview){
 
         <li v-for="overview in sortedOverviews">
             <div :class="getGameStatus(overview)" class="game_overview" >
+                <img :src="getKeystoneImage(overview)" class="keystone"/>
                 <div class="slanted-edge">
                     <p>{{ Champions.nameFromID(overview._participants[overview._mainParticipant]._champID) }}</p>
                 </div>
-                <img :src="getChampImage(overview)" />
+                <img :src="getChampImage(overview)" class="champion" />
             </div>
         </li>
     </div>
@@ -110,9 +120,17 @@ function getGameStatus(overview: GameOverview){
         aspect-ratio: 1;
         clip-path: polygon(var(--p) 0,100% 0,100% 100%,0 100%);
         background-color: gray;
+        z-index: 1;
         
     }
+    .game_overview >.keystone{
+        width: 2.5%;
+        position: absolute;
+        margin-top: 5.2%;
+        margin-left: 5.5%;
+        z-index: 2;
 
+    }
     .game_win{
         border-color: #2c6d0d;
     }
@@ -136,10 +154,12 @@ function getGameStatus(overview: GameOverview){
         border-style: solid;
         border-radius: 25px;
     }
-  .game_overview > img{
+  .game_overview > .champion{
     height: 220%;
     margin-top: -28%;
     margin-left: -35%;
+    z-index: 0;
+
   }
   .wrap{
     display: flex;

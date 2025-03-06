@@ -1,5 +1,5 @@
-import {keys} from '../../public/championFull.json'
-import {data} from '../../public/championFull.json'
+import {keys} from '../data/championFull.json'
+import {data} from '../data/championFull.json'
 import type { ChampType } from './ChampionTypes'
 
 
