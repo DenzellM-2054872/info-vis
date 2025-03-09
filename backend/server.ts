@@ -25,11 +25,17 @@ app.get('/', (req, res) => {
     let gameName = req.headers['gamename'];
     let tag = req.headers['tagline'];
 
+
     console.log(gameName)
     console.log(tag)
     try {
-      const response = await inst.get(`/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`)
-      res.send(response.data);
+      if(fs.existsSync(`game_data/proflile_${gameName}#${tag}.json`)){
+        res.send(fs.readFileSync(`game_data/proflile_${gameName}#${tag}.json`)); 
+      }else{
+        const response = await inst.get(`/riot/account/v1/accounts/by-riot-id/${gameName}/${tag}`)
+        fs.writeFileSync(`game_data/proflile_${gameName}#${tag}.json`, JSON.stringify(response.data), {flag: "w"})
+        res.send(response.data);
+      }
       
     } catch (error) {
       res.status(404).send("requested account couldn't be found");
@@ -67,9 +73,13 @@ app.get('/', (req, res) => {
     }
 
     try {
-      const response = await inst.get(`/lol/match/v5/matches/by-puuid/${puuid}/ids?${startTime}&${endTime}&${queue}&${type}&${count}`)
-      res.send(response.data);
-      
+      if(fs.existsSync(`game_data/games_${puuid}.json`)){
+        res.send(fs.readFileSync(`game_data/games_${puuid}.json`)); 
+      }else{
+        const response = await inst.get(`/lol/match/v5/matches/by-puuid/${puuid}/ids?${startTime}&${endTime}&${queue}&${type}&${count}`)
+        fs.writeFileSync(`game_data/games_${puuid}.json`, JSON.stringify(response.data), {flag: "w"})
+        res.send(response.data);
+      }      
     } catch (error) {
       res.status(404).send("requested account couldn't be found");
     }

@@ -18,7 +18,7 @@ export default class Champions {
 
     static portraitPathFromID(id: number){
         const name = Champions.codeNameFromID(id)
-        return(`/public/centered/${name}_0.jpg`)
+        return(`/centered/${name}_0.jpg`)
 
     }
     static codeNameFromID(id: number){

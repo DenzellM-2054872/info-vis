@@ -34,7 +34,7 @@ export default class Runes{
         for (let school in typedRunes){
             for(let keystone in typedRunes[school]['slots'][0]) 
                 if(typedRunes[school]['slots'][0][keystone]?.id == id){
-                    return `/public/${typedRunes[school]['slots'][0][keystone].icon}`
+                    return `/${typedRunes[school]['slots'][0][keystone].icon}`
                 }
         }
     }
