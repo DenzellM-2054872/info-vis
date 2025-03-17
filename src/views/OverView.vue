@@ -194,7 +194,7 @@ function getKDA(overview: GameOverview){
                         </div>
                         </div>
                         <div :class="getGameStatus(overview)" class="game_container">
-                            <p class="type">{{ overview.getGameName().replace('5v5 ', '').replace(' Pick', '') }}</p>
+                            <p class="type">{{ overview.getGameName().replace('5v5 ', '').replace(' Pick', '').replace('Ranked ', 'R-') }}</p>
                             <p class="status">{{ getGameStatus(overview) }}</p>
                         </div>
                     </div>
@@ -481,7 +481,7 @@ function getKDA(overview: GameOverview){
     }
 
     .game_container > .type{
-        font-size: xx-large;
+        font-size: x-large;
     }
 
   @media (min-width: 1024px) {
