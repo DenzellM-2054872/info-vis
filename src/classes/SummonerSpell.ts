@@ -44,7 +44,7 @@ export default class SummonerSpell{
 
     static summonerSpellPathFromID(id: number){
         const typedRunes = summoner.data as SummonersType
-        console.log(`SummonerSpells/${typedRunes[id]["image"]["full"]}`)
+        // console.log(`SummonerSpells/${typedRunes[id]["image"]["full"]}`)
         return `/SummonerSpells/${typedRunes[id]["image"]["full"]}`
 
     }

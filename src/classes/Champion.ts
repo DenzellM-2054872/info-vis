@@ -21,6 +21,13 @@ export default class Champions {
         return(`/centered/${name}_0.jpg`)
 
     }
+
+    static tilePathFromID(id: number){
+        const name = Champions.codeNameFromID(id)
+        return(`/tiles/${name}_0.jpg`)
+
+    }
+    
     static codeNameFromID(id: number){
         const typedKeys = keys as KeysType
         const typedData = data as DataType

@@ -9,6 +9,8 @@ import Champions from "@/classes/Champion.ts";
 import Runes from "@/classes/Runes.ts";
 import SummonerSpell from "@/classes/SummonerSpell.ts";
 import Items from "@/classes/Items.ts";
+import type Participant from "@/classes/Participant.ts";
+import moment from "moment";
 
 
 const gameName = ref('') 
@@ -58,11 +60,16 @@ async function searchHandler(){
     }
 }
 
-function getChampImage(overview: GameOverview){
-    return new URL(Champions.portraitPathFromID(overview._participants[overview._mainParticipant]._champID), import.meta.url).href   
+function getChampImage(participant: Participant){
+    return new URL(Champions.portraitPathFromID(participant._champID), import.meta.url).href   
+}
+
+function getChampTile(participant: Participant){
+    return new URL(Champions.tilePathFromID(participant._champID), import.meta.url).href   
 }
 
 function getSummonerImage(overview: GameOverview, num: number){
+    let missingPath = '/images/missing.png';
     
     if(num == 1){
         return new URL(SummonerSpell.summonerSpellPathFromID(overview._participants[overview._mainParticipant]._summonerID1), import.meta.url).href   
@@ -70,30 +77,46 @@ function getSummonerImage(overview: GameOverview, num: number){
     if(num == 2){
         return new URL(SummonerSpell.summonerSpellPathFromID(overview._participants[overview._mainParticipant]._summonerID2), import.meta.url).href 
     }
-    console.log(new URL('/images/missing.png', import.meta.url))
-    return new URL('/images/missing.png', import.meta.url).href 
-
+    return new URL(missingPath, import.meta.url).href 
 }
 
 function getKeystoneImage(overview: GameOverview){
     let path = Runes.runePathFromID(overview._participants[overview._mainParticipant]._keystoneID);
+    let missingPath = '/images/missing.png';
+
     if(path){
         return new URL(path, import.meta.url).href   
     }
-    return new URL('/images/missing.png', import.meta.url).href 
+    return new URL(missingPath, import.meta.url).href 
+}
+
+function getSecondaryImage(overview: GameOverview){
+    let path = Runes.secondaryPathFromID(overview._participants[overview._mainParticipant]._secondaryID);
+    let missingPath = '/images/missing.png';
+
+    if(path){
+        return new URL(path, import.meta.url).href   
+    }
+    return new URL(missingPath, import.meta.url).href 
+}
+
+function getMapImage(overview: GameOverview){
+    let path = `/maps/map${overview._mapID}.jpg`;    
+    return new URL(path, import.meta.url).href
 }
 
 function getItemImage(ID: number){
     let path = Items.itemPathFromID(ID);
+    let missingPath = '/images/missing.png';
     if(path){
         return new URL(path, import.meta.url).href   
     }
-    return new URL('/images/missing.png', import.meta.url).href 
+    return new URL(missingPath, import.meta.url).href
 }
 
 function getGameStatus(overview: GameOverview){
-    if(overview._mainTeam == overview._winningTeam) return "game_win";
-    return "game_loss";
+    if(overview._mainTeam == overview._winningTeam) return "Win";
+    return "Loss";
 }
 
 function getKDA(overview: GameOverview){
@@ -102,6 +125,9 @@ function getKDA(overview: GameOverview){
     let assists = overview._participants[overview._mainParticipant]._assists;
     return `${kills}/${deaths}/${assists}`
 }
+
+
+
 
 </script>
 
@@ -122,38 +148,66 @@ function getKDA(overview: GameOverview){
         <p v-if="puuid.length">    
             {{ puuid }}
         </p>
-
+        
         <li v-for="overview in sortedOverviews">
-            <div :class="getGameStatus(overview)" class="game_overview" >
+            <div class="game_overview" >
                 <div class="content">
-                    <div class="row">
-                        <div class="KDA">
-                            {{ getKDA(overview) }}
-                        </div>
-                    </div>
-                    <div class="row">
+                <div class="age">{{moment(overview._gameAge).fromNow()}}</div>
+                    <div class="front">
                         <div class="pregame_container">
                             <img :src="getKeystoneImage(overview)" class="keystone"/>
+                            <img :src="getSecondaryImage(overview)" class="secondaryStone"/>
                             <div class="sum_container">
                                 <img :src="getSummonerImage(overview, 1)" class="summoner_spell"/>
                                 <img :src="getSummonerImage(overview, 2)" class="summoner_spell"/>
                             </div>
                         </div>
-                        <div class="item_container">
+                        <div class="rows">
                             <div class="row">
-                                <img  v-for="item in overview._participants[overview._mainParticipant]._itemIDs.slice(0, 3)" :src="getItemImage(item)" class="item"/>
+                                <div class="KDA">
+                                    {{ getKDA(overview) }}
+                                </div>
                             </div>
                             <div class="row">
-                                <img v-for="item in overview._participants[overview._mainParticipant]._itemIDs.slice(3, 6)" :src="getItemImage(item)" class="item"/>
+                                <div class="item_container">
+                                    <div class="row">
+                                        <img  v-for="item in overview.getMainParticipant()._itemIDs.slice(0, 3)" :src="getItemImage(item)" class="item"/>
+                                    </div>
+                                    <div class="row">
+                                        <img v-for="item in overview.getMainParticipant()._itemIDs.slice(3, 6)" :src="getItemImage(item)" class="item"/>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="back">
+                        <div class="teams_container">
+                            <div class="row">
+                                <div class="champ_wrapper" v-for="participant in overview._participants.slice(0, 5)" >
+                                    <img :src="getChampTile(participant)" class="champion"/>
+                                </div>
+                            </div>
+                        <div class="row">
+                            <div class="champ_wrapper" v-for="participant in overview._participants.slice(5, 10)" >
+                                <img :src="getChampTile(participant)" class="champion"/>
+                            </div>
+                        </div>
+                        </div>
+                        <div :class="getGameStatus(overview)" class="game_container">
+                            <p class="type">{{ overview.getGameName().replace('5v5 ', '').replace(' Pick', '') }}</p>
+                            <p class="status">{{ getGameStatus(overview) }}</p>
                         </div>
                     </div>
                 </div>
                     <!-- <p>{{ Champions.nameFromID(overview._participants[overview._mainParticipant]._champID) }}</p> -->
                 <div class="background">
-                    <div class="shadow"></div>
-                    <div class="slanted-edge"/>
-                    <img :src="getChampImage(overview)" class="champion" />
+                    <div class="shadow shadow-1"></div>
+                    <div class="slanted-edge slanted-edge-1"/>
+                    <div class="shadow shadow-2"></div>
+
+                    <div class="slanted-edge slanted-edge-2"/>
+                    <img :src="getChampImage(overview.getMainParticipant())" class="champion" />
+                    <img :src="getMapImage(overview)" class="map" />
                 </div>
             </div>
         </li>
@@ -161,112 +215,23 @@ function getKDA(overview: GameOverview){
   </template>
   
   <style>
-.KDA{
-    margin-left: 10%;
-    font-size: xx-large;
-    color: white;
-
-}
-  .content > .row{
-    height: 50%;
-    display: flex;
-    margin-left: 18%;
-  }
-
-    .item_container > .row > .item{
-        height: 100%;
+    .content > .age{
+        position: absolute;
+        color: rgb(255, 255, 255);
+        padding-right: 2.5%;
+        justify-content: end;
+        width: 100%;
+        display: grid;
+        align-content: normal;
     }
-
-    .item_container{
-        display: flex;
-        flex-direction: column;
-    }
-
-    .item_container > .row{
-        height: 50%;
-    }
-
-  .background > .shadow{
-    box-shadow: -20px 0 7px rgba(0.2, 0.2, 0.2, 0.5);
-    height: 115%;
-    position: absolute;
-    width: 10px;
-    margin-left: 22.5%;
-    z-index: 1;
-    rotate: 25deg;
-  }
-    .page > li::marker{
-        color: #00000000;
-    }
-
-    .game_overview > .champ-spacing{
-        margin-right: 17.5%;
-        height: 100%;
-        width: 0;
-    }
-
-    .background > .slanted-edge {
-        --p: 70px; /* control the shape (can be percentage) */
-        height: inherit;
-        width:85%;
-        margin-left: 15%;
-        aspect-ratio: 1;
-        clip-path: polygon(var(--p) 0,100% 0,100% 100%,0 100%);
-        background-color: gray;
-        z-index: 1;
-        position: relative;
-        border-bottom-right-radius: inherit;
-        border-top-right-radius: inherit;
-        
-    }
-    .content > .row > .pregame_container {
-        display: contents;
-    }
-
-    .pregame_container > .keystone{
-        height: 100%;
-    }
-    .pregame_container >  .sum_container{
-        display: flex;
-        flex-direction: column;
-    }
-
-    .pregame_container > .sum_container > .summoner_spell{
-        width: 55%;
-    }
-
-    .content{
-        border-style: solid;
-        border-radius: 25px;
-        display: flex;
-        z-index: 2;
-    }
-
-    .game_win > .content{
-        border-color: #2c6d0d;
-        
-    }
-
-    .game_win > .background > .slanted-edge {
-        background-color: #89EC5B;
-    }
-
-    .game_loss> .content{
-        border-color: #b31b1b;
-    }
-    .game_loss  > .background > .slanted-edge {
-        background-color: #E75F5F;
-    }
-
     .game_overview{
         width: 625px;
         height: 150px;
         overflow: clip;
         margin-top: 10px;
         border-radius: 25px;
-
     }
-
+                
     .game_overview >.background{
         width: inherit;
         height: inherit;
@@ -275,32 +240,250 @@ function getKDA(overview: GameOverview){
         z-index: 0;
         border-radius: inherit;
     }
+        
+    .content{
+        border-style: solid;
+        border-radius: 25px;
+        display: flex;
+        z-index: 2;
+    }
 
-    .game_overview >.content{
+
+    .game_overview > .content{
         width: inherit;
         height: inherit;
         position: absolute;
         z-index: 100;
-        display: flex;
-        flex-direction: column;
+    }
 
+    .content > .front{
+        width: 55%;
+        height: inherit;
+        z-index: 100;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .content > .back{
+        width: 45%;
+        height: inherit;
+        z-index: 100;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .background{
+        display: flex;
+    }
+    .background > .champion{
+        height: 125%;
+        margin-top: -1%;
+        margin-left: -14%;
+        z-index: 0;
+        position: inherit;
     }
     
-  .background > .champion{
-    height: 125%;
-    margin-top: -25%;
-    margin-left: -15%;
-    z-index: 0;
-    position: inherit;
+    .background > .shadow{
+        box-shadow: -20px 0 7px rgba(0.2, 0.2, 0.2, 0.5);
+        height: 115%;
+        position: absolute;
+        width: 10px;
+        z-index: 1;
+    }
+
+    .background > .shadow-1{
+        margin-left: 27.5%;
+        rotate: 25deg;
+    }
+
+    .background > .shadow-2{
+        margin-left: 72.5%;
+        rotate: 205deg;
+        margin-top: -5%;
+    }
+
+    .background > .map{
+        position: absolute;
+        height: 100%;
+        margin-left: 70%;
+    }
+
+    .background > .slanted-edge-1 {
+        --p: 70px;
+        height: inherit;
+        width: 42.5%;
+        margin-left: 21%;
+        aspect-ratio: 1;
+        clip-path: polygon(var(--p) 0,100% 0,100% 100%,0 100%);
+        background-color: gray;
+        z-index: 1;
+        position: relative;
+    }
+
+    .background > .slanted-edge-2 {
+        --p: 70px;
+        height: inherit;
+        width: 17.5%;
+        aspect-ratio: 1;
+        clip-path: polygon(0 0,100% 0,calc(100% - var(--p)) 100%,0 100%);
+        background-color: gray;
+        z-index: 1;
+        position: relative;
+    }
+
+    .content > .front > .pregame_container {
+        display: flex;
+        height: fit-content;
+        margin-top: 17.5%;
+        background: rgba(128, 128, 128, 0.6);
+        border: rgb(187, 187, 187);
+        border-style: solid;
+        border-radius: 15px;
+        margin-left: 5%;
+    }
+
+    .champ_wrapper > .champion{
+        height: 35px;
+        width: 35px;  
+    }
+    
+    .champ_wrapper{
+        height: 25px;
+        width: 25px;
+        margin-bottom: 3px;
+        overflow: hidden;
+        border-radius: 5px;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+    }
+
+    .pregame_container > .keystone{
+        height: 68px;
+        padding-top: 4px;
+    }
+
+    .pregame_container > .secondaryStone{
+        height: 28px;
+        position: absolute;
+        margin-top: 38px;
+        margin-left: 34px;
+    }
+
+    .pregame_container >  .sum_container{
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+        margin-right: 5px;
+    }
+
+    .pregame_container > .sum_container > .summoner_spell{
+        width: 30px;
+         margin: 2px;
+    }
 
 
-  }
+    .teams_container > .row{
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+        margin-right: 12px;
+        margin-top: 3px;
+    }
+
+    .teams_container{
+        height: 100%;
+        width: fit-content;
+        display: flex;
+    }
+    .row > .champion{
+        height: 20%;
+    }
+
+    .KDA {
+        font-size: xx-large;
+        color: white;
+        justify-self: center;
+    }
+
+    .content > .rows > .row{
+        display: flex;
+    }
+
+    .item_container > .row > .item{
+        height: 35px;
+        margin-left: 3px;
+    }
+
+    .item_container{
+        display: flex;
+        flex-direction: column;
+        margin-top: 15%;
+        margin-left: 0%;
+    }
+
+    .item_container > .row{
+        height: 35px;
+
+        margin-bottom: 3px;
+    }
+
+    .page > li::marker{
+        color: #00000000;
+    }
+    
+    .rows{
+        height: inherit;
+        display: flex;
+        flex-direction: column;
+        margin-left: 20%;
+    }
+
+    .rows > .row{
+        display: grid;
+    }
+
   .wrap{
     display: flex;
     align-items: center;
     align-self: center;
     margin-top: 120px;
   }
+
+  .game_container.Win{
+        background: rgba(137, 236, 91, 0.6);
+        border: rgba(44, 109, 13, 1);
+        color: rgb(255, 255, 255);   
+    }
+
+    .game_container.Loss{
+        background: rgba(231, 95, 95, 0.6);
+        border: rgba(179, 27, 27, 1);
+        color: rgb(255, 255, 255);   
+    }
+
+  .content> .back > .game_container {
+        display: flex;
+        flex-direction: column;
+        height: 65%;
+        width: 40%;
+        margin-top: 10%;
+
+        border-style: solid;
+        border-radius: 15px;
+        margin-left: 27.5%;
+        padding-left: 5px;
+    }
+
+
+    .game_container > .status{
+        font-size: x-large;
+    }
+
+    .game_container > .type{
+        font-size: xx-large;
+    }
+
   @media (min-width: 1024px) {
     .about {
       min-height: 100vh;

@@ -17,6 +17,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "info-vis": "file:",
+    "moment": "^2.30.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

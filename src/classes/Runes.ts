@@ -38,4 +38,10 @@ export default class Runes{
                 }
         }
     }
+
+    static secondaryPathFromID(id: number){
+        const typedRunes = runes as RunesType
+        return `/${typedRunes[id].icon}`
+
+    }
 }

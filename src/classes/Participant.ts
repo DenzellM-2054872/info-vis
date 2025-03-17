@@ -3,6 +3,7 @@ export default class Participant {
     _playerName: string;
     _champID: number;
     _keystoneID: number;
+    _secondaryID: number;
     _summonerID1: number;
     _summonerID2: number;
     _itemIDs: number[];
@@ -19,6 +20,7 @@ export default class Participant {
         this._deaths = input['deaths'];
         this._assists = input['assists'];
         this._keystoneID = input['perks']['styles'][0]['selections'][0]['perk'];
+        this._secondaryID = input['perks']['styles'][1]['style'];
         this._summonerID1 = input['summoner1Id'];
         this._summonerID2 = input['summoner2Id'];
         this._itemIDs = []

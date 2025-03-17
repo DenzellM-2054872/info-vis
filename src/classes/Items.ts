@@ -38,6 +38,7 @@ export default class Items {
     }
 
     static itemPathFromID(ID: number){
+        if(ID == 0) return "/images/empty.png"
         const typedItems = items.data as ItemsType
         return `/item/${typedItems[`${ID}`].image.full}`
 
