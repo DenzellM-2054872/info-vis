@@ -40,6 +40,7 @@ export default class Runes{
     }
 
     static secondaryPathFromID(id: number){
+        if(id == 0) return '/images/missing.png';
         const typedRunes = runes as RunesType
         return `/${typedRunes[id].icon}`
 
