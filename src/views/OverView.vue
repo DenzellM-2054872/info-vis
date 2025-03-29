@@ -11,6 +11,7 @@ import SummonerSpell from "@/classes/SummonerSpell.ts";
 import Items from "@/classes/Items.ts";
 import type Participant from "@/classes/Participant.ts";
 import moment from "moment";
+import router from "@/router/index.ts";
 
 
 const gameName = ref('') 
@@ -58,6 +59,10 @@ async function searchHandler(){
         puuid.value = "the requested profile couldn't be found"
         
     }
+}
+
+function toTimeline(overview: GameOverview){
+    router.push({path: "timeline", query: {id: overview._ID}})
 }
 
 function getChampImage(participant: Participant){
@@ -144,12 +149,8 @@ function getKDA(overview: GameOverview){
                 </ul>
             </p>
         </div>
-
-        <p v-if="puuid.length">    
-            {{ puuid }}
-        </p>
         
-        <li v-for="overview in sortedOverviews">
+        <li v-for="overview in sortedOverviews" @click="toTimeline(overview)">
             <div class="game_overview" >
                 <div class="content">
                 <div class="age">{{moment(overview._gameAge).fromNow()}}</div>

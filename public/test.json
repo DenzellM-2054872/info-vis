@@ -1,0 +1,112 @@
+{
+    "id": 8200,
+    "key": "Sorcery",
+    "icon": "perk-images/Styles/7202_Sorcery.png",
+    "name": "Sorcery",
+    "slots": [
+        {
+            "8214": {
+                "id": 8214,
+                "key": "SummonAery",
+                "icon": "perk-images/Styles/Sorcery/SummonAery/SummonAery.png",
+                "name": "Summon Aery",
+                "shortDesc": "Your attacks and abilities send Aery to a target, damaging enemies or shielding allies.",
+                "longDesc": "Damaging enemy champions with basic attacks or abilities sends Aery to them, dealing 10 - 50 based on level (+<scaleAP>0.05 AP</scaleAP>) (+<scaleAD>0.1 bonus AD</scaleAD>).<br><br>Empowering or protecting allies with abilities sends Aery to them, shielding them for 30 - 100 based on level (+<scaleAP>0.05 AP</scaleAP>) (+<scaleAD>0.1 bonus AD</scaleAD>).<br><br>Aery cannot be sent out again until she returns to you."
+            },
+            "8229": {
+                "id": 8229,
+                "key": "ArcaneComet",
+                "icon": "perk-images/Styles/Sorcery/ArcaneComet/ArcaneComet.png",
+                "name": "Arcane Comet",
+                "shortDesc": "Damaging a champion with an ability hurls a damaging comet at their location.",
+                "longDesc": "Damaging a champion with an ability hurls a comet at their location, or, if Arcane Comet is on cooldown, reduces its remaining cooldown.<br><br><lol-uikit-tooltipped-keyword key='LinkTooltip_Description_AdaptiveDmg'><font color='#48C4B7'>Adaptive Damage</font></lol-uikit-tooltipped-keyword>: 30 - 130 based on level (<scaleAP>+0.05 AP</scaleAP> and <scaleAD>+0.1 bonus AD</scaleAD>)<br>Cooldown: 20 - 8s<br><rules><br>Cooldown Reduction:<br>Single Target: 20%.<br>Area of Effect: 10%.<br>Damage over Time: 5%.<br></rules>"
+            },
+            "8230": {
+                "id": 8230,
+                "key": "PhaseRush",
+                "icon": "perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png",
+                "name": "Phase Rush",
+                "shortDesc": "Hitting an enemy champion with 3 <b>separate</b> attacks or abilities grants a burst of <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_MS'>MS</lol-uikit-tooltipped-keyword> and Slow Resist. ",
+                "longDesc": "Hitting an enemy champion with 3 attacks or <b>separate</b> abilities within 4s grants <speed>25 - 50% Move Speed</speed> based on level and <status>75% Slow Resistance</status> for 3s. Move Speed is 75% effective for ranged champions.<br>Cooldown: 30s - 10s"
+            }
+        },
+        {
+            "8224": {
+                "id": 8224,
+                "key": "NullifyingOrb",
+                "icon": "perk-images/Styles/Sorcery/NullifyingOrb/Axiom_Arcanist.png",
+                "name": "Axiom Arcanist",
+                "shortDesc": "Your Ultimate has increased damage, healing, and shielding. Scoring a takedown on an enemy champion reduces your Ultimate's current cooldown.",
+                "longDesc": "Your Ultimate has 14% increased damage, healing, and shielding. <br>(AoE damage is reduced to a 9% increase)<br><br>Scoring a takedown on an enemy champion reduces your Ultimate's current cooldown by 7%."
+            },
+            "8226": {
+                "id": 8226,
+                "key": "ManaflowBand",
+                "icon": "perk-images/Styles/Sorcery/ManaflowBand/ManaflowBand.png",
+                "name": "Manaflow Band",
+                "shortDesc": "Hitting an enemy champion with an ability permanently increases your maximum mana by 25, up to 250 mana.<br><br>After reaching 250 bonus mana, restore 1% of your missing mana every 5 seconds.",
+                "longDesc": "Hitting an enemy champion with an ability permanently increases your maximum mana by 25, up to 250 mana.<br><br>After reaching 250 bonus mana, restore 1% of your missing mana every 5 seconds.<br><br>Cooldown: 15 seconds"
+            },
+            "8275": {
+                "id": 8275,
+                "key": "NimbusCloak",
+                "icon": "perk-images/Styles/Sorcery/NimbusCloak/6361.png",
+                "name": "Nimbus Cloak",
+                "shortDesc": "After casting a Summoner Spell, gain a short <speed>Move Speed</speed> increase that allows you to pass through units.",
+                "longDesc": "After casting a Summoner Spell, gain a <speed>Move Speed</speed> increase that lasts for 2s and allows you to pass through units.<br><br>Increase: <speed>14% - 40% Move Speed</speed> based on the Summoner Spell's cooldown. (Higher cooldown Summoner Spells grant more <speed>Move Speed</speed>). "
+            }
+        },
+        {
+            "8210": {
+                "id": 8210,
+                "key": "Transcendence",
+                "icon": "perk-images/Styles/Sorcery/Transcendence/Transcendence.png",
+                "name": "Transcendence",
+                "shortDesc": "Gain bonuses upon reaching the following levels:<br>Level 5: +5 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> <br>Level 8: +5 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> <br>Level 11: On Champion takedown, reduce the remaining cooldown of basic abilities by 20%.",
+                "longDesc": "Gain bonuses upon reaching the following levels:<br>Level 5: +5 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> <br>Level 8: +5 <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_CDR'>Ability Haste</lol-uikit-tooltipped-keyword> <br>Level 11: On Champion takedown, reduce the remaining cooldown of basic abilities by 20%."
+            },
+            "8233": {
+                "id": 8233,
+                "key": "AbsoluteFocus",
+                "icon": "perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png",
+                "name": "Absolute Focus",
+                "shortDesc": "While above 70% health, gain extra <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_AdaptiveDmg'>adaptive damage</lol-uikit-tooltipped-keyword>.",
+                "longDesc": "While above 70% health, gain an <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>adaptive</font></lol-uikit-tooltipped-keyword> bonus of up to 18 Attack Damage or 30 Ability Power (based on level). <br><br>Grants 1.8 Attack Damage or 3 Ability Power at level 1. "
+            },
+            "8234": {
+                "id": 8234,
+                "key": "Celerity",
+                "icon": "perk-images/Styles/Sorcery/Celerity/CelerityTemp.png",
+                "name": "Celerity",
+                "shortDesc": "All <speed>Move Speed</speed> bonuses are 7% more effective on you and gain <speed>1% Move Speed</speed>.",
+                "longDesc": "All movement bonuses are 7% more effective on you and gain <speed>1% Move Speed</speed>."
+            }
+        },
+        {
+            "8232": {
+                "id": 8232,
+                "key": "Waterwalking",
+                "icon": "perk-images/Styles/Sorcery/Waterwalking/Waterwalking.png",
+                "name": "Waterwalking",
+                "shortDesc": "Gain <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_MS'>MS</lol-uikit-tooltipped-keyword> and AP or AD, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'>adaptive</lol-uikit-tooltipped-keyword> in the river.",
+                "longDesc": "Gain <speed>10 Move Speed</speed> and <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>13 - 30 Adaptive Force</font></lol-uikit-tooltipped-keyword> (based on level) when in the river.<br><br><i>May you be as swift as the rushing river and agile as a startled Rift Scuttler.</i>"
+            },
+            "8236": {
+                "id": 8236,
+                "key": "GatheringStorm",
+                "icon": "perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm.png",
+                "name": "Gathering Storm",
+                "shortDesc": "Gain increasing amounts of AD or AP, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'>adaptive</lol-uikit-tooltipped-keyword> over the course of the game.",
+                "longDesc": "Every 10 min gain AP or AD, <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Adaptive'><font color='#48C4B7'>adaptive</font></lol-uikit-tooltipped-keyword>.<br><br><i>10 min</i>: + 8 AP or 5 AD <br><i>20 min</i>: + 24 AP or 14 AD<br><i>30 min</i>: + 48 AP or 29 AD<br><i>40 min</i>: + 80 AP or 48 AD<br><i>50 min</i>: + 120 AP or 72 AD<br><i>60 min</i>: + 168 AP or 101 AD<br>etc..."
+            },
+            "8237": {
+                "id": 8237,
+                "key": "Scorch",
+                "icon": "perk-images/Styles/Sorcery/Scorch/Scorch.png",
+                "name": "Scorch",
+                "shortDesc": "Your first damaging ability hit every 10s burns champions.",
+                "longDesc": "Your next damaging ability hit sets champions on fire dealing 20 - 40 bonus magic damage based on level after 1s.<br><br>Cooldown: 10s"
+            }
+        }
+    ]
+}

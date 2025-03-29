@@ -91,9 +91,13 @@ app.get('/', (req, res) => {
     console.log(matchId)
 
     try {
-      const response = await inst.get(`/lol/match/v5/matches/${matchId}/timeline`)
-      fs.writeFileSync(`game_data/timeline_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
-      res.send(response.data);
+      if(fs.existsSync(`game_data/timeline_${matchId}.json`)){
+        res.send(fs.readFileSync(`game_data/timeline_${matchId}.json`)); 
+      }else{
+        const response = await inst.get(`/lol/match/v5/matches/${matchId}/timeline`)
+        fs.writeFileSync(`game_data/timeline_${matchId}.json`, JSON.stringify(response.data), {flag: "w"})
+        res.send(response.data);
+      }
       
     } catch (error) {
       console.log(error)
