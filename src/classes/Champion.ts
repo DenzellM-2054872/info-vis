@@ -1,5 +1,5 @@
-import {keys} from '../data/championFull.json'
 import {data} from '../data/championFull.json'
+import {keys} from '../data/championFull.json'
 import type { ChampType } from './ChampionTypes'
 
 
@@ -40,5 +40,17 @@ export default class Champions {
         const typedData = data as DataType
         const champID: string = typedKeys[id]
         return typedData[champID].name
+    }
+
+
+    static NamefromCodeName(codeName: string){
+        const typedData = data as DataType
+        return typedData[codeName].name
+    }
+
+    static ClassesfromCodeName(codeName: string){
+        const typedData = data as DataType
+        if(codeName == "FiddleSticks") return typedData['Fiddlesticks'].classes
+        return typedData[codeName].classes
     }
 }

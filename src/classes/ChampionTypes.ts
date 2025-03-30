@@ -89,6 +89,8 @@ export interface ChampType{
     "allytips": string[]
     "enemytips": string[]
     "tags": string[]
+    "classes": string[]
+    "subclasses": string[]
     "partype": string
     "info": infoType
     "stats": statsType

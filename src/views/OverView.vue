@@ -138,6 +138,10 @@ function getKDA(overview: GameOverview){
 
 <template>
     <div class="page">
+        <nav>
+            <RouterLink to="/">Home</RouterLink>
+            <RouterLink to="/champstats">Champs</RouterLink>
+        </nav>
         <div class="wrap" >
             <input v-model="gameName" placeholder="Summoner name"></input>
             <input v-model="tag" placeholder="#tag"></input>
