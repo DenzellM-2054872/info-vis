@@ -303,29 +303,17 @@ export default{
         svg.append("rect").attr("x", 300).attr("y", 150).attr("width", size).attr("class", "Tank").attr("height", size).style("fill", "#a65628").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
         svg.append("text").attr("x", 320).attr("y", 160).text("Tank").attr("class", "Tank").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
 
-        //  // Set the zoom and Pan features: how much you can zoom, on which part, and what to do when there is a zoom
-        //  var zoom = d3.zoom()
-        //     .scaleExtent([.5, 20])  // This control how much you can unzoom (x0.5) and zoom (x20)
-        //     .extent([[x(0), y(0)], [width, height]])
-        //     .on("zoom", updateChart);
-
-        // svg.append("rect")  
-        //     .attr("width", width )
-        //     .attr("height", height )
-        //     .style("fill", "none")
-        //     .style("pointer-events", "all")
-        //     // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-        //     .call(zoom);
-
         var scatter = svg.append('g')
             .attr("clip-path", "url(#clip)")  
         //Read the data
         d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
+            
+            let total = data.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0)
+
             data = data.filter((point) => {
                 return point.Name != "None"
             })
-            console.log(data)
-            // Add dots
+
             scatter
             .selectAll("dot")
             .data(data)
@@ -383,10 +371,20 @@ export default{
             .style("fill", "#ffff33")
             .attr("r", 5)
 
+            svg.append("line")
+            .attr("x1", 0)  //<<== change your code here
+            .attr("y1", y(total / data.length))
+            .attr("x2", width)  //<<== and here
+            .attr("y2",  y(total / data.length))
+            .style("stroke-width", 2)
+            .style("stroke", "gray")
+            .style("fill", "none")
+            .style("stroke-dasharray", "4");
+
         })
         
 
-        let middle = svg.append("line")
+        svg.append("line")
             .attr("x1", x(50))  //<<== change your code here
             .attr("y1", 0)
             .attr("x2", x(50))  //<<== and here
@@ -396,35 +394,6 @@ export default{
             .style("fill", "none")
             .style("stroke-dasharray", "4");
 
-        // A function that updates the chart when the user zoom and thus new boundaries are available
-        function updateChart(event) {
-            // recover the new scale
-            var newX = event.transform.rescaleX(x);
-            var newY = event.transform.rescaleY(y);
-
-            // update axes with these new boundaries
-            xAxis.call(d3.axisBottom(newX))
-            yAxis.call(d3.axisLeft(newY))
-      
-            middle
-            .attr("x1", newX(50))
-            .attr("x2", newX(50))
-            // update circle position
-            scatter
-            .selectAll("circle")
-            .attr('cx', function(d) {return newX(d.WR)})
-            .attr('cy', function(d) {return newY(d.Games)})
-            .on("mouseover", mouseover )
-            .on("mousemove", mousemove )
-            .on("mouseleave", mouseleave );
-        }
-
-
-
-        // This add an invisible rect on top of the chart area. This rect can recover pointer events: necessary to understand when the user zoom
-
-
-        console.log(tagCombos)
         }
     },
     mounted(){
