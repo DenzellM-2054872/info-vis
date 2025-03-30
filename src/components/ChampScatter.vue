@@ -57,6 +57,8 @@ const legend_click = function(event, d) {
         .transition()
         .duration(200)
         .style("opacity", 0)
+        .style("display", "none")
+
 
         for(let tag in visible){
             visible[tag] = false;
@@ -67,7 +69,9 @@ const legend_click = function(event, d) {
             .filter("circle").transition()
             .transition()
             .duration(200)
-            .style("opacity", 0)
+            .style("opacity", 1)            
+            .style("display", "none")
+            .attr("r", 5)
         visible[d3.select(this).attr('class')] = false
     }else{
         d3.selectAll(`.${d3.select(this).attr('class')}`)
@@ -75,6 +79,8 @@ const legend_click = function(event, d) {
             .duration(200)
             .attr("r", 6)
             .style("opacity", 1)
+            .style("display", "block")
+            .attr("r", 5)
             .style("fill", colours[d3.select(this).attr('class')])
         visible[d3.select(this).attr('class')] = true
     }
@@ -226,7 +232,6 @@ export default{
                 .attr("r", 5)
 
                 d3.selectAll(".Mage")
-                .selectAll("circle")
                 .transition()
                 .duration(200)
                 .style("fill", "#377eb8")
