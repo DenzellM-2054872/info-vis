@@ -238,7 +238,7 @@ export default{
             .attr("r", 5)
             .style("fill", "#69b3a2")
             .style("stroke", "black")
-            .attr("class", function (d) { return Champions.ClassesfromCodeName(d.Name)[0]; })
+            .attr("class", function (d) { return Champions.ClassesfromID(d.Name)[0]; })
             .on("mouseover", mouseover )
             .on("mousemove", mousemove )
             .on("mouseleave", mouseleave )
