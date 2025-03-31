@@ -12,6 +12,7 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@indot/rainbowvis": "^1.0.2",
     "axios": "^1.7.9",
     "axios-rate-limit": "^1.4.0",
     "cors": "^2.8.5",
