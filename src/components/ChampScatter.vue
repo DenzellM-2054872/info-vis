@@ -24,70 +24,56 @@ let visible = {
     "Specialist": true,
     "Slayer": true,
 }
-const legend_mouseover = function(event, d) {
-    let unfiltered = true;
-    for(let tag in visible){
-        unfiltered = unfiltered && visible[tag];
-    }
-    if(!unfiltered) return;
 
+function lowLightAll(){
     d3.selectAll("circle")
     .transition()
     .duration(200)
     .style("fill", "lightgrey")
     .style("opacity", 0.33)
     .attr("r", 4)
-
-    d3.selectAll(`.${d3.select(this).attr('class')}`)
-    .filter("circle").transition()
-    .duration(200)
-    .attr("r", 6)
-    .style("opacity", 1)
-    .style("fill", colours[d3.select(this).attr('class')])
 }
 
-const legend_click = function(event, d) {
+function highlightClass(champClass){
+    d3.selectAll(`.${champClass}`)
+    .filter("circle").transition()
+    .duration(200)
+    .style("opacity", 1)
+    .attr("r", 6)
+    .style("fill", colours[champClass])
+}
+
+function hideClass(champClass){
+    d3.selectAll(`.${champClass}`)
+        .filter("circle").transition()
+        .duration(200)
+        .attr("r", 5)
+        .style("display", "none")
+}
+
+function showClass(champClass){
+    d3.selectAll(`.${champClass}`)
+        .filter("circle").transition()
+        .duration(200)
+        .attr("r", 5)
+        .style("opacity", 1)
+        .style("display", "block")
+        .style("fill", colours[champClass])
+}
+
+
+function legend_mouseover(event, d) {
     let unfiltered = true;
     for(let tag in visible){
         unfiltered = unfiltered && visible[tag];
     }
+    if(!unfiltered) return;
 
-    if(unfiltered){
-        d3.selectAll("circle")
-        .transition()
-        .duration(200)
-        .style("opacity", 0)
-        .style("display", "none")
-
-
-        for(let tag in visible){
-            visible[tag] = false;
-        }
-    }
-    if(visible[d3.select(this).attr('class')]){
-        d3.selectAll(`.${d3.select(this).attr('class')}`)
-            .filter("circle").transition()
-            .transition()
-            .duration(200)
-            .style("opacity", 1)            
-            .style("display", "none")
-            .attr("r", 5)
-        visible[d3.select(this).attr('class')] = false
-    }else{
-        d3.selectAll(`.${d3.select(this).attr('class')}`)
-            .filter("circle").transition()
-            .duration(200)
-            .attr("r", 6)
-            .style("opacity", 1)
-            .style("display", "block")
-            .attr("r", 5)
-            .style("fill", colours[d3.select(this).attr('class')])
-        visible[d3.select(this).attr('class')] = true
-    }
-
+    lowLightAll()
+    highlightClass(d3.select(this).attr('class'))
 }
 
-const legend_mouseleave = function(event, d) {
+function legend_mouseleave(event, d) {
 
     let unfiltered = true;
     for(let tag in visible){
@@ -95,68 +81,51 @@ const legend_mouseleave = function(event, d) {
     }
     if(!unfiltered) return;
 
-    d3.selectAll(".Slayer")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#e41a1c")
-        .style("opacity", 1)
-        .attr("r", 5)
-
-    d3.selectAll(".Controller")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#4daf4a")
-        .style("opacity", 1)
-        .attr("r", 5)
-
-    d3.selectAll(".Fighter")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#984ea3")
-        .style("opacity", 1)
-        .attr("r", 5)
-
-    d3.selectAll(".Mage")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#377eb8")
-        .style("opacity", 1)
-        .attr("r", 5)
-
-    d3.selectAll(".Marksman")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#ff7f00")
-        .style("opacity", 1)
-        .attr("r", 5)
-
-    d3.selectAll(".Tank")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#a65628")
-        .style("opacity", 1)
-        .attr("r", 5)
-
-    d3.selectAll(".Specialist")
-        .filter("circle")
-        .transition()
-        .duration(200)
-        .style("fill", "#ffff33")
-        .style("opacity", 1)
-        .attr("r", 5)
+    for(let champClass in colours){
+        showClass(champClass)
+    }
 }
+
+function legend_click(event, d) {
+    let unfiltered = true;
+    for(let tag in visible){
+        unfiltered = unfiltered && visible[tag];
+    }
+
+    if(unfiltered){
+        for(let tag in visible){
+            hideClass(tag)
+            visible[tag] = false;
+        }
+    }
+    let champClass = d3.select(this).attr('class')
+
+    if(visible[champClass]){
+        hideClass(champClass)
+        visible[champClass] = false
+
+    }else{
+        showClass(champClass)
+        visible[champClass] = true
+    }
+
+}
+
+function generateTooltip(svg, yValue, size, champClass){
+    svg.append("rect").attr("x", 300).attr("y", yValue).attr("width", size).attr("class", champClass).attr("height", size).style("fill", colours[champClass])
+    .on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
+
+    svg.append("text").attr("x", 320).attr("y", yValue + 10).text(champClass).attr("class", champClass).style("font-size", "15px").attr("alignment-baseline","middle").style("fill", colours[champClass])
+    .on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
+
+}
+
+
 
 export default{
     name: "ChampScatter",
     methods: {
         createSVG(){
-        let tagCombos = {}
         var tooltip = d3.select("#ChampScatter")
             .append("div")
             .style("opacity", 0)
@@ -179,12 +148,9 @@ export default{
             .html(`${Champions.NamefromCodeName(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}%<br>`)
             .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
             .style("top", (event.y)+ "px")
-
-            d3.selectAll("circle")
-            .transition()
-            .duration(200)
-            .style("fill", "lightgrey")
-            .attr("r", 4)
+            .style("display", "block")
+            
+            lowLightAll()
             
             d3.select(this).transition()
             .duration(200)
@@ -193,67 +159,26 @@ export default{
 
         const mousemove = function(event, d) {
             if(!visible[d3.select(this).attr("class")]) return;
-        tooltip
-            .html(`${Champions.NamefromCodeName(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
-            .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-            .style("top", (event.y)+ "px")
+
+            tooltip
+                .html(`${Champions.NamefromCodeName(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
+                .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                .style("top", (event.y)+ "px")
+                .style("display", "block")
         }
         
         // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
         const mouseleave = function(event, d) {
             if(!visible[d3.select(this).attr("class")]) return;
-            tooltip
-                .transition()
+
+            tooltip.transition()
                 .style("opacity", 0)
+                .style("display", "none")
 
-                d3.selectAll("circle")
-                .transition()
-                .duration(200)
-                .style("fill", "#69b3a2")
-                .attr("r", 5)
-
-                d3.selectAll(".Slayer")
-                .filter("circle")
-                .transition()
-                .duration(200)
-                .style("fill", "#e41a1c")
-                .attr("r", 5)
-
-                d3.selectAll(".Controller")
-                .transition()
-                .duration(200)
-                .style("fill", "#4daf4a")
-                .attr("r", 5)
-
-                d3.selectAll(".Fighter")
-                .transition()
-                .duration(200)
-                .style("fill", "#984ea3")
-                .attr("r", 5)
-
-                d3.selectAll(".Mage")
-                .transition()
-                .duration(200)
-                .style("fill", "#377eb8")
-                .attr("r", 5)
-
-                d3.selectAll(".Marksman")
-                .transition()
-                .duration(200)
-                .style("fill", "#ff7f00")
-                .attr("r", 5)
-
-                d3.selectAll(".Tank")
-                .transition()
-                .duration(200)
-                .style("fill", "#a65628")
-                .attr("r", 5)
-
-                d3.selectAll(".Specialist")
-                .transition()
-                .duration(200)
-                .style("fill", "#ffff33")
-                .attr("r", 5)
+            for(let champClass in colours){
+                showClass(champClass)
+            }
+  
         }       
 
         // set the dimensions and margins of the graph
@@ -286,28 +211,12 @@ export default{
             .call(d3.axisLeft(y));
 
         var size = 10
-        // Add one dot in the legend for each name.
-        svg.append("rect").attr("x", 300).attr("y",30).attr("width", size).attr("class", "Controller").attr("height", size).style("fill", "#4daf4a").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 40).text("Controller").attr("class", "Controller").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
-        svg.append("rect").attr("x", 300).attr("y", 50).attr("width", size).attr("class", "Fighter").attr("height", size).style("fill", "#984ea3").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 60).text("Fighter").attr("class", "Fighter").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
-        svg.append("rect").attr("x", 300).attr("y", 70).attr("width", size).attr("class", "Mage").attr("height", size).style("fill", "#377eb8").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 80).text("Mage").attr("class", "Mage").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
-        svg.append("rect").attr("x", 300).attr("y", 90).attr("width", size).attr("class", "Marksman").attr("height", size).style("fill", "#ff7f00").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 100).text("Marksman").attr("class", "Marksman").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
-        svg.append("rect").attr("x", 300).attr("y", 110).attr("width", size).attr("class", "Slayer").attr("height", size).style("fill", "#e41a1c").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 120).text("Slayer").attr("class", "Slayer").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
-        svg.append("rect").attr("x", 300).attr("y", 130).attr("width", size).attr("class", "Specialist").attr("height", size).style("fill", "#ffff33").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 140).text("Specialist").attr("class", "Specialist").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
-        svg.append("rect").attr("x", 300).attr("y", 150).attr("width", size).attr("class", "Tank").attr("height", size).style("fill", "#a65628").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-        svg.append("text").attr("x", 320).attr("y", 160).text("Tank").attr("class", "Tank").style("font-size", "15px").attr("alignment-baseline","middle").style("fill", "white").on("mouseover", legend_mouseover).on("mouseleave", legend_mouseleave).on("click", legend_click)
-
+        let yValue = 30
+        for(let champClass in colours){
+            generateTooltip(svg, yValue, size, champClass)
+            yValue += 20
+        }
+ 
         var scatter = svg.append('g')
             .attr("clip-path", "url(#clip)")  
         //Read the data
@@ -334,47 +243,9 @@ export default{
             .on("mousemove", mousemove )
             .on("mouseleave", mouseleave )
 
-            d3.selectAll(".Slayer")
-            .transition()
-            .duration(200)
-            .style("fill", "#e41a1c")
-            .attr("r", 5)
-
-            d3.selectAll(".Controller")
-            .transition()
-            .duration(200)
-            .style("fill", "#4daf4a")
-            .attr("r", 5)
-
-            d3.selectAll(".Fighter")
-            .transition()
-            .duration(200)
-            .style("fill", "#984ea3")
-            .attr("r", 5)
-
-            d3.selectAll(".Mage")
-            .transition()
-            .duration(200)
-            .style("fill", "#377eb8")
-            .attr("r", 5)
-
-            d3.selectAll(".Marksman")
-            .transition()
-            .duration(200)
-            .style("fill", "#ff7f00")
-            .attr("r", 5)
-
-            d3.selectAll(".Tank")
-            .transition()
-            .duration(200)
-            .style("fill", "#a65628")
-            .attr("r", 5)
-
-            d3.selectAll(".Specialist")
-            .transition()
-            .duration(200)
-            .style("fill", "#ffff33")
-            .attr("r", 5)
+            for(let champClass in colours){
+                showClass(champClass)
+            }
 
             svg.append("line")
             .attr("x1", 0)  //<<== change your code here
