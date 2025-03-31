@@ -13,8 +13,17 @@ interface KeysType{
 }
 
 export default class Champions {
-    constructor() {
+    id: string
+    data: ChampType
+    constructor(id: string) {
+        this.id = id
+        const typedData = data as DataType
+        if (!typedData[id]) {
+            throw new Error(`Champion with ID ${id} not found`)
+        }
+        this.data = typedData[id]
     }
+
 
     static portraitPathFromID(ID: string){
         return(`/centered/${ID}_0.jpg`)
@@ -42,4 +51,34 @@ export default class Champions {
         if(ID == "FiddleSticks") return typedData['Fiddlesticks'].classes
         return typedData[ID].classes
     }
+
+    getSpells(){
+        return this.data.spells
+    }
+
+    getPassive(){
+        return this.data.passive  
+    }
+
+    getSpellIcon(spellNumber: number){
+        const spell = this.data.spells[spellNumber] 
+        if (spell) {
+            return (`/spell/${spell.image.full}`)
+        }
+        return '/spell/AatroxE.png'
+    }
+
+    getClass(){
+        return this.data.classes
+    }
+
+    getPortraitPath(){
+        return(`/centered/${this.id}_0.jpg`)
+    }
+
+    getName(){
+        return this.data.name
+    }
+
+     
 }
