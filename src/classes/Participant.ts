@@ -1,7 +1,7 @@
 export default class Participant {
     _playerID: string;
     _playerName: string;
-    _champID: number;
+    _champID: string;
     _keystoneID: number;
     _secondaryID: number;
     _summonerID1: number;
@@ -15,7 +15,7 @@ export default class Participant {
     constructor(input: {[Name: string]: any}) { 
         this._playerID = input['puuid'];
         this._playerName = input['riotIdGameName'];
-        this._champID = input['championId'];
+        this._champID = input['championName'];
         this._kills = input['kills'];
         this._deaths = input['deaths'];
         this._assists = input['assists'];

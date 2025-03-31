@@ -145,7 +145,7 @@ export default{
             if(!visible[d3.select(this).attr("class")]) return;
             tooltip
             .style("opacity", 1)            
-            .html(`${Champions.NamefromCodeName(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}%<br>`)
+            .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}%<br>`)
             .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
             .style("top", (event.y)+ "px")
             .style("display", "block")
@@ -161,7 +161,7 @@ export default{
             if(!visible[d3.select(this).attr("class")]) return;
 
             tooltip
-                .html(`${Champions.NamefromCodeName(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
+                .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
@@ -238,7 +238,7 @@ export default{
             .attr("r", 5)
             .style("fill", "#69b3a2")
             .style("stroke", "black")
-            .attr("class", function (d) { return Champions.ClassesfromCodeName(d.Name)[0]; })
+            .attr("class", function (d) { return Champions.ClassesfromID(d.Name)[0]; })
             .on("mouseover", mouseover )
             .on("mousemove", mousemove )
             .on("mouseleave", mouseleave )

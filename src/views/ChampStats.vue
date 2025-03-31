@@ -7,6 +7,7 @@ import BannedScatter from '@/components/BannedScatter.vue';
         <nav>
             <RouterLink to="/">Home</RouterLink>
             <RouterLink to="/champstats">Champs</RouterLink>
+            <RouterLink to="/champdetail">Champ Details</RouterLink>
         </nav>
         <BannedScatter />
         <ChampScatter />

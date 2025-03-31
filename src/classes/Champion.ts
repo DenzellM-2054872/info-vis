@@ -13,44 +13,72 @@ interface KeysType{
 }
 
 export default class Champions {
-    constructor() {
-    }
-
-    static portraitPathFromID(id: number){
-        const name = Champions.codeNameFromID(id)
-        return(`/centered/${name}_0.jpg`)
-
-    }
-
-    static tilePathFromID(id: number){
-        const name = Champions.codeNameFromID(id)
-        return(`/tiles/${name}_0.jpg`)
-
-    }
-    
-    static codeNameFromID(id: number){
-        const typedKeys = keys as KeysType
+    id: string
+    data: ChampType
+    constructor(id: string) {
+        this.id = id
         const typedData = data as DataType
-        const champID: string = typedKeys[id]
-        return typedData[champID].id
+        if (!typedData[id]) {
+            throw new Error(`Champion with ID ${id} not found`)
+        }
+        this.data = typedData[id]
     }
 
-    static nameFromID(id: number){
-        const typedKeys = keys as KeysType
+
+    static portraitPathFromID(ID: string){
+        return(`/centered/${ID}_0.jpg`)
+
+    }
+
+    static tilePathFromID(ID: string){
+        return(`/tiles/${ID}_0.jpg`)
+
+    }
+
+    static nameFromID(ID: string){
         const typedData = data as DataType
-        const champID: string = typedKeys[id]
-        return typedData[champID].name
+        return typedData[ID].name
     }
 
 
-    static NamefromCodeName(codeName: string){
+    static NamefromID(ID: string){
         const typedData = data as DataType
-        return typedData[codeName].name
+        return typedData[ID].name
     }
 
-    static ClassesfromCodeName(codeName: string){
+    static ClassesfromID(ID: string){
         const typedData = data as DataType
-        if(codeName == "FiddleSticks") return typedData['Fiddlesticks'].classes
-        return typedData[codeName].classes
+        if(ID == "FiddleSticks") return typedData['Fiddlesticks'].classes
+        return typedData[ID].classes
     }
+
+    getSpells(){
+        return this.data.spells
+    }
+
+    getPassive(){
+        return this.data.passive  
+    }
+
+    getSpellIcon(spellNumber: number){
+        const spell = this.data.spells[spellNumber] 
+        if (spell) {
+            return (`/spell/${spell.image.full}`)
+        }
+        return '/spell/AatroxE.png'
+    }
+
+    getClass(){
+        return this.data.classes
+    }
+
+    getPortraitPath(){
+        return(`/centered/${this.id}_0.jpg`)
+    }
+
+    getName(){
+        return this.data.name
+    }
+
+     
 }

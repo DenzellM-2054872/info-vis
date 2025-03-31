@@ -65,7 +65,7 @@ function getMapImage(){
 <style>
     .content{
         display: flex;
-        flex-direction: column;
+        /* flex-direction: column; */
         /* justify-content: center; */
         align-content: center;
     }
