@@ -16,41 +16,30 @@ export default class Champions {
     constructor() {
     }
 
-    static portraitPathFromID(id: number){
-        const name = Champions.codeNameFromID(id)
-        return(`/centered/${name}_0.jpg`)
+    static portraitPathFromID(ID: string){
+        return(`/centered/${ID}_0.jpg`)
 
     }
 
-    static tilePathFromID(id: number){
-        const name = Champions.codeNameFromID(id)
-        return(`/tiles/${name}_0.jpg`)
+    static tilePathFromID(ID: string){
+        return(`/tiles/${ID}_0.jpg`)
 
     }
-    
-    static codeNameFromID(id: number){
-        const typedKeys = keys as KeysType
+
+    static nameFromID(ID: string){
         const typedData = data as DataType
-        const champID: string = typedKeys[id]
-        return typedData[champID].id
-    }
-
-    static nameFromID(id: number){
-        const typedKeys = keys as KeysType
-        const typedData = data as DataType
-        const champID: string = typedKeys[id]
-        return typedData[champID].name
+        return typedData[ID].name
     }
 
 
-    static NamefromCodeName(codeName: string){
+    static NamefromID(ID: string){
         const typedData = data as DataType
-        return typedData[codeName].name
+        return typedData[ID].name
     }
 
-    static ClassesfromCodeName(codeName: string){
+    static ClassesfromID(ID: string){
         const typedData = data as DataType
-        if(codeName == "FiddleSticks") return typedData['Fiddlesticks'].classes
-        return typedData[codeName].classes
+        if(ID == "FiddleSticks") return typedData['Fiddlesticks'].classes
+        return typedData[ID].classes
     }
 }
