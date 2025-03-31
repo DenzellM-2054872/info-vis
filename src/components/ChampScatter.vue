@@ -5,6 +5,7 @@
 <script  lang="js">
 import * as d3 from "d3" ;
 import Champions from "@/classes/Champion.ts";
+import {colourData, showClassBans, hideClassBans, highlightClassBans, lowLightAllBans, lowLightClassBans} from '@/components/BannedScatter.vue';
 let colours = {
     "Controller": "#4daf4a",
     "Fighter": "#984ea3",
@@ -25,8 +26,20 @@ let visible = {
     "Slayer": true,
 }
 
+function lowLightClass(champClass){
+    d3.select("#ChampScatter")
+    .selectAll(`.${champClass}`)
+    .filter("circle").transition()
+    .duration(200)
+    .style("fill", "lightgrey")
+    .style("opacity", 0.33)
+    .style("display", "block")
+    .attr("r", 4)
+}
+
 function lowLightAll(){
-    d3.selectAll("circle")
+    d3.select("#ChampScatter")
+    .selectAll("circle")
     .transition()
     .duration(200)
     .style("fill", "lightgrey")
@@ -35,16 +48,18 @@ function lowLightAll(){
 }
 
 function highlightClass(champClass){
-    d3.selectAll(`.${champClass}`)
-    .filter("circle").transition()
-    .duration(200)
-    .style("opacity", 1)
-    .attr("r", 6)
-    .style("fill", colours[champClass])
+    d3.select("#ChampScatter")
+        .selectAll(`.${champClass}`)
+        .filter("circle").transition()
+        .duration(200)
+        .style("opacity", 1)
+        .attr("r", 6)
+        .style("fill", colours[champClass])
 }
 
 function hideClass(champClass){
-    d3.selectAll(`.${champClass}`)
+    d3.select("#ChampScatter")
+        .selectAll(`.${champClass}`)
         .filter("circle").transition()
         .duration(200)
         .attr("r", 5)
@@ -52,7 +67,8 @@ function hideClass(champClass){
 }
 
 function showClass(champClass){
-    d3.selectAll(`.${champClass}`)
+    d3.select("#ChampScatter")
+        .selectAll(`.${champClass}`)
         .filter("circle").transition()
         .duration(200)
         .attr("r", 5)
@@ -62,30 +78,76 @@ function showClass(champClass){
 }
 
 
-function legend_mouseover(event, d) {
-    let unfiltered = true;
-    for(let tag in visible){
-        unfiltered = unfiltered && visible[tag];
-    }
-    if(!unfiltered) return;
 
+function legend_mouseover(event, d) {
+    if(!visible[d3.select(this).attr('class')]){
+        lowLightClass(d3.select(this).attr('class'));
+        lowLightClassBans(d3.select(this).attr('class'));
+        return
+    } 
     lowLightAll()
+    lowLightAllBans()
+
     highlightClass(d3.select(this).attr('class'))
+    highlightClassBans(d3.select(this).attr('class'))
 }
 
 function legend_mouseleave(event, d) {
 
-    let unfiltered = true;
-    for(let tag in visible){
-        unfiltered = unfiltered && visible[tag];
-    }
-    if(!unfiltered) return;
-
     for(let champClass in colours){
-        showClass(champClass)
+        if(!visible[champClass]){
+            hideClass(champClass)
+            hideClassBans(champClass)
+        } 
+        else{
+            showClass(champClass)
+            showClassBans(champClass)
+        } 
     }
 }
 
+function mousemove(event, d) {
+    if(!visible[d3.select(this).attr("class")]) return;
+
+    d3.select("#ChampScatter").select(`.tooltip`)
+        .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
+        .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+        .style("top", (event.y)+ "px")
+        .style("display", "block")
+}
+
+function mouseover(event, d) {
+    if(!visible[d3.select(this).attr("class")]) return;
+    d3.select("#ChampScatter").select(`.tooltip`)
+        .style("opacity", 1)            
+        .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}%<br>`)
+        .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+        .style("top", (event.y)+ "px")
+        .style("display", "block")
+            
+    lowLightAll()
+    
+    d3.select(this).transition()
+    .duration(200)
+    .attr("r", 6)
+}
+
+function mouseleave(event, d) {
+    if(!visible[d3.select(this).attr("class")]) return;
+
+    d3.select("#ChampScatter").select(`.tooltip`)
+        .transition()
+        .style("opacity", 0)
+        .style("display", "none")
+
+    for(let champClass in colours){
+        if(visible[champClass]){
+            showClass(champClass)
+            showClassBans(champClass)
+        } 
+    }
+
+}   
 function legend_click(event, d) {
     let unfiltered = true;
     for(let tag in visible){
@@ -95,6 +157,7 @@ function legend_click(event, d) {
     if(unfiltered){
         for(let tag in visible){
             hideClass(tag)
+            hideClassBans(tag)
             visible[tag] = false;
         }
     }
@@ -102,10 +165,12 @@ function legend_click(event, d) {
 
     if(visible[champClass]){
         hideClass(champClass)
+        hideClassBans(champClass)
         visible[champClass] = false
 
     }else{
         showClass(champClass)
+        showClassBans(champClass)
         visible[champClass] = true
     }
 
@@ -141,45 +206,12 @@ export default{
 
         // A function that change this tooltip when the user hover a point.
         // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
-        const mouseover = function(event, d) {
-            if(!visible[d3.select(this).attr("class")]) return;
-            tooltip
-            .style("opacity", 1)            
-            .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}%<br>`)
-            .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-            .style("top", (event.y)+ "px")
-            .style("display", "block")
-            
-            lowLightAll()
-            
-            d3.select(this).transition()
-            .duration(200)
-            .attr("r", 6)
-        }
 
-        const mousemove = function(event, d) {
-            if(!visible[d3.select(this).attr("class")]) return;
 
-            tooltip
-                .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
-                .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-                .style("top", (event.y)+ "px")
-                .style("display", "block")
-        }
+
         
         // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
-        const mouseleave = function(event, d) {
-            if(!visible[d3.select(this).attr("class")]) return;
-
-            tooltip.transition()
-                .style("opacity", 0)
-                .style("display", "none")
-
-            for(let champClass in colours){
-                showClass(champClass)
-            }
-  
-        }       
+    
 
         // set the dimensions and margins of the graph
         var margin = {top: 10, right: 30, bottom: 30, left: 60},
