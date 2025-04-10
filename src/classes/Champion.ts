@@ -24,6 +24,11 @@ export default class Champions {
         this.data = typedData[id]
     }
 
+    static iconPathFromID(ID: string){
+        if(ID == "FiddleSticks") return (`/champion/Fiddlesticks.png`)
+        return (`/champion/${ID}.png`)
+    }
+
 
     static portraitPathFromID(ID: string){
         return(`/centered/${ID}_0.jpg`)

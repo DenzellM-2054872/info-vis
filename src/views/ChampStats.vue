@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import ChampScatter from '@/components/ChampScatter.vue';
-import BannedScatter from '@/components/BannedScatter.vue';
+import DualScatter from '@/components/DualScatter.vue';
 </script>
 
 <template>
@@ -9,7 +8,6 @@ import BannedScatter from '@/components/BannedScatter.vue';
             <RouterLink to="/champstats">Champs</RouterLink>
             <RouterLink to="/champdetail">Champ Details</RouterLink>
         </nav>
-        <BannedScatter />
-        <ChampScatter />
+        <DualScatter />
 </template>
 

@@ -6,26 +6,13 @@
 import * as d3 from "d3" ;
 import { Rainbow } from '@indot/rainbowvis';
 import Champions from "@/classes/Champion.ts";
-let totalBans = 1;
-let rb = new Rainbow()
-let ban_data = []
-let visData = []
-
-let visible = {
-    "Controller": true,
-    "Fighter": true,
-    "Mage": true,
-    "Marksman": true,
-    "Tank": true,
-    "Specialist": true,
-    "Slayer": true,
-}
+import { computed, ref} from 'vue'
 
 export function colourData(){
     d3.select("#BannedScatter")
         .selectAll("circle")
         .attr("r", 5)
-        .style("fill", function (d) { return `#${rb.colourAt(d.Bans)}`; } )
+        .style("fill", function (d) { return `#${this.rb.colourAt(d.Bans)}`; } )
         .style("opacity", 1)
         .style("stroke", "gray")
 
@@ -59,7 +46,7 @@ export function highlightClassBans(champClass){
         .duration(200)
         .style("opacity", 1)
         .attr("r", 6)
-        .style("fill", function (d) { return `#${rb.colourAt(d.Bans)}`; } )
+        .style("fill", function (d) { return `#${this.rb.colourAt(d.Bans)}`; } )
 }
 
 export function hideClassBans(champClass){
@@ -141,90 +128,334 @@ function mouseleave(event, d) {
 }   
 export default{
     name: "BannedScatter",
-    methods: {
-        createSVG(){
-        var tooltip = d3.select("#BannedScatter")
-            .append("div")
-            .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("color", "black")
-            .style("border", "solid")
-            .style("border-width", "1px")
-            .style("border-radius", "5px")
-            .style("position", "absolute")
-            .style("padding", "10px")
+    setup(){
+        let minBans = 0;
+        let maxBans = 0;
+        const rb = new Rainbow()
+        const displayIcons = ref(false)
+
+        rb.setSpectrum('#000000', '#ffffff')
+        let data = undefined
+        const margin = {top: 10, right: 30, bottom: 30, left: 60}
+        const width = 460 - margin.left - margin.right
+        const height = 400 - margin.top - margin.bottom
     
+        const x = d3.scaleLinear()
+                    .domain([43, 57])
+                    .range([ 0, width ]);
 
-        // set the dimensions and margins of the graph
-        var margin = {top: 10, right: 30, bottom: 30, left: 60},
-            width = 460 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+        const y = d3.scaleLinear()
+                    .domain([0, 150000])
+                    .range([ height, 0]);
 
-        // append the svg object to the body of the page
-        var svg = d3.select("#BannedScatter")
-        .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-            .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+        const visible = {
+            "Controller": true,
+            "Fighter": true,
+            "Mage": true,
+            "Marksman": true,
+            "Tank": true,
+            "Specialist": true,
+            "Slayer": true,
+        }
+
+        return{
+            rb,
+            displayIcons,
+            visible,
+            x,
+            y,
+            margin,
+            width,
+            height,
+            minBans,
+            maxBans,
+            data
+        }
+    },
+    methods: {
+        setIcons(displayIcons){
+            this.displayIcons = displayIcons
+            this.showAll()
+        },
+        showAll(){
+            
+            for(let champClass in this.visible){
+                if(this.visible[champClass]){
+                    this.showClass(champClass)
+                }else{
+                    this.hideClass(champClass)
+                }
+            }
+        },
+        lowLightClass(champClass){
+            if(this.displayIcons){
+                let size = 20
+                let x = this.x
+                let y = this.y
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("image").transition()
+                    .duration(200)
+                    .style("opacity", 0.33)
+                    .style("display", "block")
+                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
+                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
+                    .attr("width", size - 2)
+                    .attr("height", size - 2)
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("rect").transition()
+                    .duration(200)
+                    .style("stroke", "lightgrey")
+                    .style("opacity", 0.33)
+                    .style("display", "block")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("width", size)
+                    .attr("height", size)
+            }else{
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("circle").transition()
+                    .duration(200)
+                    .style("fill", "lightgrey")
+                    .style("opacity", 0.33)
+                    .style("display", "block")
+                    .attr("r", 4)
+            }
+        },
+        showClass(champClass){
+            let rb = new Rainbow().setNumberRange(this.minBans, this.maxBans)
+            rb.setSpectrum('#ffffff', '#ff0000', '000000')
+            let size = 25
+            let x = this.x
+            let y = this.y
+
+            if(this.displayIcons){
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("image").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .style("display", "block")
+                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
+                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
+                    .attr("width", size - 2)
+                    .attr("height", size - 2)
+
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("rect").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .style("display", "block")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("width", size)
+                    .attr("height", size)
+                    .style("stroke", function(d) {return `#${rb.colourAt(d.Bans)}`})
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("circle").transition()
+                    .duration(200)
+                    .attr("r", 5)
+                    .style("opacity", 1)
+                    .style("display", "none")
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { return y(d.Games); } )
+                    .style("fill", function(d) {return `#${rb.colourAt(d.Bans)}`})
+            }else{
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("image").transition()
+                    .duration(200)
+                    .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("width", size)
+                    .attr("height", size)
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("rect").transition()
+                    .duration(200)
+                    .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
+                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
+                    .attr("width", size - 2)
+                    .attr("height", size - 2)
+                    .style("stroke", function(d) {return `#${rb.colourAt(d.Bans)}`})
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("circle").transition()
+                    .duration(200)
+                    .attr("r", 5)
+                    .style("opacity", 1)
+                    .style("display", "block")
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { return y(d.Games); } )
+                    .style("fill", function(d) {return `#${rb.colourAt(d.Bans)}`})
+            }
+        },
+        highlightClass(champClass){
+            let rb = new Rainbow().setNumberRange(this.minBans, this.maxBans)
+            rb.setSpectrum('#ffffff', '#ff0000', '000000')
+            d3.select("#BannedScatter")
+            .selectAll(`.${champClass}`).raise()
+            if(this.displayIcons){
+                let size = 30
+                let x = this.x
+                let y = this.y
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("rect").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .style("display", "block")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("width", size)
+                    .attr("height", size)
+                    .style("stroke", function(d) {return `#${rb.colourAt(d.Bans)}`})
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("image").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
+                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
+                    .attr("width", size - 2)
+                    .attr("height", size - 2)
+            }else{
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("circle").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .attr("r", 6)
+                    .style("fill", function(d) {return `#${rb.colourAt(d.Bans)}`})
+
+            }
+        },
+        hideClass(champClass){
+            if(this.displayIcons){
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("image").transition()
+                    .duration(200)
+                    .style("display", "none")
+
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("rect").transition()
+                    .duration(200)
+                    .style("display", "none")
+            }else{
+                d3.select("#BannedScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("circle").transition()
+                    .duration(200)
+                    .attr("r", 5)
+                    .style("display", "none")
+            }
+        },
+        renderData(champData){
+            let groups = d3.select("#BannedScatter").select(`.dataWrapper`)
+                .selectAll("dot")
+                .data(champData)
+                .enter()
+                .append('g')
+                .attr("class", function (d) {return Champions.ClassesfromID(d.Name)[0]; })         
+
+            groups.append('image')
+                .style("display", "none")
+                .attr("href", function (d) {return Champions.iconPathFromID(d.Name)})
+                // .attr("class", function (d) {return Champions.ClassesfromID(d.Name)[0]; })         
+                .on("mouseover", this.mouseover )
+                .on("mousemove", this.mousemove )
+                .on("mouseleave", this.mouseleave )
+
+            groups.append('rect')
+                .style("display", "none")
+                .style("fill", "none")
+                .style("stroke", "black")
+                .style("stroke-width", "2px")
+
+            groups.append("circle")
+                .attr("r", 5)
+                .style("display", "none")
+                .style("fill", "#69b3a2")
+                .style("stroke", "black")
+                .on("mouseover", this.mouseover )
+                .on("mousemove", this.mousemove )
+                .on("mouseleave", this.mouseleave )
+
+            let visData = champData.filter((d) => this.visible[Champions.ClassesfromID(d.Name)[0]])
+            this.maxBans = visData.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.Bans))}, 0)
+            this.minBans = visData.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.Bans))}, Infinity)
+        },
+        createSVG(){
+            var tooltip = d3.select("#BannedScatter")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("color", "black")
+                .style("border", "solid")
+                .style("border-width", "1px")
+                .style("border-radius", "5px")
+                .style("position", "absolute")
+                .style("padding", "10px")
+
+
+            var svg = d3.select("#BannedScatter")
+                .append("svg")
+                    .attr("width",  this.width + this.margin.left + this.margin.right)
+                    .attr("height", this.height + this.margin.top + this.margin.bottom)
+                .append("g")
+                    .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
             // Add X axis
-        var x = d3.scaleLinear()
-            .domain([43, 57])
-            .range([ 0, width ]);
 
         var xAxis = svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+            .attr("transform", "translate(0," + this.height + ")")
+            .call(d3.axisBottom(this.x));
 
-        // Add Y axis
-        var y = d3.scaleLinear()
-            .domain([0, 150000])
-            .range([ height, 0]);
+
+            
         var yAxis = svg.append("g")
-            .call(d3.axisLeft(y));
+            .call(d3.axisLeft(this.y));
+
+        var size = 10
+        let yValue = 30
 
  
         var scatter = svg.append('g')
-            .attr("clip-path", "url(#clip)")  
+                .attr("clip-path", "url(#clip)")
+                .attr("class", "dataWrapper")
         //Read the data
         d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
+            let total = data.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0)
             data = data.filter((point) => {
                 return point.Name != "None"
             })
-            ban_data = data
-            visData = data
-            let totalGames = data.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0)
-            let maxBans = data.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.Bans))}, 0)
-            let minBans = data.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.Bans))}, Infinity)
 
-            totalBans = data.reduce((accumulator, point) => {return Number(accumulator) + Number(point.Bans)}, 0)
-            let test = data.reduce((accumulator, point) => {return Number(accumulator) + Number(point.Bans) / totalBans}, 0)
-
-            rb.setNumberRange(minBans, maxBans)
-            rb.setSpectrum('#ffffff', '#ff0000', '000000')
-
-            scatter
-            .selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class", function (d) { return Champions.ClassesfromID(d.Name)[0]; })
-            .attr("cx", function (d) { return x(d.WR); } )
-            .attr("cy", function (d) { return y(d.Games); } )
-            .on("mouseover", mouseover)
-            .on("mousemove", mousemove)
-            .on("mouseleave", mouseleave)
+        this.data = data
+        this.renderData(data)
+        this.showAll()
 
 
-            colourData()
-
-            svg.append("line")
+        svg.append("line")
             .attr("x1", 0)  //<<== change your code here
-            .attr("y1", y(totalGames / data.length))
-            .attr("x2", width)  //<<== and here
-            .attr("y2",  y(totalGames / data.length))
+            .attr("y1", this.y(total / data.length))
+            .attr("x2", this.width)  //<<== and here
+            .attr("y2", this.y(total / data.length))
             .style("stroke-width", 2)
             .style("stroke", "gray")
             .style("fill", "none")
@@ -234,15 +465,116 @@ export default{
         
 
         svg.append("line")
-            .attr("x1", x(50))  //<<== change your code here
+            .attr("x1", this.x(50))  //<<== change your code here
             .attr("y1", 0)
-            .attr("x2", x(50))  //<<== and here
-            .attr("y2", height)
+            .attr("x2", this.x(50))  //<<== and here
+            .attr("y2", this.height)
             .style("stroke-width", 2)
             .style("stroke", "gray")
             .style("fill", "none")
             .style("stroke-dasharray", "4");
 
+        },   
+        generateLegend(svg, yValue, size, champClass){
+        },
+        legend_click(champClass) {
+            let unfiltered = true;
+            for(let tag in this.visible){
+                unfiltered = unfiltered && this.visible[tag];
+            }
+            console.log(unfiltered)
+            if(unfiltered){
+                for(let tag in this.visible){
+                    this.hideClass(tag)
+                    this.visible[tag] = false;
+                }
+            }
+            
+            if(this.visible[champClass]){
+                this.hideClass(champClass)
+                this.visible[champClass] = false;
+            }else{
+                this.showClass(champClass)
+                this.visible[champClass] = true
+            }
+        },
+        legend_mouseleave(event, d) {
+            for(let champClass in this.visible){
+                if(!this.visible[champClass]){
+                    this.hideClass(champClass)
+                } 
+                else{
+                    this.showClass(champClass)
+                } 
+            }
+        },
+        legend_mouseover(champClass) {
+            if(!this.visible[champClass]){
+                this.lowLightClass(champClass);
+                return
+            }
+
+            for(let cls in this.visible){
+                if(cls == champClass){
+                    this.highlightClass(cls);
+                }else{
+                    if(!this.visible[cls]) continue;
+                    this.lowLightClass(cls);
+                }
+            }
+        },
+        mouseleave(event, d) {
+            if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
+
+            d3.select("#BannedScatter").select(`.tooltip`)
+                .transition()
+                .style("opacity", 0)
+                .style("display", "none")
+
+            for(let champClass in this.visible){
+                if(this.visible[champClass]){
+                    this.showClass(champClass)
+                } 
+            }
+
+        },
+        mousemove(event, d) {
+            if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
+
+            d3.select("#BannedScatter").select(`.tooltip`)
+                .html(`${Champions.nameFromID(d.Name)}<br>Bans: ${d.Bans}`)
+                .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                .style("top", (event.y)+ "px")
+                .style("display", "block")
+        },
+        mouseover(event, d) {
+            let champClass = d3.select(event.target.parentNode).attr("class")
+            if(!this.visible[champClass]) return;
+            d3.select("#BannedScatter").select(`.tooltip`)
+                .style("opacity", 1)            
+                .html(`${Champions.nameFromID(d.Name)}<br>Bans: ${d.Bans}`)
+                .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                .style("top", (event.y)+ "px")
+                .style("display", "block")
+            
+            for(let champClass in this.visible){
+                if(!this.visible[champClass]) continue;
+                this.lowLightClass(champClass);
+            }
+            d3.select(event.target.parentNode).raise()
+            d3.select(event.target)
+                .transition()
+                .duration(200)
+                .attr("opacity", 1)
+
+            if(!this.displayIcons){
+                d3.select(event.target).transition()
+                    .duration(200)
+                    .attr("r", 6)
+            }else{
+                d3.select(event.target.parentNode).select('rect').transition()
+                    .duration(200)
+            }
         }
     },
     mounted(){
