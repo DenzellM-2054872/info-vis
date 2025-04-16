@@ -7,8 +7,8 @@
 
 import * as d3 from "d3" ;
 import Champions from "@/classes/Champion.ts";
-import { computed, ref, defineEmits} from 'vue'
-import {colourData, showClassBans, hideClassBans, highlightClassBans, lowLightAllBans, lowLightClassBans} from '@/components/BannedScatter.vue';
+import { computed, ref} from 'vue'
+
 
 
 
