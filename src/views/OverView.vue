@@ -220,7 +220,7 @@ function getKDA(overview: GameOverview){
     </div>
   </template>
   
-  <style>
+  <style lang="scss" scoped>
     .content > .age{
         position: absolute;
         color: rgb(255, 255, 255);

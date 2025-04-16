@@ -1,10 +1,17 @@
 <template>
-    <BannedScatter  ref="bannedScatter" />
-    <ChampScatter v-if="bannedScatter" ref="champScatter"
-    @legend_mouseover="bannedScatter.legend_mouseover"
-    @legend_click="bannedScatter.legend_click"
-    @legend_mouseleave="bannedScatter.legend_mouseleave"/>
-    <input @change="toggleIcons()" id="ShowIcons" type="checkbox" v-model="displayIcons"/>
+    <div class="dual_scatter">
+        <BannedScatter  ref="bannedScatter" />
+        <ChampScatter v-if="bannedScatter" ref="champScatter"
+        @legend_mouseover="bannedScatter.legend_mouseover"
+        @legend_click="bannedScatter.legend_click"
+        @legend_mouseleave="bannedScatter.legend_mouseleave"/>
+        <div class="graph_controls">
+            <div class="icon_controls">
+                <input @change="toggleIcons()" id="ShowIcons" type="checkbox" v-model="displayIcons"/>
+                <p>Show champion icons</p>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script  lang="ts">
@@ -44,5 +51,20 @@ export default{
 
 
 <style lang="scss" scoped>
+    .graph_controls{
+        display: flex;
+    }
 
+    .icon_controls{
+        display: flex;
+        height: fit-content;
+    }
+
+    .icon_controls input{
+        margin-right: 10px;
+    }
+    .dual_scatter{
+        display: flex;
+        margin-top: 50px;
+    }
 </style>

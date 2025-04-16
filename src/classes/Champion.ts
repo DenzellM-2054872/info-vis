@@ -47,6 +47,7 @@ export default class Champions {
 
 
     static NamefromID(ID: string){
+        if(ID == "") return ""
         const typedData = data as DataType
         return typedData[ID].name
     }

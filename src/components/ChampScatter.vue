@@ -15,11 +15,6 @@ import {colourData, showClassBans, hideClassBans, highlightClassBans, lowLightAl
 export default{
     name: "ChampScatter",
     setup(){
-        // defineEmits([
-        //     'legend_click',
-        //     'legend_mouseleave',
-        //     'legend_mouseover'
-        // ])
         const displayIcons = ref(false)
         const colours = ref({
             "Controller": "#4daf4a",
@@ -405,11 +400,9 @@ export default{
             for(let champClass in this.colours){
                 if(!this.visible[champClass]){
                     this.hideClass(champClass)
-                    // this.hideClassBans(champClass)
                 } 
                 else{
                     this.showClass(champClass)
-                    // this.showClassBans(champClass)
                 } 
             }
             this.$emit('legend_mouseleave')
