@@ -37,26 +37,30 @@ export default{
     methods: {
         filteredList() {
             if(this.input.length < 3) return []
-            return this.champs.filter((champ) =>{
+            return this.champs.filter((champ) => {
                 return champ.data.id.toLowerCase().includes(this.input.toLowerCase())
                 ||champ.data.name.toLowerCase().includes(this.input.toLowerCase())
-
-            }
-            );
+            });
         },
         getChampionImage(ID){
             return Champions.iconPathFromID(ID)
         },
         fillChamp(event){
             if(event.target.className == 'champ'){
-                console.log(event.target.innerText)
                 this.input = event.target.innerText
             }else{
-                console.log(event.target.parentNode.innerText)
                 this.input = event.target.parentNode.innerText
-
             }
-            console.log(event)
+        },
+        getChampionID(){
+            if(this.input.length < 3) return ""
+            return this.champs.filter((champ) => {
+                return champ.data.id.toLowerCase().includes(this.input.toLowerCase())
+                ||champ.data.name.toLowerCase().includes(this.input.toLowerCase())
+            })[0]
+        },
+        clearInput(){
+            this.input = ""
         }
     },
 
