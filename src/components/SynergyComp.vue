@@ -127,66 +127,6 @@ export default{
         const suggestions = ref([
         ])
         const tops = ref([
-            {
-                champs:
-                [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                ],
-                WR: 0,
-                games: 0
-            },
-            {
-                champs:
-                [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                ],
-                WR: 0,
-                games: 0
-            },
-            {
-                champs:
-                [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                ],
-                WR: 0,
-                games: 0
-            },
-            {
-                champs:
-                [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                ],
-                WR: 0,
-                games: 0
-            },
-            {
-                champs:
-                [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                ],
-                WR: 0,
-                games: 0
-            }
         ])
 
         return{
