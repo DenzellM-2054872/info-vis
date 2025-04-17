@@ -53,11 +53,20 @@ export default{
             }
         },
         getChampionID(){
-            if(this.input.length < 3) return ""
-            return this.champs.filter((champ) => {
+            if(this.input.length == 0) return ""
+            let results = this.champs.filter((champ) => {
                 return champ.data.id.toLowerCase().includes(this.input.toLowerCase())
                 ||champ.data.name.toLowerCase().includes(this.input.toLowerCase())
-            })[0]
+            })
+
+            let matches = results.filter((champ) => {
+                return champ.data.id.toLowerCase() == (this.input.toLowerCase())
+                || champ.data.name.toLowerCase() == (this.input.toLowerCase())
+            })
+
+            if(matches.length != 0) return matches[0]
+
+            return results[0]
         },
         clearInput(){
             this.input = ""

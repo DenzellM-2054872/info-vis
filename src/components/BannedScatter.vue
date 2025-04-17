@@ -13,6 +13,7 @@ export default{
     setup(){
         let minBans = 0;
         let maxBans = 0;
+        let totalGames = 0;
         const rb = new Rainbow()
         const displayIcons = ref(false)
 
@@ -51,6 +52,7 @@ export default{
             height,
             minBans,
             maxBans,
+            totalGames,
             data
         }
     },
@@ -137,7 +139,7 @@ export default{
                     .attr("y", function (d) { return y(d.Games) - size / 2; } )
                     .attr("width", size)
                     .attr("height", size)
-                    .style("stroke", function(d) {return `#${rb.colourAt(d.Bans)}`})
+                    .style("stroke", function(d) {return `#${rb.colourAt(d.EffectiveBans)}`})
 
                 d3.select("#BannedScatter")
                     .selectAll(`.${champClass}`)
@@ -148,7 +150,7 @@ export default{
                     .style("display", "none")
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { return y(d.Games); } )
-                    .style("fill", function(d) {return `#${rb.colourAt(d.Bans)}`})
+                    .style("fill", function(d) {return `#${rb.colourAt(d.EffectiveBans)}`})
             }else{
                 d3.select("#BannedScatter")
                     .selectAll(`.${champClass}`)
@@ -169,7 +171,7 @@ export default{
                     .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
                     .attr("width", size - 2)
                     .attr("height", size - 2)
-                    .style("stroke", function(d) {return `#${rb.colourAt(d.Bans)}`})
+                    .style("stroke", function(d) {return `#${rb.colourAt(d.EffectiveBans)}`})
 
                 d3.select("#BannedScatter")
                     .selectAll(`.${champClass}`)
@@ -180,7 +182,7 @@ export default{
                     .style("display", "block")
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { return y(d.Games); } )
-                    .style("fill", function(d) {return `#${rb.colourAt(d.Bans)}`})
+                    .style("fill", function(d) {return `#${rb.colourAt(d.EffectiveBans)}`})
             }
         },
         highlightClass(champClass){
@@ -203,7 +205,7 @@ export default{
                     .attr("y", function (d) { return y(d.Games) - size / 2; } )
                     .attr("width", size)
                     .attr("height", size)
-                    .style("stroke", function(d) {return `#${rb.colourAt(d.Bans)}`})
+                    .style("stroke", function(d) {return `#${rb.colourAt(d.EffectiveBans)}`})
 
                 d3.select("#BannedScatter")
                     .selectAll(`.${champClass}`)
@@ -222,7 +224,7 @@ export default{
                     .duration(200)
                     .style("opacity", 1)
                     .attr("r", 6)
-                    .style("fill", function(d) {return `#${rb.colourAt(d.Bans)}`})
+                    .style("fill", function(d) {return `#${rb.colourAt(d.EffectiveBans)}`})
 
             }
         },
@@ -282,8 +284,9 @@ export default{
                 .on("mouseleave", this.mouseleave )
 
             let visData = champData.filter((d) => this.visible[Champions.ClassesfromID(d.Name)[0]])
-            this.maxBans = visData.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.Bans))}, 0)
-            this.minBans = visData.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.Bans))}, Infinity)
+            this.totalGames = visData.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.EffectiveBans)}, 0)
+            this.maxBans = visData.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.EffectiveBans))}, 0)
+            this.minBans = visData.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.EffectiveBans))}, Infinity)
         },
         createSVG(){
             var tooltip = d3.select("#BannedScatter")
@@ -375,8 +378,9 @@ export default{
             }
             this.visible[champClass] = !this.visible[champClass]
             let visData = this.data.filter((d) => (this.visible[Champions.ClassesfromID(d.Name)[0]]))
-            this.maxBans = visData.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.Bans))}, 0)
-            this.minBans = visData.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.Bans))}, Infinity)
+            this.totalGames = visData.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.EffectiveBans)}, 0)
+            this.maxBans = visData.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.EffectiveBans))}, 0)
+            this.minBans = visData.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.EffectiveBans))}, Infinity)
             if(this.visible[champClass]){
                 this.showClass(champClass)
             }else{
@@ -427,7 +431,7 @@ export default{
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#BannedScatter").select(`.tooltip`)
-                .html(`${Champions.nameFromID(d.Name)}<br>Bans: ${d.Bans}`)
+                .html(`${Champions.nameFromID(d.Name)}<br>Bans: ${d.EffectiveBans} (${Math.round(d.EffectiveBans/this.totalGames * 10000)/100}%)`)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
@@ -437,7 +441,7 @@ export default{
             if(!this.visible[champClass]) return;
             d3.select("#BannedScatter").select(`.tooltip`)
                 .style("opacity", 1)            
-                .html(`${Champions.nameFromID(d.Name)}<br>Bans: ${d.Bans}`)
+                .html(`${Champions.nameFromID(d.Name)}<br>Bans: ${d.EffectiveBans} (${Math.round(d.EffectiveBans/this.totalGames * 10000)/100}%)`)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
