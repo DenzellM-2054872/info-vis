@@ -85,6 +85,8 @@ export default class Champions {
     getName(){
         return this.data.name
     }
-
+    getId(){
+        return this.id
+    }
      
 }
