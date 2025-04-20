@@ -3,7 +3,6 @@ import {keys} from '../data/championFull.json'
 import type { ChampType } from './ChampionTypes'
 
 
-
 interface DataType{
     [champID: string]: ChampType
 }

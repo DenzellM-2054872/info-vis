@@ -2,6 +2,27 @@
 import { ref, type Ref, watch } from "vue";
 import Champions from "@/classes/Champion.ts"; 
 import * as d3 from "d3";
+// filepath: c:\Users\yoshu\Desktop\test\info-vis\src\views\ChampDetailView.vue
+//import {ChampDetails} from "../data/ChampDetails.json";
+import WinratePerMinute from '@/components/WinratePerMinute.vue';
+
+interface ChampDetailsType {
+    "average_assists": number
+    "average_deaths": number
+    "average_kills": number
+    "average_positions": {[role: string]: number}
+    // "highest_runes_usage:" string[]
+    "id": number
+    "losses": number
+    "name": string
+    "positions_played": {[role: string]: number}
+    "total_assists": number
+    "total_deaths": number
+    "total_games": number
+    "total_kills": number
+    "winrate_at_times": {[minute: string]: number | undefined}
+    "wins": number
+}
 
 const champName = ref("");
 const champion : Ref<Champions | undefined> = ref();
@@ -135,6 +156,7 @@ function getChampionCounters() {
 }
 
 </script>
+
 <template>
     <div>
         <nav>
