@@ -94,12 +94,26 @@
         </div>
     </div>
 </template>
-<script  lang="js">
+<script  lang="ts">
 import ChampSearch from '@/components/ChampSearch.vue';
 import Champions from "@/classes/Champion"
 import * as d3 from "d3" 
-import { computed, ref, useTemplateRef} from 'vue'
+import { computed, ref, useTemplateRef, type Ref} from 'vue'
+interface CompStats{
+    champs: string[]
+    WR: number
+    games: number
+}
 
+interface ChamStats{
+    Name: string
+    Games: number
+    Wins: number
+    Losses: number
+    Bans: number
+    EffectiveBans: number
+    WR: number
+}
 
 
 export default{
@@ -109,10 +123,10 @@ export default{
     },
     setup(){
         const champSearch = useTemplateRef<ChampSearch>('champSearch')
-        let data  = undefined 
-        let champData  = undefined 
+        let data:  CompStats[] = []
+        let champData: ChamStats[] = []
         const suggestionSort = ref('popular')
-        const main = ref({
+        const main: Ref<CompStats> = ref({
             champs:
             [
                 "",
@@ -124,9 +138,9 @@ export default{
             WR: 0,
             games: 0
         })
-        const suggestions = ref([
+        const suggestions: Ref<CompStats[]>  = ref([
         ])
-        const tops = ref([
+        const tops: Ref<CompStats[]> = ref([
         ])
 
         return{
@@ -142,25 +156,29 @@ export default{
     methods: {
         readData(){
             d3.csv("http://localhost:5173/stats/synergies.csv").then((data) => {
-                this.data = []
                 for(let comp of data){
                     let champs = []
                     for (let i = 1; i <= 5; i++) {
                         if(comp[`Champ${i}`] != "") champs.push(comp[`Champ${i}`])
                         
                     }
-                    this.data.push({champs: champs, games: comp.Games, wins: comp.Wins})
+                    this.data.push({champs: champs, games: Number(comp.Games), WR: Number(comp.Wins) / Number(comp.Games)})
                 }
             })
 
             d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
-                this.champData = data
+                for(let champ of data){
+                    this.champData.push({
+                        Name: champ.Name, Games: Number(champ.Games), Wins: Number(champ.Wins), Losses: Number(champ.Losses), 
+                        Bans: Number(champ.Bans), EffectiveBans: Number(champ.EffectiveBans), WR: Number(champ.WR)
+                    })
+                }
             })
         },
         printData(){
             console.log(this.data)
         },
-        getChampionImage(object, index){
+        getChampionImage(object: CompStats, index: number){
             for(let top of this.tops){
                 if(top == object){
                     if(object.champs[index] == "") return '/images/missing.png'
@@ -171,23 +189,17 @@ export default{
             if(object.champs[index] == "") return '/images/missing.png'
             return Champions.iconPathFromID(object.champs[index])
         },
-        namefromID(object, index){
+        namefromID(object: CompStats, index: number){
             if (object.champs[index] == "") return ""
             return Champions.NamefromID(object.champs[index])
         },
-        removeChamp(array, index){
+        removeChamp(array: string[], index: number){
             if(array[index] == "") return;
             array[index] = ""
             for (let i = index; i < array.length - 1; i++) {
                 array[i] = array[i + 1]
             }
             this.updateStats()
-        },
-        filteredList() {
-            if(this.input.length == 0) return[]
-            return this.champs.filter((champ) =>
-                champ.toLowerCase().includes(this.input.toLowerCase())
-            );
         },
         addChampion(){
             for(let champ in this.main.champs){
@@ -209,7 +221,7 @@ export default{
                     if(champ == "") continue;
                     champCount++
             }
-
+            if(!this.data) return
             let comps = this.data.filter((comp) =>{
                 let keep = true
                 for(let champ of this.main.champs){
@@ -220,14 +232,14 @@ export default{
             })
             this.generateTop(champCount)
             if(comps.length == 0){
-                this.games = 0
-                this.WR = 0
+                this.main.games = 0
+                this.main.WR = 0
                 return
             }
             this.suggestions = []
             let suggestions = this.generateComps(comps, champCount)
             for (let i = 0; i < suggestions.length; i++) {
-                let champ = suggestions[i].champs.filter((champ) => !this.main.champs.includes(champ))[0]
+                let champ = suggestions[i].champs.filter((champ: string) => !this.main.champs.includes(champ))[0]
                 this.suggestions.push({
                     champs:
                     [
@@ -241,7 +253,7 @@ export default{
                     games: 0
                 })
                 this.suggestions[i].champs[champCount] = champ
-                this.suggestions[i].WR = Math.round(suggestions[i].wins / suggestions[i].games * 10000)/100
+                this.suggestions[i].WR = Math.round(suggestions[i].WR * 10000)/100
                 this.suggestions[i].games = suggestions[i].games
             }
 
@@ -252,10 +264,10 @@ export default{
             } 
 
             this.main.games = comps[0].games
-            this.main.WR = Math.round(comps[0].wins / comps[0].games * 10000)/100
+            this.main.WR = Math.round(comps[0].WR * 10000)/100
 
         },
-        generateComps(comps, champCount){
+        generateComps(comps: CompStats[], champCount: number){
             comps = comps.filter((comp) =>{
                 return comp.champs.length == champCount + 1
             })
@@ -263,27 +275,50 @@ export default{
                 let aChamp = a.champs.filter((champ) => !this.main.champs.includes(champ))[0]
                 let bChamp = b.champs.filter((champ) => !this.main.champs.includes(champ))[0]
                 
-                let aData = this.champData.filter((data) => data.Name == aChamp)[0]
-                let bData = this.champData.filter((data) => data.Name == bChamp)[0]
+                let aData = this.champData.filter((data: ChamStats) => data.Name == aChamp)[0]
+                let bData = this.champData.filter((data: ChamStats) => data.Name == bChamp)[0]
                 
 
-                return (b.games/Math.pow(bData.Games, 0.75)) - (a.games/Math.pow(aData.Games, 0.75))
+                return (b.games/Math.pow(bData.Games, 0.85)) - (a.games/Math.pow(aData.Games, 0.85))
             })
-            else if(this.suggestionSort == "winrate") comps.sort((a, b) => (b.wins/b.games) - (a.wins/a.games))
+            else if(this.suggestionSort == "winrate"){ 
+                comps.sort((a, b) => {
+                    let z = 3.891
+
+                    let aScore = a.WR + z**2 / (2 * a.games) - z * Math.sqrt((a.WR * (1 - a.WR) + z**2 / (4 * a.games)) / a.games) / (1 + z**2 / a.games)
+                    let bScore = b.WR + z**2 / (2 * b.games) - z * Math.sqrt((b.WR*(1 - b.WR) + z**2 / (4 * b.games)) / b.games) / (1 + z**2 / b.games)
+                    return bScore - aScore 
+                })
+        }
+
             else if(this.suggestionSort == "random") comps.sort(() => Math.random() - 0.5)
 
             return comps.slice(0, 4)
         },
-        generateTop(champCount){
+        generateTop(champCount: number){
             this.tops = []
             let comps = this.data.filter((comp) =>{
                 return comp.champs.length == champCount + 1
             })
-
+            let k = 200
             if(this.suggestionSort == "popular") comps.sort((a, b) => {
                 return (b.games) - (a.games)
             })
-            else if(this.suggestionSort == "winrate") comps.sort((a, b) => (b.wins/b.games) - (a.wins/a.games))
+            
+            else if(this.suggestionSort == "winrate"){ 
+                comps.sort((a, b) => {
+                    let z = 3.891
+
+                    let aScore = a.WR + z**2 / (2 * a.games) - z * Math.sqrt((a.WR * (1 - a.WR) + z**2 / (4 * a.games)) / a.games) / (1 + z**2 / a.games)
+                    let bScore = b.WR + z**2 / (2 * b.games) - z * Math.sqrt((b.WR * (1 - b.WR) + z**2 / (4 * b.games)) / b.games) / (1 + z**2 / b.games)
+                    return bScore - aScore 
+                })
+                
+                comps = comps.filter((point) => {
+                    return point.games >= (30 * (4 - champCount))
+                })
+        }
+
             else if(this.suggestionSort == "random") comps.sort(() => Math.random() - 0.5)
 
             for (let i = 0; i < 5; i++) {
@@ -306,9 +341,8 @@ export default{
                     this.tops[i].champs[j] = comps[i].champs[j]
                 }
                 this.tops[i].games = comps[i].games
-                this.tops[i].WR = Math.round(comps[i].wins / comps[i].games * 10000)/100
+                this.tops[i].WR = Math.round(comps[i].WR * 10000)/100
             }
-            console.log(this.tops)
         }
     },
     mounted(){

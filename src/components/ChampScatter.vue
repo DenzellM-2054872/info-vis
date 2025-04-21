@@ -9,9 +9,6 @@ import * as d3 from "d3" ;
 import Champions from "@/classes/Champion.ts";
 import { computed, ref} from 'vue'
 
-
-
-
 export default{
     name: "ChampScatter",
     setup(){
@@ -25,6 +22,7 @@ export default{
             "Specialist": "#ffff33",
             "Slayer": "#e41a1c",
         })
+        let data = undefined
 
         const visible = ref({
             "Controller": true,
@@ -42,22 +40,64 @@ export default{
                         .domain([43, 57])
                         .range([ 0, width ])
 
-        const y = d3.scaleLinear()
+        let y = d3.scaleLinear()
                     .domain([0, 150000])
-                    .range([ height, 0])
+                    .range([ height, 0]);
 
+        let totalGames = 0
+        let totalPresence = 0
+        let yAxis = undefined
+        let yLine = undefined
+        let axisValue = "games"
         return{
+            data,
             displayIcons,
             colours,
             visible,
+            totalGames,
+            totalPresence,
             x,
             y,
+            yAxis,
+            yLine,
+            axisValue,
             margin,
             width,
             height
         }
     },
     methods: {
+        setDisplay(axisValue){
+            this.axisValue = axisValue
+            if(axisValue == "games"){
+                this.y = d3.scaleLinear()
+                    .domain([0, 150000])
+                    .range([this.height, 0]);
+                this.yLine.attr("x1", 0)  
+                    .attr("y1", this.y(this.totalGames / this.data.length * 10))
+                    .attr("x2", this.width)  
+                    .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                    .style("stroke-width", 2)
+                    .style("stroke", "gray")
+                    .style("fill", "none")
+                    .style("stroke-dasharray", "4");
+            }else if(axisValue == "presence"){
+                this.y = d3.scaleLinear()
+                    .domain([0, 80])
+                    .range([this.height, 0]);
+                this.yLine.attr("x1", 0)  
+                    .attr("y1", this.y(this.totalPresence / this.data.length))
+                    .attr("x2", this.width)
+                    .attr("y2", this.y(this.totalPresence / this.data.length))
+                    .style("stroke-width", 2)
+                    .style("stroke", "gray")
+                    .style("fill", "none")
+                    .style("stroke-dasharray", "4");
+            }
+            this.yAxis.transition()
+            .duration(200).call(d3.axisLeft(this.y));
+            this.showAll()
+        },
         setIcons(displayIcons){
             this.displayIcons = displayIcons
             this.showAll()
@@ -71,21 +111,26 @@ export default{
                 }
             }
         },
-        lowLightClass(champClass){     
+        lowLightClass(champClass){  
+            let totalGames = this.totalGames
+            let axisValue = this.axisValue  
+            let x = this.x
+            let y = this.y 
             if(this.displayIcons){
                 let size = 20
-                let x = this.x
-                let y = this.y
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
                     .selectAll("image").transition()
                     .duration(200)
                     .style("opacity", 0.33)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
-                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
-                    .attr("width", size - 2)
-                    .attr("height", size - 2)
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
 
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
@@ -95,7 +140,10 @@ export default{
                     .style("opacity", 0.33)
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
                     .attr("width", size)
                     .attr("height", size)
             }else{
@@ -106,6 +154,11 @@ export default{
                     .style("fill", "lightgrey")
                     .style("opacity", 0.33)
                     .style("display", "block")
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.Games)}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                    })
                     .attr("r", 4)
             }
 
@@ -114,7 +167,8 @@ export default{
             let size = 25
             let x = this.x
             let y = this.y
-
+            let totalGames = this.totalGames
+            let axisValue = this.axisValue
             if(this.displayIcons){
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
@@ -122,10 +176,13 @@ export default{
                     .duration(200)
                     .style("opacity", 1)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
-                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
-                    .attr("width", size - 2)
-                    .attr("height", size - 2)
+                    .attr("x", function (d) { return x(d.WR) - size / 2 } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
 
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
@@ -134,7 +191,10 @@ export default{
                     .style("opacity", 1)
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
                     .attr("width", size)
                     .attr("height", size)
                     .style("stroke", this.colours[champClass])
@@ -147,7 +207,10 @@ export default{
                     .style("opacity", 1)
                     .style("display", "none")
                     .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { return y(d.Games); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.Games)}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                    })
                     .style("fill", this.colours[champClass])
             }else{
                 d3.select("#ChampScatter")
@@ -155,6 +218,11 @@ export default{
                     .selectAll("image").transition()
                     .duration(200)
                     .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
                     .style("fill", this.colours[champClass])
 
                 d3.select("#ChampScatter")
@@ -162,6 +230,11 @@ export default{
                     .selectAll("rect").transition()
                     .duration(200)
                     .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
                     .style("stroke", this.colours[champClass])
 
                 d3.select("#ChampScatter")
@@ -171,25 +244,35 @@ export default{
                     .attr("r", 5)
                     .style("opacity", 1)
                     .style("display", "block")
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.Games)}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                    })
                     .style("fill", this.colours[champClass])
             }
         },
         highlightClass(champClass){
             d3.select("#ChampScatter")
             .selectAll(`.${champClass}`).raise()
+            let totalGames = this.totalGames
+            let axisValue = this.axisValue  
+            let x = this.x
+            let y = this.y 
             if(this.displayIcons){
                 let size = 30
-                let x = this.x
-                let y = this.y
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
                     .selectAll("image").transition()
                     .duration(200)
                     .style("opacity", 1)
-                    .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
-                    .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
-                    .attr("width", size - 2)
-                    .attr("height", size - 2)
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
 
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
@@ -197,8 +280,11 @@ export default{
                     .duration(200)
                     .style("opacity", 1)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                    .attr("x", function (d) { return x(d.WR) - size / 2} )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.Games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
                     .attr("width", size)
                     .attr("height", size)
                     .style("stroke", this.colours[champClass])
@@ -208,6 +294,11 @@ export default{
                     .selectAll("circle").transition()
                     .duration(200)
                     .style("opacity", 1)
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.Games)}
+                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                    })
                     .attr("r", 6)
                     .style("fill", this.colours[champClass])
             }
@@ -234,21 +325,26 @@ export default{
                     .style("display", "none")
             }
         },
-        renderData(champData){
+        renderData(){
             let size = 25
             let x = this.x
             let y = this.y
+            let totalGames = this.totalGames
+            let axisValue = this.axisValue
 
             let groups = d3.select("#ChampScatter").select(`.dataWrapper`)
                 .selectAll("dot")
-                .data(champData)
+                .data(this.data)
                 .enter()
                 .append('g')
                 .attr("class", function (d) {return Champions.ClassesfromID(d.Name)[0]; })         
 
             groups.append('image')
                 .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                .attr("y", function (d) { return y(d.Games) - size / 2; } )
+                .attr("y", function (d) {
+                    if(axisValue == "games") {return y(d.Games) - size / 2}
+                    if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                })
                 .attr("width", size)
                 .attr("height", size)
                 .style("display", "none")
@@ -259,11 +355,11 @@ export default{
                 .on("mouseleave", this.mouseleave )
 
             groups.append('rect')
-                .attr("x", function (d) { return x(d.WR) - size / 2 + 1; } )
+                .attr("x", function (d) { return x(d.WR) - size / 2 } )
                 .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
                 // .attr("class", function (d) { return Champions.ClassesfromID(d.Name)[0]; })
-                .attr("width", size - 2)
-                .attr("height", size - 2)
+                .attr("width", size)
+                .attr("height", size)
                 .style("display", "none")
                 .style("fill", "none")
                 .style("stroke", "black")
@@ -271,7 +367,8 @@ export default{
 
             groups.append("circle")
                 .attr("cx", function (d) { return x(d.WR); } )
-                .attr("cy", function (d) { return y(d.Games); } )
+                .attr("cy", function (d) { if(axisValue == "games") {return y(d.Games) - size / 2}
+                                           if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100);}})
                 .attr("r", 5)
                 .style("display", "none")
                 .style("fill", "#69b3a2")
@@ -283,8 +380,6 @@ export default{
             this.showAll()
         },
         createSVG(){
-
-    
         var tooltip = d3.select("#ChampScatter")
             .append("div")
             .style("opacity", 0)
@@ -313,7 +408,7 @@ export default{
 
 
             
-        var yAxis = svg.append("g")
+        this.yAxis = svg.append("g")
             .call(d3.axisLeft(this.y));
 
         var size = 10
@@ -328,32 +423,32 @@ export default{
                 .attr("class", "dataWrapper")
         //Read the data
         d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
-            let total = data.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0)
-            data = data.filter((point) => {
+            this.totalGames = data.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0) /10
+            let totalGames = this.totalGames
+            this.totalPresence = data.reduce((accumulator, point) => {
+                return Number(accumulator) + ((Number(point.EffectiveBans) / totalGames + Number(point.Games) / totalGames) * 100)
+            }, 0)
+            this.data = data.filter((point) => {
                 return point.Name != "None"
             })
-
-            this.renderData(data)
+            this.renderData()
             this.showAll()
 
-
-            svg.append("line")
-            .attr("x1", 0)  //<<== change your code here
-            .attr("y1", this.y(total / data.length))
-            .attr("x2", this.width)  //<<== and here
-            .attr("y2", this.y(total / data.length))
-            .style("stroke-width", 2)
-            .style("stroke", "gray")
-            .style("fill", "none")
-            .style("stroke-dasharray", "4");
-
+            this.yLine = svg.append("line")
+                .attr("x1", 0) 
+                .attr("y1", this.y(this.totalGames / this.data.length * 10))
+                .attr("x2", this.width)  
+                .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                .style("stroke-width", 2)
+                .style("stroke", "gray")
+                .style("fill", "none")
+                .style("stroke-dasharray", "4");
         })
-        
 
         svg.append("line")
-            .attr("x1", this.x(50))  //<<== change your code here
+            .attr("x1", this.x(50))
             .attr("y1", 0)
-            .attr("x2", this.x(50))  //<<== and here
+            .attr("x2", this.x(50))
             .attr("y2", this.height)
             .style("stroke-width", 2)
             .style("stroke", "gray")
@@ -385,12 +480,10 @@ export default{
 
             if(this.visible[champClass]){
                 this.hideClass(champClass)
-                // hideClassBans(tag)
                 this.visible[champClass] = false;
 
             }else{
                 this.showClass(champClass)
-                // showClassBans(champClass)
                 this.visible[champClass] = true
             }
             this.$emit('legend_click', champClass)
@@ -410,7 +503,6 @@ export default{
         legend_mouseover(event, d) {
             let hoveredClass = d3.select(event.target).attr('class')
             this.$emit('legend_mouseover', hoveredClass)
-            console.log(hoveredClass)
             if(!this.visible[hoveredClass]){
                 this.lowLightClass(hoveredClass);
                 return
@@ -442,6 +534,7 @@ export default{
 
         },
         mousemove(event, d) {
+            let totalGames = this.totalGames
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#ChampScatter").select(`.tooltip`)
@@ -451,6 +544,7 @@ export default{
                 .style("display", "block")
         },
         mouseover(event, d) {
+            let totalGames = this.totalGames
             let champClass = d3.select(event.target.parentNode).attr("class")
             if(!this.visible[champClass]) return;
             d3.select("#ChampScatter").select(`.tooltip`)

@@ -10,6 +10,10 @@
                 <input @change="toggleIcons()" id="ShowIcons" type="checkbox" v-model="displayIcons"/>
                 <p>Show champion icons</p>
             </div>
+            <select name="y_axis" id="y_axis" v-model="yAxis" @change="setDisplay">
+                <option value="games">Games</option>
+                <option value="presence">Presence</option>
+            </select>
         </div>
     </div>
 </template>
@@ -29,17 +33,23 @@ export default{
         const bannedScatter = useTemplateRef<BannedScatter>('bannedScatter')
         const champScatter = useTemplateRef<ChampScatter>('champScatter')
         let displayIcons = ref(false)
+        let yAxis = ref("games")
 
         return{
             bannedScatter,
             champScatter,
-            displayIcons
+            displayIcons,
+            yAxis
         }
     },
     methods: {
         toggleIcons(){
             this.champScatter.setIcons(this.displayIcons)
             this.bannedScatter.setIcons(this.displayIcons)
+        },
+        setDisplay(){
+            this.champScatter.setDisplay(this.yAxis)
+            this.bannedScatter.setDisplay(this.yAxis)
         }
     },
     mounted(){
@@ -53,6 +63,7 @@ export default{
 <style lang="scss" scoped>
     .graph_controls{
         display: flex;
+        flex-direction: column;
     }
 
     .icon_controls{
