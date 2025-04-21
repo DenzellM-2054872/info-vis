@@ -2,10 +2,7 @@
 <template>
     <div id="champ_search">
         <input class="search_bar" type="text" v-model="input" placeholder="Search champs..." />
-        <div class="search_suggestion" v-if="input&&!this.filteredList().length&&(input.length >= 3)">
-            <p>No results found!</p>
-        </div>
-        <div class="search_suggestion" v-else >
+        <div class="search_suggestion" v-if="input&&this.filteredList().length&&(input.length >= 3)">
             <div v-for="champ in filteredList()" :key="champ" class="champ" @click="this.fillChamp">
                 <img :src="this.getChampionImage(champ.id)" class="champ_image"/>
                 <p>{{ champ.data.name }}</p>
@@ -26,17 +23,20 @@ export default{
     setup(){
         let input = ref("");
         let champs = [];
+        let showSuggestions = ref(true); 
+
         for(let key in keys){
             champs.push(new Champions(keys[key]))
         }
         return{
             input,
-            champs
+            champs, 
+            showSuggestions
         }
     },
     methods: {
         filteredList() {
-            if(this.input.length < 3) return []
+            if(!this.showSuggestions || this.input.length < 3) return []
             return this.champs.filter((champ) => {
                 return champ.data.id.toLowerCase().includes(this.input.toLowerCase())
                 ||champ.data.name.toLowerCase().includes(this.input.toLowerCase())
@@ -51,6 +51,7 @@ export default{
             }else{
                 this.input = event.target.parentNode.innerText
             }
+            this.showSuggestions = false;
         },
         getChampionID(){
             if(this.input.length == 0) return ""
@@ -72,6 +73,11 @@ export default{
             this.input = ""
         }
     },
+    watch: {
+        input(newValue) {
+            this.showSuggestions = true;
+        }
+    }
 
 }
 </script>

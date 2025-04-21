@@ -2,8 +2,7 @@
 import { ref, type Ref, watch, onMounted } from "vue";
 import Champions from "@/classes/Champion.ts"; 
 import * as d3 from "d3";
-// filepath: c:\Users\yoshu\Desktop\test\info-vis\src\views\ChampDetailView.vue
-//import {ChampDetails} from "../data/ChampDetails.json";
+import ChampSearch from "@/components/ChampSearch.vue";
 import WinratePerMinute from '@/components/WinratePerMinute.vue';
 
 interface ChampDetailsType {
@@ -24,25 +23,49 @@ interface ChampDetailsType {
     "wins": {[rank: string]: number}
 }
 
+interface ChampionStats {
+    Name: string;
+    Games: number;
+    Wins: number;
+    Losses: number;
+    Bans: number;
+    EffectiveBans: number;
+    WR: number;
+}
+
 const champName = ref("");
 const champion : Ref<Champions | undefined> = ref();
-champName.value = "Bard"; 
-champion.value = new Champions(champName.value); 
+//const searchbar = useTemplateRef<ChampSearch>("champSearch");
 var champData: ChampDetailsType = {} as ChampDetailsType;
-//drawMatchupGraph();
-
+const champStats : Ref<d3.DSVRowString<string> | undefined > = ref();
+    
 function searchChampion() {
     try {
         champion.value = undefined
         champion.value = new Champions(champName.value);
-        console.log("Succes fetch champ");
+        console.log("Succes fetch champ", champion.value.getName());
+        d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv")
+            .then((globalData) => {
+                const foundStats = globalData.find((d) => d.Name === champName.value);
+                if (!foundStats) {
+                    console.warn("No data found for the selected champion: ", champion.value?.getName());
+                    return;
+                }
+                champStats.value = foundStats; 
+                console.log(champStats.value.WR);
+                drawMatchupGraph()
+
+            })
+            .catch((error) => {
+                console.error("Error loading CSV data:", error);
+            });
         d3.json("http://localhost:5173/stats/champDetails2.json").then((data: any) => {
             champData = data.find((d: any) => d.name === champName.value);
             if (!champData) {
                 console.warn("No data found for the selected champion: ", champName.value);
                 return;
             }
-            drawMatchupGraph()
+            console.log("i'm testing here", champData)
             drawWinRatePerElo()
             drawWinsPerElo()
             drawKillsBarChart()
@@ -61,7 +84,7 @@ function drawMatchupGraph() {
 
     const margin = { top: 20, right: 80, bottom: 40, left: 50 };
     const width = 600 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const height = 200; // Increased height for the hourglass effect
 
     const svg = svgContainer
         .append("svg")
@@ -71,101 +94,108 @@ function drawMatchupGraph() {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Load the global win rate data
-    d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((globalData) => {
-        const champGlobalData = globalData.find((d) => d.Name === champName.value);
-        if (!champGlobalData) {
-            console.warn("No global data found for the selected champion: ", champion.value?.getName());
-            return;
-        }
+       
+    const champAverageWR = parseFloat(champStats.value?.WR || "0");
+    const champTotalGames = parseInt(champStats.value?.Games || "0");
+    const minGamesThreshold = champTotalGames < 12500 ? Math.max(0, champTotalGames * 0.3) : Math.max(350, champTotalGames * 0.02);
 
-        const champAverageWR = parseFloat(champGlobalData.WR); 
-        const champTotalGames = parseInt(champGlobalData.Games); 
-        //const minGamesThreshold = champTotalGames < 12500 ? Math.max(0, champTotalGames * 0.3) : Math.max(350, champTotalGames * 0.02); 
-        //const minGamesThreshold = champTotalGames < 15000 ? champTotalGames * 0.01 : champTotalGames * 0.01;
-        const minGamesThreshold = 0;
-        const lowerBound = champAverageWR - 2.5; 
-        const upperBound = champAverageWR + 2.5; 
-        console.log("Champ Average WR:", champAverageWR);
-        console.log("Champ Total Games:", champTotalGames);
-        // Load the matchup data
-        d3.csv("http://localhost:5173/stats/wo_lanes/global_globalWR.csv").then((matchupData) => {
-            
-            const filteredData = matchupData.filter((d) => {
+    const bounds = [
+        { label: "-7.5", range: [champAverageWR - 7.5, champAverageWR - 5], scale: 1.5 },
+        { label: "-5", range: [champAverageWR - 5, champAverageWR - 2.5], scale: 1.2 },
+        { label: "-2.5", range: [champAverageWR - 2.5, champAverageWR], scale: 1 },
+        { label: "+2.5", range: [champAverageWR, champAverageWR + 2.5], scale: 1 },
+        { label: "+5", range: [champAverageWR + 2.5, champAverageWR + 5], scale: 1.2 },
+        { label: "+7.5", range: [champAverageWR + 5, champAverageWR + 7.5], scale: 1.5 },
+    ];
+
+    // Load matchup data
+    d3.csv("http://localhost:5173/stats/wo_lanes/global_globalWR.csv").then((matchupData) => {
+        const groupedData = bounds.map((bound) => {
+            const filtered = matchupData.filter((d) => {
                 const wr = parseFloat(d.WR);
                 const games = parseInt(d.Games, 10);
                 return (
                     d.Name === champName.value &&
-                    (wr <= lowerBound ||
-                    wr >= upperBound) &&
-                    games >= minGamesThreshold 
+                    wr >= bound.range[0] &&
+                    wr < bound.range[1] &&
+                    games >= minGamesThreshold
                 );
             });
-
-            if (filteredData.length === 0) {
-                console.warn("No matchups found within the specified WR range and game count.");
-                return;
-            }
-
-            // Sort data 
-            filteredData.sort((a, b) => parseFloat(a.WR) - parseFloat(b.WR));
-
-            const x = d3.scaleBand()
-                .domain(filteredData.map((d) => d.Opponent))
-                .range([0, width])
-                .padding(0.2);
-
-            const y = d3.scaleLinear()
-                .domain([0, 100])
-                .range([height, 0]);
-
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .attr("transform", "rotate(-45)")
-                .style("text-anchor", "end");
-
-            svg.append("g").call(d3.axisLeft(y));
-
-            svg.selectAll("rect")
-                .data(filteredData)
-                .enter()
-                .append("rect")
-                .attr("x", (d) => x(d.Opponent)!)
-                .attr("y", (d) => y(parseFloat(d.WR)))
-                .attr("width", x.bandwidth())
-                .attr("height", (d) => height - y(parseFloat(d.WR)))
-                .attr("fill", (d) => (parseFloat(d.WR) > champAverageWR ? "#69b3a2" : "#ff6b6b"));
-
-            svg.append("line")
-                .attr("x1", 0)
-                .attr("x2", width)
-                .attr("y1", y(champAverageWR))
-                .attr("y2", y(champAverageWR))
-                .attr("stroke", "grey")
-                .attr("stroke-dasharray", "4 4")
-                .attr("stroke-width", 2);
-
-            svg.append("text")
-                .attr("x", width + 1)
-                .attr("y", y(champAverageWR))
-                .attr("text-anchor", "start")
-                .style("fill", "red")
-                .style("font-size", "12px")
-                .text(`Avg: ${champAverageWR.toFixed(2)}%`);
-        }).catch((error) => {
-            console.error("Error loading matchup data:", error);
+            return { label: bound.label, champions: filtered, size: Math.abs(bound.range[1] - bound.range[0]), scale: bound.scale };
         });
+
+        const totalSize = groupedData.reduce((sum, d) => sum + d.size * d.scale, 0);
+        const scaleFactor = width / totalSize; // Scale blocks 
+
+        let currentX = 0;
+
+        // Create blocks 
+        svg.selectAll("rect")
+            .data(groupedData)
+            .enter()
+            .append("rect")
+            .attr("x", (d) => {
+                const x = currentX;
+                currentX += d.size * d.scale * scaleFactor;
+                return x;
+            })
+            .attr("y", (d) => {
+                // Change y
+                const centerY = height / 2;
+                return centerY - (d.scale * 40); 
+            })
+            .attr("width", (d) => d.size * d.scale * scaleFactor)
+            .attr("height", (d) => d.scale * 80) 
+            .attr("fill", (d) =>
+                d.label.includes("-") ? "#ff6b6b" : "#69b3a2"
+            )
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+            .attr("rx", 20) // Round corners 
+            .attr("ry", 20) // Round corners 
+            .on("click", (event, d) => {
+                displayChampionList(d.champions);
+            });
+
+        // Labels
+        currentX = 0;
+        svg.selectAll("text")
+            .data(groupedData)
+            .enter()
+            .append("text")
+            .attr("x", (d) => {
+                const x = currentX + (d.size * d.scale * scaleFactor) / 2;
+                currentX += d.size * d.scale * scaleFactor;
+                return x;
+            })
+            .attr("y", (d) => {
+                const centerY = height / 2;
+                return centerY - (d.scale * 40) + (d.scale * 40); 
+            })
+            .attr("text-anchor", "middle")
+            .text((d) => d.label)
+            .attr("fill", "white");
     }).catch((error) => {
-        console.error("Error loading global data:", error);
+        console.error("Error loading matchup data:", error);
     });
+    
 }
 
-function getChampionCounters() {
-    if (champion.value) {
-        
+// Display the list in group
+function displayChampionList(champions) {
+    const listContainer = d3.select("#champion-list");
+    listContainer.selectAll("*").remove(); // Clear
+
+    if (champions.length === 0) {
+        listContainer.append("p").text("No champions.");
+        return;
     }
-    return "No counters available";
+
+    const list = listContainer.append("ul");
+    champions.forEach((champ) => {
+        const realName = Champions.NamefromID(champ.Opponent);
+        list.append("li").text(`${realName}: ${champ.WR}%`);
+    });
 }
 
 const rankOrder = ["Unranked", 
@@ -343,12 +373,7 @@ function drawKillsBarChart() {
     drawBarchartPerElo("avg-kills-graph", processedData, "Avg Kills Per Game", [0,d3.max(processedData, (d) => d.value)!], 0);
 }
 
-onMounted(() => {
-    drawMatchupGraph();
-    drawWinRatePerElo();
-    drawWinsPerElo();
-    drawKillsBarChart();
-});
+
 
 </script>
 
@@ -367,6 +392,7 @@ onMounted(() => {
                 @keyup.enter="searchChampion"
             />
             <button @click="searchChampion">Search</button>
+
         </div>
         <div v-if="champion" class="champion-container">
                 <div class="champion-header">
@@ -374,6 +400,7 @@ onMounted(() => {
                     <div class="champion-info">
                         <h1>{{ champion.getName() }}</h1>
                         <p class="champion-class">{{ champion.getClass().join(', ') }}</p>
+                        <p> {{ }}</p>
                         <div class="abilities-container">
                             <div v-for="(ability, index) in champion.getSpells()" :key="index" class="ability">
                                 <img :src="`/spell/${ability.image.full}`" alt="Ability Image" class="ability-icon" />
@@ -381,13 +408,17 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-                <div id="matchup-graph"></div>
+                <div>   
+                    <div id="matchup-graph"></div>
+                    <div id="champion-list"></div>
+                </div>
                 <div class="charts-container">
                     <div id="winrate-per-elo"></div>
                     <div id="wins-per-elo"></div>
                 </div>
                 <div id="avg-kills-graph"></div>
                 
+
                 
         </div>
         <div v-else>
@@ -466,6 +497,11 @@ onMounted(() => {
     flex: 1; /* Make both charts take equal space */
     max-width: 48%; /* Ensure they fit side by side */
     min-width: 0; /* Prevent flexbox from forcing a minimum size */
+}
+
+#champion-list {
+    margin-top: 10px; 
+    color: white;
 }
 </style>
 
