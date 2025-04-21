@@ -3,7 +3,6 @@ import {keys} from '../data/championFull.json'
 import type { ChampType } from './ChampionTypes'
 
 
-
 interface DataType{
     [champID: string]: ChampType
 }
@@ -85,6 +84,8 @@ export default class Champions {
     getName(){
         return this.data.name
     }
-
+    getId(){
+        return this.id
+    }
      
 }
