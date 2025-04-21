@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref, watch } from "vue";
+import { ref, type Ref, watch, onMounted } from "vue";
 import Champions from "@/classes/Champion.ts"; 
 import * as d3 from "d3";
 // filepath: c:\Users\yoshu\Desktop\test\info-vis\src\views\ChampDetailView.vue
@@ -7,35 +7,48 @@ import * as d3 from "d3";
 import WinratePerMinute from '@/components/WinratePerMinute.vue';
 
 interface ChampDetailsType {
-    "average_assists": number
-    "average_deaths": number
-    "average_kills": number
-    "average_positions": {[role: string]: number}
+    "average_assists": {[rank: string]: number}
+    "average_deaths": {[rank: string]: number}
+    "average_kills": {[rank: string]: number}
+    //"average_positions": {[role: string]: number}
     // "highest_runes_usage:" string[]
     "id": number
-    "losses": number
+    "losses": {[rank: string]: number}
     "name": string
-    "positions_played": {[role: string]: number}
-    "total_assists": number
-    "total_deaths": number
-    "total_games": number
-    "total_kills": number
-    "winrate_at_times": {[minute: string]: number | undefined}
-    "wins": number
+    //"positions_played": {[role: string]: number}
+    "total_assists": {[rank: string]: number}
+    "total_deaths": {[rank: string]: number}
+    "total_games": {[rank: string]: number}
+    "total_kills": {[rank: string]: number}
+    "winrate_at_times": {[minute: number]: number}
+    "wins": {[rank: string]: number}
 }
 
 const champName = ref("");
 const champion : Ref<Champions | undefined> = ref();
 champName.value = "Bard"; 
 champion.value = new Champions(champName.value); 
-drawMatchupGraph();
+var champData: ChampDetailsType = {} as ChampDetailsType;
+//drawMatchupGraph();
 
 function searchChampion() {
     try {
         champion.value = undefined
         champion.value = new Champions(champName.value);
         console.log("Succes fetch champ");
-        drawMatchupGraph()
+        d3.json("http://localhost:5173/stats/champDetails2.json").then((data: any) => {
+            champData = data.find((d: any) => d.name === champName.value);
+            if (!champData) {
+                console.warn("No data found for the selected champion: ", champName.value);
+                return;
+            }
+            drawMatchupGraph()
+            drawWinRatePerElo()
+            drawWinsPerElo()
+            drawKillsBarChart()
+        }).catch((error) => {
+            console.error("Error loading JSON data:", error);
+        });
     } catch (error) {
         console.error("Error fetching champion:", error);
     }
@@ -155,6 +168,188 @@ function getChampionCounters() {
     return "No counters available";
 }
 
+const rankOrder = ["Unranked", 
+            "IRONIV", "IRONIII", "IRONII", "IRONI", 
+            "BRONZEIV", "BRONZEIII", "BRONZEII", "BRONZEI",
+            "SILVERIV", "SILVERIII", "SILVERII", "SILVERI", 
+            "GOLDIV", "GOLDIII", "GOLDII", "GOLDI",
+            "PLATINUMIV", "PLATINUMIII", "PLATINUMII", "PLATINUMI",
+            "EMERALDIV", "EMERALDIII", "EMERALDII", "EMERALDI",
+            "DIAMONDIV", "DIAMONDIII", "DIAMONDII", "DIAMONDI",
+            "MASTERI", 
+            "GRANDMASTERI", 
+            "CHALLENGERI"];
+
+const colorMapping: { [key: string]: string } = {
+        "IRONI": "#a6a6a6",
+        "IRONII": "#b3b3b3",
+        "IRONIII": "#c0c0c0",
+        "IRONIV": "#d9d9d9",
+        "BRONZEI": "#cd7f32",
+        "BRONZEII": "#d08c3a",
+        "BRONZEIII": "#d39942",
+        "BRONZEIV": "#d6a64a",
+        "SILVERI": "#c0c0c0",
+        "SILVERII": "#c4c4c4",
+        "SILVERIII": "#c8c8c8",
+        "SILVERIV": "#cccccc",
+        "GOLDI": "#ffd700",
+        "GOLDII": "#ffdb33",
+        "GOLDIII": "#ffe066",
+        "GOLDIV": "#ffe599",
+        "PLATINUMI": "#00ff00",
+        "PLATINUMII": "#33ff33",
+        "PLATINUMIII": "#66ff66",
+        "PLATINUMIV": "#99ff99",
+        "EMERALDI": "#ffff00",
+        "EMERALDII": "#ffff33",
+        "EMERALDIII": "#ffff66",
+        "EMERALDIV": "#ffff99",
+        "DIAMONDI": "#00ffff",
+        "DIAMONDII": "#33ffff",
+        "DIAMONDIII": "#66ffff",
+        "DIAMONDIV": "#99ffff",
+        "MASTERI": "#ff00ff",
+        "GRANDMASTERI": "#ff3399",
+        "CHALLENGERI": "#ff6600",
+};
+
+function drawBarchartPerElo(divId: string, processedData: any[], y_label: string, y_scale: number[], lineValue: number) {
+    const svgContainer = d3.select("#" + divId);
+    svgContainer.selectAll("*").remove();
+
+    const margin = { top: 20, right: 30, bottom: 70, left: 50 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const svg = svgContainer
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // remove 'all' from processedData
+    const allIndex = processedData.findIndex((d) => d.name === "all");
+    if (allIndex !== -1) {
+        processedData.splice(allIndex, 1);
+    }
+
+    // Set up scales
+    const x = d3.scaleBand()
+        .domain(processedData.map((d) => d.name))
+        .range([0, width])
+        .padding(0.2);
+
+    const y = d3.scaleLinear()
+        .domain([y_scale[0], y_scale[1]])
+        .range([height, 0]);
+
+    // Add axes
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
+    svg.append("g").call(d3.axisLeft(y));
+
+    // Add bars
+    svg.selectAll("rect")
+        .data(processedData)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.name)!)
+        .attr("y", (d) => y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => height - y(d.value))
+        .attr("fill", (d) => colorMapping[d.name] || "#69b3a2");
+
+    // y label
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(y_label)
+        .style("fill", "white");
+
+    svg.append("line")
+        .attr("x1", 0)
+        .attr("x2", width)
+        .attr("y1", y(lineValue))
+        .attr("y2", y(lineValue))
+        .attr("stroke", "grey")
+        .attr("stroke-dasharray", "4 4")
+        .attr("stroke-width", 2);
+}
+
+function drawWinRatePerElo() {
+    const winsData = champData.wins;
+    const gameCountData = champData.total_games;
+
+    const sortedKeys = Object.keys(winsData).sort((a, b) => {
+        return rankOrder.indexOf(a) - rankOrder.indexOf(b);
+    });
+
+    const processedData = sortedKeys.map((key: string) => ({
+        name: key,
+        value: winsData[key] / gameCountData[key] * 100, // Calculate win rate percentage
+    }));
+
+    drawBarchartPerElo("winrate-per-elo", processedData, "Win Rate (%)", [0,100], winsData["all"] / gameCountData["all"] * 100);
+}
+
+function drawWinsPerElo() {
+    const winsData = champData.wins;
+
+    const sortedKeys = Object.keys(winsData).sort((a, b) => {
+        return rankOrder.indexOf(a) - rankOrder.indexOf(b);
+    });
+
+    const processedData = sortedKeys.map((key: string) => ({
+        name: key,
+        value: winsData[key],
+    }));
+
+    // remove 'all' from processedData
+    const allIndex = processedData.findIndex((d) => d.name === "all");
+    if (allIndex !== -1) {
+        processedData.splice(allIndex, 1);
+    }
+
+    drawBarchartPerElo("wins-per-elo", processedData, "Total Wins", [0,d3.max(processedData, (d) => d.value)!], winsData["all"]);
+}
+
+function drawKillsBarChart() {
+    const killsData = champData.average_kills;
+
+    const sortedKeys = Object.keys(killsData).sort((a, b) => {
+        return rankOrder.indexOf(a) - rankOrder.indexOf(b);
+    });
+
+    const processedData = sortedKeys.map((key: string) => ({
+        name: key,
+        value: killsData[key],
+    }));
+
+    // remove 'all' from processedData
+    const allIndex = processedData.findIndex((d) => d.name === "all");
+    if (allIndex !== -1) {
+        processedData.splice(allIndex, 1);
+    }
+
+    drawBarchartPerElo("avg-kills-graph", processedData, "Avg Kills Per Game", [0,d3.max(processedData, (d) => d.value)!], 0);
+}
+
+onMounted(() => {
+    drawMatchupGraph();
+    drawWinRatePerElo();
+    drawWinsPerElo();
+    drawKillsBarChart();
+});
+
 </script>
 
 <template>
@@ -187,7 +382,12 @@ function getChampionCounters() {
                     </div>
                 </div>
                 <div id="matchup-graph"></div>
-
+                <div class="charts-container">
+                    <div id="winrate-per-elo"></div>
+                    <div id="wins-per-elo"></div>
+                </div>
+                <div id="avg-kills-graph"></div>
+                
                 
         </div>
         <div v-else>
@@ -201,9 +401,10 @@ function getChampionCounters() {
     border: 1px solid #ccc;
     padding: 16px;
     border-radius: 8px;
-    max-width: 800px;
     margin: 0 auto;
     background-color: #181818;
+    display: flex;
+    flex-direction: column;
 }
 
 .champion-header {
@@ -249,6 +450,22 @@ function getChampionCounters() {
     border-radius: 4px;
     object-fit: cover;
     border: 1px solid #ccc;
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%; /* Ensure it takes full width */
+    max-width: 100%; /* Prevent overflow */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+#winrate-per-elo,
+#avg-kills-graph {
+    flex: 1; /* Make both charts take equal space */
+    max-width: 48%; /* Ensure they fit side by side */
+    min-width: 0; /* Prevent flexbox from forcing a minimum size */
 }
 </style>
 
