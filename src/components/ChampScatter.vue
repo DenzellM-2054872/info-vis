@@ -41,7 +41,7 @@ export default{
                         .range([ 0, width ])
 
         let y = d3.scaleLinear()
-                    .domain([0, 150000])
+                    .domain([0, 80000])
                     .range([ height, 0]);
 
         let totalGames = 0
@@ -71,7 +71,7 @@ export default{
             this.axisValue = axisValue
             if(axisValue == "games"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 150000])
+                    .domain([0, 80000])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalGames / this.data.length * 10))
@@ -380,88 +380,84 @@ export default{
             this.showAll()
         },
         createSVG(){
-        var tooltip = d3.select("#ChampScatter")
-            .append("div")
-            .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("color", "black")
-            .style("border", "solid")
-            .style("border-width", "1px")
-            .style("border-radius", "5px")
-            .style("position", "absolute")
-            .style("padding", "10px")
+            //tooltip
+            d3.select("#ChampScatter")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("color", "black")
+                .style("border", "solid")
+                .style("border-width", "1px")
+                .style("border-radius", "5px")
+                .style("position", "absolute")
+                .style("padding", "10px")
 
-
-        var svg = d3.select("#ChampScatter")
-            .append("svg")
+            var svg = d3.select("#ChampScatter")
+                .append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)
                 .attr("height", this.height + this.margin.top + this.margin.bottom)
-            .append("g")
-                .attr("transform",
-                    "translate(" + this.margin.left + "," + this.margin.top + ")");
-            // Add X axis
+                .append("g")
+                .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-        var xAxis = svg.append("g")
-            .attr("transform", "translate(0," + this.height + ")")
-            .call(d3.axisBottom(this.x));
+            //X axis
+            svg.append("g")
+                .attr("transform", "translate(0," + this.height + ")")
+                .call(d3.axisBottom(this.x));
 
+            this.yAxis = svg.append("g")
+                .call(d3.axisLeft(this.y));
 
-            
-        this.yAxis = svg.append("g")
-            .call(d3.axisLeft(this.y));
-
-        var size = 10
-        let yValue = 30
-        for(let champClass in this.colours){
-            this.generateLegend(svg, yValue, size, champClass)
-            yValue += 20
-        }
- 
-        var scatter = svg.append('g')
-                .attr("clip-path", "url(#clip)")
-                .attr("class", "dataWrapper")
-        //Read the data
-        d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
-            let values = Object.values(data)
-            this.totalGames = values.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) /10
-            console.log(this.totalGames)
-            this.totalPresence = values.reduce((accumulator, point) => {
-                return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
-            }, 0)
-
-            for(let champ in data){
-                data[champ]['WR'] = (data[champ]['wins'] / data[champ]['games']) * 100
-                data[champ]['name'] = champ
+            var size = 10
+            let yValue = 30
+            for(let champClass in this.colours){
+                this.generateLegend(svg, yValue, size, champClass)
+                yValue += 20
             }
+ 
+            var scatter = svg.append('g')
+                    .attr("clip-path", "url(#clip)")
+                    .attr("class", "dataWrapper")
+        //Read the data
+            d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
+                let values = Object.values(data)
+                this.totalGames = values.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) /10
+                console.log(this.totalGames)
+                this.totalPresence = values.reduce((accumulator, point) => {
+                    return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
+                }, 0)
 
-            delete data['None']
-            this.data = Object.values(data)
+                for(let champ in data){
+                    data[champ]['WR'] = (data[champ]['wins'] / data[champ]['games']) * 100
+                    data[champ]['name'] = champ
+                }
 
-            this.renderData()
-            this.showAll()
+                delete data['None']
+                this.data = Object.values(data)
 
-            this.yLine = svg.append("line")
-                .attr("x1", 0) 
-                .attr("y1", this.y(this.totalGames / this.data.length * 10))
-                .attr("x2", this.width)  
-                .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                this.renderData()
+                this.showAll()
+
+                this.yLine = svg.append("line")
+                    .attr("x1", 0) 
+                    .attr("y1", this.y(this.totalGames / this.data.length * 10))
+                    .attr("x2", this.width)  
+                    .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                    .style("stroke-width", 2)
+                    .style("stroke", "gray")
+                    .style("fill", "none")
+                    .style("stroke-dasharray", "4");
+            })
+
+            svg.append("line")
+                .attr("x1", this.x(50))
+                .attr("y1", 0)
+                .attr("x2", this.x(50))
+                .attr("y2", this.height)
                 .style("stroke-width", 2)
                 .style("stroke", "gray")
                 .style("fill", "none")
                 .style("stroke-dasharray", "4");
-        })
-
-        svg.append("line")
-            .attr("x1", this.x(50))
-            .attr("y1", 0)
-            .attr("x2", this.x(50))
-            .attr("y2", this.height)
-            .style("stroke-width", 2)
-            .style("stroke", "gray")
-            .style("fill", "none")
-            .style("stroke-dasharray", "4");
-
         },   
         generateLegend(svg, yValue, size, champClass){
             svg.append("rect").attr("x", 300).attr("y", yValue).attr("width", size).attr("class", champClass).attr("height", size).style("fill", this.colours[champClass])
@@ -545,7 +541,7 @@ export default{
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#ChampScatter").select(`.tooltip`)
-                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${d.WR}% `)
+                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% `)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
@@ -556,7 +552,7 @@ export default{
             if(!this.visible[champClass]) return;
             d3.select("#ChampScatter").select(`.tooltip`)
                 .style("opacity", 1)            
-                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${d.WR}%<br>`)
+                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}%<br>`)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
