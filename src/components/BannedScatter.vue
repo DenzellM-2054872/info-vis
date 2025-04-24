@@ -29,7 +29,7 @@ export default{
                     .range([ 0, width ]);
 
         let y = d3.scaleLinear()
-                    .domain([0, 150000])
+                    .domain([0, 80000])
                     .range([ height, 0]);
 
 
@@ -69,7 +69,7 @@ export default{
             this.axisValue = axisValue
             if(axisValue == "games"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 150000])
+                    .domain([0, 80000])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalGames / this.data.length * 10))
@@ -81,7 +81,7 @@ export default{
                     .style("stroke-dasharray", "4");
             }else if(axisValue == "presence"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 200])
+                    .domain([0, 100])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalPresence / this.data.length))
@@ -429,7 +429,7 @@ export default{
 
             this.renderData()
             this.showAll()
-
+            console.log('test')
             this.yLine = svg.append("line")
                 .attr("x1", 0) 
                 .attr("y1", this.y(this.totalGames / this.data.length * 10))
