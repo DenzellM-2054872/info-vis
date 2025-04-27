@@ -37,7 +37,7 @@ export default{
         const width = 460 - margin.left - margin.right
         const height = 400 - margin.top - margin.bottom
         const x = d3.scaleLinear()
-                        .domain([43, 57])
+                        .domain([42, 58])
                         .range([ 0, width ])
 
         let y = d3.scaleLinear()
@@ -76,19 +76,19 @@ export default{
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalGames / this.data.length * 10))
                     .attr("x2", this.width)  
-                    .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                    .attr("y2", this.y(this.totalGames /this.data.length * 10))
                     .style("stroke-width", 2)
                     .style("stroke", "gray")
                     .style("fill", "none")
                     .style("stroke-dasharray", "4");
             }else if(axisValue == "presence"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 80])
+                    .domain([0, 100])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalPresence / this.data.length))
                     .attr("x2", this.width)
-                    .attr("y2", this.y(this.totalPresence / this.data.length))
+                    .attr("y2", this.y(this.totalPresence /this.data.length))
                     .style("stroke-width", 2)
                     .style("stroke", "gray")
                     .style("fill", "none")
@@ -112,7 +112,7 @@ export default{
             }
         },
         lowLightClass(champClass){  
-            let totalGames = this.totalGames
+            let totalGames = this.totalGames 
             let axisValue = this.axisValue  
             let x = this.x
             let y = this.y 
@@ -126,8 +126,8 @@ export default{
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -141,8 +141,8 @@ export default{
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -156,8 +156,8 @@ export default{
                     .style("display", "block")
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.Games)}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 4)
             }
@@ -167,7 +167,7 @@ export default{
             let size = 25
             let x = this.x
             let y = this.y
-            let totalGames = this.totalGames
+            let totalGames = this.totalGames 
             let axisValue = this.axisValue
             if(this.displayIcons){
                 d3.select("#ChampScatter")
@@ -178,8 +178,8 @@ export default{
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2 } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -192,8 +192,8 @@ export default{
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -208,8 +208,8 @@ export default{
                     .style("display", "none")
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.Games)}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
                     })
                     .style("fill", this.colours[champClass])
             }else{
@@ -220,8 +220,8 @@ export default{
                     .style("display", "none")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .style("fill", this.colours[champClass])
 
@@ -232,8 +232,8 @@ export default{
                     .style("display", "none")
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .style("stroke", this.colours[champClass])
 
@@ -246,8 +246,8 @@ export default{
                     .style("display", "block")
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.Games)}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
                     })
                     .style("fill", this.colours[champClass])
             }
@@ -255,7 +255,7 @@ export default{
         highlightClass(champClass){
             d3.select("#ChampScatter")
             .selectAll(`.${champClass}`).raise()
-            let totalGames = this.totalGames
+            let totalGames = this.totalGames 
             let axisValue = this.axisValue  
             let x = this.x
             let y = this.y 
@@ -268,8 +268,8 @@ export default{
                     .style("opacity", 1)
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -282,8 +282,8 @@ export default{
                     .style("display", "block")
                     .attr("x", function (d) { return x(d.WR) - size / 2} )
                     .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.Games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -296,8 +296,8 @@ export default{
                     .style("opacity", 1)
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.Games)}
-                        if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 6)
                     .style("fill", this.colours[champClass])
@@ -329,7 +329,7 @@ export default{
             let size = 25
             let x = this.x
             let y = this.y
-            let totalGames = this.totalGames
+            let totalGames = this.totalGames 
             let axisValue = this.axisValue
 
             let groups = d3.select("#ChampScatter").select(`.dataWrapper`)
@@ -337,27 +337,27 @@ export default{
                 .data(this.data)
                 .enter()
                 .append('g')
-                .attr("class", function (d) {return Champions.ClassesfromID(d.Name)[0]; })         
+                .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
 
             groups.append('image')
-                .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                .attr("x", function (d) {return x(d.WR) - size / 2; } )
                 .attr("y", function (d) {
-                    if(axisValue == "games") {return y(d.Games) - size / 2}
-                    if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100) - size / 2}
+                    if(axisValue == "games") {return y(d.games) - size / 2}
+                    if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
                 })
                 .attr("width", size)
                 .attr("height", size)
                 .style("display", "none")
-                .attr("href", function (d) {return Champions.iconPathFromID(d.Name)})
-                // .attr("class", function (d) {return Champions.ClassesfromID(d.Name)[0]; })         
+                .attr("href", function (d) {return Champions.iconPathFromID(d.name)})
+                // .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
 
             groups.append('rect')
                 .attr("x", function (d) { return x(d.WR) - size / 2 } )
-                .attr("y", function (d) { return  y(d.Games) - size / 2 + 1; } )
-                // .attr("class", function (d) { return Champions.ClassesfromID(d.Name)[0]; })
+                .attr("y", function (d) { return  y(d.games) - size / 2 + 1; } )
+                // .attr("class", function (d) { return Champions.ClassesfromID(d.name)[0]; })
                 .attr("width", size)
                 .attr("height", size)
                 .style("display", "none")
@@ -367,8 +367,8 @@ export default{
 
             groups.append("circle")
                 .attr("cx", function (d) { return x(d.WR); } )
-                .attr("cy", function (d) { if(axisValue == "games") {return y(d.Games) - size / 2}
-                                           if(axisValue == "presence") {return y((Math.round((d.EffectiveBans / totalGames + d.Games / totalGames)  * 10000)) / 100);}})
+                .attr("cy", function (d) { if(axisValue == "games") {return y(d.games) - size / 2}
+                                           if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100);}})
                 .attr("r", 5)
                 .style("display", "none")
                 .style("fill", "#69b3a2")
@@ -422,15 +422,22 @@ export default{
                 .attr("clip-path", "url(#clip)")
                 .attr("class", "dataWrapper")
         //Read the data
-        d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
-            this.totalGames = data['all'].reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0) /10
-            let totalGames = this.totalGames
-            this.totalPresence = data['all'].reduce((accumulator, point) => {
-                return Number(accumulator) + ((Number(point.EffectiveBans) / this.totalGames + Number(point.Games) / this.totalGames) * 100)
+        d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
+            let values = Object.values(data)
+            this.totalGames = values.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) /10
+            console.log(this.totalGames)
+            this.totalPresence = values.reduce((accumulator, point) => {
+                return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
             }, 0)
-            this.data = data['all'].filter((point) => {
-                return point.Name != "None"
-            })
+
+            for(let champ in data){
+                data[champ]['WR'] = (data[champ]['wins'] / data[champ]['games']) * 100
+                data[champ]['name'] = champ
+            }
+
+            delete data['None']
+            this.data = Object.values(data)
+
             this.renderData()
             this.showAll()
 
@@ -534,22 +541,22 @@ export default{
 
         },
         mousemove(event, d) {
-            let totalGames = this.totalGames
+            let totalGames = this.totalGames 
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#ChampScatter").select(`.tooltip`)
-                .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}% `)
+                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${d.WR}% `)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
         },
         mouseover(event, d) {
-            let totalGames = this.totalGames
+            let totalGames = this.totalGames 
             let champClass = d3.select(event.target.parentNode).attr("class")
             if(!this.visible[champClass]) return;
             d3.select("#ChampScatter").select(`.tooltip`)
                 .style("opacity", 1)            
-                .html(`${Champions.nameFromID(d.Name)}<br>Games: ${d.Games}<br>WR: ${d.WR}%<br>`)
+                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${d.WR}%<br>`)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
