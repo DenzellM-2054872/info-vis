@@ -423,12 +423,12 @@ export default{
                 .attr("class", "dataWrapper")
         //Read the data
         d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
-            this.totalGames = data.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0) /10
+            this.totalGames = data['all'].reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.Games)}, 0) /10
             let totalGames = this.totalGames
-            this.totalPresence = data.reduce((accumulator, point) => {
-                return Number(accumulator) + ((Number(point.EffectiveBans) / totalGames + Number(point.Games) / totalGames) * 100)
+            this.totalPresence = data['all'].reduce((accumulator, point) => {
+                return Number(accumulator) + ((Number(point.EffectiveBans) / this.totalGames + Number(point.Games) / this.totalGames) * 100)
             }, 0)
-            this.data = data.filter((point) => {
+            this.data = data['all'].filter((point) => {
                 return point.Name != "None"
             })
             this.renderData()
