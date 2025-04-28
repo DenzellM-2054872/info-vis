@@ -124,7 +124,7 @@ export default{
     setup(){
         const champSearch = useTemplateRef<ChampSearch>('champSearch')
         let data:  CompStats[] = []
-        let champData: ChamStats[] = []
+        let champData: {[champ: string]: ChamStats} = {}
         const suggestionSort = ref('popular')
         const main: Ref<CompStats> = ref({
             champs:
@@ -270,8 +270,8 @@ export default{
                 let aChamp = a.champs.filter((champ) => !this.main.champs.includes(champ))[0]
                 let bChamp = b.champs.filter((champ) => !this.main.champs.includes(champ))[0]
                 
-                let aData = this.champData.filter((data: ChamStats) => data.Name == aChamp)[0]
-                let bData = this.champData.filter((data: ChamStats) => data.Name == bChamp)[0]
+                let aData = this.champData[aChamp]
+                let bData = this.champData[bChamp]
                 
 
                 return (b.games/Math.pow(bData.Games, 0.85)) - (a.games/Math.pow(aData.Games, 0.85))
