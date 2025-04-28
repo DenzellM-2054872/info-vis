@@ -166,13 +166,8 @@ export default{
                 }
             })
 
-            d3.csv("http://localhost:5173/stats/wo_lanes/global_wbpr.csv").then((data) => {
-                for(let champ of data){
-                    this.champData.push({
-                        Name: champ.Name, Games: Number(champ.Games), Wins: Number(champ.Wins), Losses: Number(champ.Losses), 
-                        Bans: Number(champ.Bans), EffectiveBans: Number(champ.EffectiveBans), WR: Number(champ.WR)
-                    })
-                }
+            d3.json("http://localhost:5173/stats/wbpr.json").then((data: any) => {
+                this.champData = data['all']
             })
         },
         printData(){
