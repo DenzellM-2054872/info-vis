@@ -29,7 +29,7 @@ export default{
                     .range([ 0, width ]);
 
         let y = d3.scaleLinear()
-                    .domain([0, 80000])
+                    .domain([0, 60000])
                     .range([ height, 0]);
 
 
@@ -69,7 +69,7 @@ export default{
             this.axisValue = axisValue
             if(axisValue == "games"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 80000])
+                    .domain([0, 60000])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalGames / this.data.length * 10))
@@ -81,7 +81,7 @@ export default{
                     .style("stroke-dasharray", "4");
             }else if(axisValue == "presence"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 100])
+                    .domain([0, 65])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
                     .attr("y1", this.y(this.totalPresence / this.data.length))
@@ -412,20 +412,20 @@ export default{
                 .attr("class", "dataWrapper")
         //Read the data
         d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
-            let values = Object.values(data)
+            let values = Object.values(data['all'])
             this.totalGames = values.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) /10
             this.totalPresence = values.reduce((accumulator, point) => {
                 return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
             }, 0)
 
 
-            for(let champ in data){
-                data[champ]['WR'] = (data[champ]['wins'] / data[champ]['games']) * 100
-                data[champ]['name'] = champ
+            for(let champ in data['all']){
+                data['all'][champ]['WR'] = (data['all'][champ]['wins'] / data['all'][champ]['games']) * 100
+                data['all'][champ]['name'] = champ
             }
 
-            delete data['None']
-            this.data = Object.values(data)
+            delete data['all']['None']
+            this.data = Object.values(data['all'])
 
             this.renderData()
             this.showAll()

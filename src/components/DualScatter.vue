@@ -14,6 +14,21 @@
                 <option value="games">Games</option>
                 <option value="presence">Presence</option>
             </select>
+            <select name="rank" id="rank" v-model="rank" @change="setRank">
+                <option value="all">all</option>
+                <option value="IRON">Iron</option>
+                <option value="BRONZE">Bronze</option>
+                <option value="GOLD">Gold</option>
+                <option value="PLATINUM">Platinum</option>
+                <option value="EMERALD">Emerald</option>
+                <option value="DIAMOND">Diamond</option>
+                <option value="MASTER">Master</option>
+                <option value="GRANDMASTER">Grandmaster</option>
+                <option value="PLATINUM+">Platinum+</option>
+                <option value="EMERALD+">Emerald+</option>
+                <option value="DIAMOND+">Diamond+</option>
+                <option value="MASTER+">Master+</option>
+            </select>
         </div>
     </div>
 </template>
@@ -34,12 +49,14 @@ export default{
         const champScatter = useTemplateRef<ChampScatter>('champScatter')
         let displayIcons = ref(false)
         let yAxis = ref("games")
+        let rank = ref("all")
 
         return{
             bannedScatter,
             champScatter,
             displayIcons,
-            yAxis
+            yAxis,
+            rank
         }
     },
     methods: {
@@ -50,6 +67,10 @@ export default{
         setDisplay(){
             this.champScatter.setDisplay(this.yAxis)
             this.bannedScatter.setDisplay(this.yAxis)
+        },
+        setRank(){
+            this.champScatter.setRank(this.rank)
+            // this.bannedScatter.setDisplay(this.yAxis)
         }
     },
     mounted(){
