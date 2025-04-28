@@ -10,12 +10,12 @@ interface ChampDetailsType {
     "average_assists": {[rank: string]: number}
     "average_deaths": {[rank: string]: number}
     "average_kills": {[rank: string]: number}
-    "average_positions": {[role: string]: number}[]
+    "average_positions": {[rank: string]: {[role: string]: number}}
     // "highest_runes_usage:" string[]
     "id": number
     "losses": {[rank: string]: number}
     "name": string
-    //"positions_played": {[role: string]: number}
+    "positions_played": {[rank: string]: {[role: string]: number}}
     "total_assists": {[rank: string]: number}
     "total_deaths": {[rank: string]: number}
     "total_games": {[rank: string]: number}
@@ -45,7 +45,7 @@ function searchChampion() {
     try {
         champion.value = undefined
         champion.value = new Champions(champName.value);
-        console.log("Succes fetch champ");
+        //console.log("Succes fetch champ");
         d3.json("http://localhost:5173/stats/wbpr.json")
             .then((globalData: any) => {
                 champStats = globalData["all"][champName.value];
@@ -54,7 +54,7 @@ function searchChampion() {
                 //     return;
                 // }
                 // champStats.value = foundStats; 
-                console.log(champStats);
+                //console.log(champStats);
                 drawMatchupGraph()
             })
             .catch((error) => {
@@ -66,7 +66,7 @@ function searchChampion() {
                 console.warn("No data found for the selected champion: ", champName.value);
                 return;
             }
-            console.log("i'm testing here", champData)
+            //console.log("i'm testing here", champData)
             drawPositions()
             drawWinRatePerElo()
             drawWinsPerElo()
@@ -325,131 +325,353 @@ function drawBarchartPerElo(divId: string, processedData: any[], y_label: string
         .attr("stroke-width", 2);
 }
 
-function drawSpiderChart(divId: string) {
-    let data = [];
-    let features: string[] = ["A", "B", "C", "D", "E"];
-    //generate the data
-    for (var i = 0; i < 3; i++){
-        var point: {[s: string]: number} = {}
-        //each feature will be a random number from 1-9
-        features.forEach(f => point[f] = 1 + Math.random() * 8);
-        data.push(point);
+interface RadarChartConfig {
+    w: number;
+    h: number;
+    margin: { top: number; right: number; bottom: number; left: number };
+    levels: number;
+    maxValue: number;
+    labelFactor: number;
+    wrapWidth: number;
+    opacityArea: number;
+    dotRadius: number;
+    opacityCircles: number;
+    strokeWidth: number;
+    roundStrokes: boolean;
+    color: d3.ScaleOrdinal<string, string>;
+}
+
+interface RadarChartData {
+    [key: string]: number;
+}
+
+function RadarChart(
+    id: string,
+    data: RadarChartData[], 
+    options?: Partial<RadarChartConfig>
+) {
+    const cfg: RadarChartConfig = {
+        w: 500,
+        h: 500,
+        margin: { top: 75, right: 75, bottom: 75, left: 75 },
+        levels: 3,
+        maxValue: 0,
+        labelFactor: 1.25,
+        wrapWidth: 60,
+        opacityArea: 0.35,
+        dotRadius: 4,
+        opacityCircles: 0.1,
+        strokeWidth: 2,
+        roundStrokes: false,
+        color: d3.scaleOrdinal(d3.schemeCategory10),
+    };
+
+    if (options) {
+        Object.assign(cfg, options);
     }
 
-    const svgContainer = d3.select("#" + divId);
-    svgContainer.selectAll("*").remove();
+    const formattedData = data.map(series => 
+        Object.entries(series).map(([axis, value]) => ({ axis, value }))
+    );
 
-    const margin = { top: 100, right: 30, bottom: 100, left: 50 };
-    const width = 600 - margin.left - margin.right;
-    const height = 600 - margin.top - margin.bottom;
+    // Get all unique axes from all series
+    // const allAxis = Array.from(new Set(
+    //     formattedData.flatMap(series => series.map(d => d.axis))
+    // )).sort(); // Sort for consistent ordering
 
-    const svg = svgContainer
+    console.log("data before", data);
+
+    const allAxis = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'SUPPORT'];
+    // sort 'data' by the order of allAxis
+    // data.sort((a, b) => {
+    //     const aIndex = allAxis.indexOf(Object.keys(a)[0]);
+    //     const bIndex = allAxis.indexOf(Object.keys(b)[0]);
+    //     return aIndex - bIndex;
+    // });
+    
+
+    console.log("data after", data);
+
+    //console.log("allAxis", allAxis);
+
+    const maxValue = Math.max(
+        cfg.maxValue,
+        d3.max(formattedData.flat().map(d => d.value)) || 0
+    );
+
+    const total = 5;
+    const radius = Math.min(cfg.w / 2, cfg.h / 2);
+    const angleSlice = (Math.PI * 2) / total;
+
+    const rScale = d3.scaleLinear()
+        .domain([0, maxValue])
+        .range([0, radius]);
+
+    d3.select(id).select("svg").remove();
+
+    const svg = d3.select(id)
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", cfg.w + cfg.margin.left + cfg.margin.right)
+        .attr("height", cfg.h + cfg.margin.top + cfg.margin.bottom)
+        .attr("class", `radar-${id}`);
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${cfg.w / 2 + cfg.margin.left}, ${cfg.h / 2 + cfg.margin.top})`);
+
+    // Glow filter
+    const filter = g.append('defs').append('filter').attr('id', 'glow');
+    filter.append('feGaussianBlur')
+        .attr('stdDeviation', '2.5')
+        .attr('result', 'coloredBlur');
+    const feMerge = filter.append('feMerge');
+    feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+    // Grid circles
+    const axisGrid = g.append("g").attr("class", "axisWrapper");
+    
+    axisGrid.selectAll(".gridCircle")
+        .data(d3.range(1, cfg.levels + 1).reverse())
+        .enter().append("circle")
+        .attr("class", "gridCircle")
+        .attr("r", d => (radius / cfg.levels) * d)
+        .style("fill", "#CDCDCD")
+        .style("stroke", "#CDCDCD")
+        .style("fill-opacity", cfg.opacityCircles)
+        .style("filter", "url(#glow)");
+
+    // Level labels
+    const format = d3.format('.01f');
+    axisGrid.selectAll(".axisLabel")
+        .data(d3.range(1, cfg.levels + 1).reverse())
+        .enter().append("text")
+        .attr("class", "axisLabel")
+        .attr("x", 4)
+        .attr("y", d => -d * (radius / cfg.levels))
+        .attr("dy", "0.0em")
+        .style("font-size", "20px")
+        .attr("fill", "#ffffff")
+        .text(d => format((maxValue * d) / cfg.levels));
+
+    // Axes
+    const axis = axisGrid.selectAll(".axis")
+        .data(allAxis)  // Now using our sorted unique axes
+        .enter()
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("class", "axis");
 
-    let radialScale = d3.scaleLinear()
-        .domain([0, 10])
-        .range([0, 250]);
-    let ticks = [2, 4, 6, 8, 10];
+    //console.log("axis", axis);
 
-    svg.selectAll("circle")
-        .data(ticks)
-        .join(
-            enter => enter.append("circle")
-                .attr("cx", width / 2)
-                .attr("cy", height / 2)
-                .attr("fill", "none")
-                .attr("stroke", "gray")
-                .attr("r", d => radialScale(d))
-        );
+    axis.append("line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", (d, i) => rScale(maxValue * 1.1) * Math.cos(angleSlice * i - Math.PI / 2))
+        .attr("y2", (d, i) => rScale(maxValue * 1.1) * Math.sin(angleSlice * i - Math.PI / 2))
+        .style("stroke", "#d0d0d0")
+        .style("stroke-width", "2px");
 
-    svg.selectAll(".ticklabel")
-        .data(ticks)
-        .join(
-            enter => enter.append("text")
-                .attr("class", "ticklabel")
-                .attr("x", width / 2 + 5)
-                .attr("y", d => height / 2 - radialScale(d))
-                .text(d => d.toString())
-        );
+    // Axis labels
+    axis.append("text")
+        .attr("class", "legend")
+        .style("font-size", "11px")
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+        .attr("fill", "#ffffff")
+        .attr("x", (d, i) => rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice * i - Math.PI / 2))
+        .attr("y", (d, i) => rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice * i - Math.PI / 2))
+        .text(d => d)
+        .call(wrap as (selection: d3.Selection<SVGTextElement, string, SVGGElement, unknown>, args_0: number) => void, cfg.wrapWidth);
 
-    function angleToCoordinate(angle: number, value: number){
-        let x = Math.cos(angle) * radialScale(value);
-        let y = Math.sin(angle) * radialScale(value);
-        return {"x": width / 2 + x, "y": height / 2 - y};
-    }
+    // Radar line
+    const radarLine = d3.radialLine<{ axis: string; value: number }>()
+        .radius(d => rScale(d.value))
+        .angle((d, i) => {
+            const index = allAxis.indexOf(d.axis);
+            return index * angleSlice;
+        })
+        .curve(cfg.roundStrokes ? d3.curveCardinalClosed : d3.curveLinearClosed);
 
-    let featureData = features.map((f, i) => {
-        let angle = (Math.PI / 2) + (2 * Math.PI * i / features.length);
-        return {
-            "name": f,
-            "angle": angle,
-            "line_coord": angleToCoordinate(angle, 10),
-            "label_coord": angleToCoordinate(angle, 10.5)
-        };
-    });
+    // Draw blobs
+    const blobWrapper = g.selectAll(".radarWrapper")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "radarWrapper");
 
-    // draw axis line
-    svg.selectAll("line")
-        .data(featureData)
-        .join(
-            enter => enter.append("line")
-                .attr("x1", width / 2)
-                .attr("y1", height / 2)
-                .attr("x2", d => d.line_coord.x)
-                .attr("y2", d => d.line_coord.y)
-                .attr("stroke","black")
-        );
-
-    // draw axis label
-    svg.selectAll(".axislabel")
-        .data(featureData)
-        .join(
-            enter => enter.append("text")
-                .attr("x", d => d.label_coord.x)
-                .attr("y", d => d.label_coord.y)
-                .text(d => d.name)
-        );
-
-    // let line = d3.line()
-    //     .x(d => d.x)
-    //     .y(d => d.y);
-    // let colors = ["darkorange", "gray", "navy"];
-
-    // function getPathCoordinates(data_point: {[s: string]: number}){
-    //     let coordinates = [];
-    //     for (var i = 0; i < features.length; i++){
-    //         let ft_name = features[i];
-    //         let angle = (Math.PI / 2) + (2 * Math.PI * i / features.length);
-    //         coordinates.push(angleToCoordinate(angle, data_point[ft_name]));
-    //     }
-    //     return coordinates;
+    // loop over data points
+    // for (let i = 0; i < formattedData[0].length; i++) {
+    //     const d = formattedData[0][i].value;
+    //     console.log("d", d);
+    //     svg.append("line")
+    //         .attr("class", "radarStroke")
+    //         .attr("x1", cfg.w/2 + cfg.margin.left)
+    //         .attr("y1", cfg.h/2 + cfg.margin.top)
+    //         .attr("x2", rScale(d) * Math.cos(angleSlice * i - Math.PI / 2))
+    //         .attr("y2", rScale(d) * Math.sin(angleSlice * i - Math.PI / 2))
+    //         .style("stroke-width", `${cfg.strokeWidth}px`)
+    //         .style("stroke", cfg.color(i.toString()))
+    //         .style("fill", "none")
+    //         .style("filter", "url(#glow)");
     // }
 
-    // // draw the path element
-    // svg.selectAll("path")
-    //     .data(data)
-    //     .join(
-    //         enter: any => enter.append("path")
-    //             .datum(d => getPathCoordinates(d))
-    //             .attr("d", line)
-    //             .attr("stroke-width", 3)
-    //             .attr("stroke", (_, i) => colors[i])
-    //             .attr("fill", (_, i) => colors[i])
-    //             .attr("stroke-opacity", 1)
-    //             .attr("opacity", 0.5)
-    //     );
+    // Areas
+
+    
+    blobWrapper.append("path")
+        .attr("class", "radarArea")
+        .attr("d", d => radarLine(Object.entries(d).map(([axis, value]) => ({ axis, value }))))
+        .style("fill", (d, i) => cfg.color(i.toString()))
+        .style("fill-opacity", cfg.opacityArea)
+        .on("mouseover", function() {
+            d3.selectAll(".radarArea").style("fill-opacity", 0.1);
+            d3.select(this).style("fill-opacity", 0.7);
+        })
+        .on("mouseout", function() {
+            d3.selectAll(".radarArea").style("fill-opacity", cfg.opacityArea);
+        });
+
+    // Strokes
+    blobWrapper.append("path")
+        .attr("class", "radarStroke")
+        .attr("d", d => radarLine(Object.entries(d).map(([axis, value]) => ({ axis, value }))))
+        .style("stroke-width", `${cfg.strokeWidth}px`)
+        .style("stroke", (d, i) => cfg.color(i.toString()))
+        .style("fill", "none")
+        .style("filter", "url(#glow)");
+
+    // Circles
+    blobWrapper.selectAll(".radarCircle")
+        .data(d => Object.values(d))
+        .enter().append("circle")
+        .attr("class", "radarCircle")
+        .attr("r", cfg.dotRadius)
+        .attr("cx", (d, i) => rScale(d) * Math.cos(angleSlice * i - Math.PI / 2))
+        .attr("cy", (d, i) => rScale(d) * Math.sin(angleSlice * i - Math.PI / 2))
+        .style("fill", (d, i, nodes) => {
+            const data = d3.select(nodes[i]).datum() as { [key: string]: number };
+            return cfg.color(Object.values(data).indexOf(d).toString());
+        })
+        .style("fill-opacity", 0.8);
+
+    // Tooltip circles
+    const blobCircleWrapper = g.selectAll(".radarCircleWrapper")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "radarCircleWrapper");
+
+    const tooltip = g.append("text")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    blobCircleWrapper.selectAll(".radarInvisibleCircle")
+        .data(d => Object.values(d))
+        .enter().append("circle")
+        .attr("class", "radarInvisibleCircle")
+        .attr("r", cfg.dotRadius * 1.5)
+        .attr("cx", (d, i) => rScale(d) * Math.cos(angleSlice * i - Math.PI / 2))
+        .attr("cy", (d, i) => rScale(d) * Math.sin(angleSlice * i - Math.PI / 2))
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("mouseover", function(event, d) {
+            const x = parseFloat(d3.select(this).attr("cx")) - 10;
+            const y = parseFloat(d3.select(this).attr("cy")) - 10;
+            
+            tooltip.attr("x", x)
+                .attr("y", y)
+                .text(format(d))
+                .transition()
+                .duration(200)
+                .style("opacity", 1);
+        })
+        .on("mouseout", function() {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0);
+        });
+
+    // Text wrapping
+    function wrap(text: d3.Selection<SVGTextElement, unknown, SVGGElement, unknown>, width: number) {
+        text.each(function() {
+            const textNode = d3.select(this);
+            const words = textNode.text().split(/\s+/).reverse();
+            let line: string[] = [];
+            let lineNumber = 0;
+            const lineHeight = 1.4;
+            const x = textNode.attr("x");
+            const y = textNode.attr("y");
+            const dy = parseFloat(textNode.attr("dy")) || 0;
+            
+            let tspan = textNode.text(null)
+                .append("tspan")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", `${dy}em`);
+
+            let word: string | undefined;
+            while ((word = words.pop())) {
+                line.push(word);
+                tspan.text(line.join(' '));
+                
+                if (tspan.node() && tspan.node()!.getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(' '));
+                    line = [word];
+                    tspan = textNode.append("tspan")
+                        .attr("x", x)
+                        .attr("y", y)
+                        .attr("dy", `${++lineNumber * lineHeight + dy}em`)
+                        .text(word);
+                }
+            }
+        });
+    }
 }
 
 function drawPositions() {
     const positionsData = champData.average_positions;
 
-    console.log(positionsData);
+    //console.log(positionsData);
 
-    drawSpiderChart("positions-graph");
+    var allRanksPositions = [];
+    for (const key in positionsData) {
+        if (key !== "all") {
+            var roles: {[role: string]: number} = {};
+            roles["TOP"] = positionsData[key]["TOP"] || 0;
+            roles["JUNGLE"] = positionsData[key]["JUNGLE"] || 0;
+            roles["MIDDLE"] = positionsData[key]["MIDDLE"] || 0;
+            roles["BOTTOM"] = positionsData[key]["BOTTOM"] || 0;
+            roles["SUPPORT"] = positionsData[key]["UTILITY"] || 0;
+            delete roles["Invalid"];
+
+            allRanksPositions.push(roles);
+            //allRanksPositions.push(positionsData[key]);
+        }
+    }
+
+    //console.log(allRanksPositions);
+
+    const myData = {
+        "TOP": 0.1,
+        "JUNGLE": 0.2,
+        "MIDDLE": 0.1,
+        "BOTTOM": 0.5,
+        "SUPPORT": 0.1
+    };
+
+    const chartData = [myData]; // Wrap in array to support multiple data series
+
+    // var maxValue = 0;
+    // for (const key in positionsData["all"]) {
+    //     if (positionsData["all"][key] > maxValue) {
+    //         maxValue = positionsData["all"][key];
+    //     }
+    // }
+
+    // Create the charts
+    RadarChart("#positions-graph", allRanksPositions, {
+        maxValue: 1, // Set appropriate max value for your scale
+        wrapWidth: 80,
+        labelFactor: 1.2
+    });
     // const sortedKeys = Object.keys(positionsData).sort((a, b) => {
     //     return rankOrder.indexOf(a) - rankOrder.indexOf(b);
     // });
