@@ -20,6 +20,7 @@ export default{
 
         rb.setSpectrum('#000000', '#ffffff')
         let data = undefined
+        let selected_data = undefined
         const margin = {top: 10, right: 30, bottom: 30, left: 60}
         const width = 460 - margin.left - margin.right
         const height = 400 - margin.top - margin.bottom
@@ -43,8 +44,11 @@ export default{
             "Slayer": true,
         }
         let yAxis = undefined
+        let xAxis = undefined
         let yLine = undefined
         let axisValue = "games"
+        let rank = "all"
+
         return{
             rb,
             displayIcons,
@@ -61,32 +65,50 @@ export default{
             minBans,
             maxBans,
             totalBans,
-            data
+            data,
+            selected_data,
+            rank
         }
     },
     methods: {
+        mostGames(){
+            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.games))}, 0)
+        },
+        highestWinDelta(){
+            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Math.abs(50 - Number(point.WR)))}, 0)
+        },
+        highestPresence(){
+            let totalGames = this.totalGames
+            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), ((Number(point.effectiveBans) / totalGames + Number(point.games) / totalGames)  * 100))}, 0)
+        },
         setDisplay(axisValue){
             this.axisValue = axisValue
             if(axisValue == "games"){
-                this.y = d3.scaleLinear()
-                    .domain([0, 60000])
-                    .range([this.height, 0]);
+                if(this.rank == 'GRANDMASTER'){
+                    this.y = d3.scaleLinear()
+                        .domain([0, Math.ceil(this.mostGames() / 500) * 500])
+                        .range([this.height, 0]);
+                }else{
+                    this.y = d3.scaleLinear()
+                        .domain([0, Math.ceil(this.mostGames() / 1000) * 1000])
+                        .range([this.height, 0]);
+                }
                 this.yLine.attr("x1", 0)  
-                    .attr("y1", this.y(this.totalGames / this.data.length * 10))
+                    .attr("y1", this.y(this.totalGames / Object.values(this.selected_data).length * 10))
                     .attr("x2", this.width)  
-                    .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                    .attr("y2", this.y(this.totalGames / Object.values(this.selected_data).length * 10))
                     .style("stroke-width", 2)
                     .style("stroke", "gray")
                     .style("fill", "none")
                     .style("stroke-dasharray", "4");
             }else if(axisValue == "presence"){
                 this.y = d3.scaleLinear()
-                    .domain([0, 65])
+                    .domain([0, Math.ceil(this.highestPresence() / 5) * 5])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
-                    .attr("y1", this.y(this.totalPresence / this.data.length))
+                    .attr("y1", this.y(this.totalPresence / Object.values(this.selected_data).length))
                     .attr("x2", this.width)
-                    .attr("y2", this.y(this.totalPresence / this.data.length))
+                    .attr("y2", this.y(this.totalPresence / Object.values(this.selected_data).length))
                     .style("stroke-width", 2)
                     .style("stroke", "gray")
                     .style("fill", "none")
@@ -95,6 +117,49 @@ export default{
             this.yAxis.transition()
             .duration(200).call(d3.axisLeft(this.y));
             this.showAll()
+        },
+        setDataRank(rank){
+            if(!String(rank).endsWith('+')){
+                this.selected_data = this.data[rank];
+                return
+            }
+            this.selected_data = structuredClone(this.data["GRANDMASTER"]);
+
+            for(let r of ["MASTER", "DIAMOND", "EMERALD", "PLATINUM"]){
+                for(let champ in this.data[r]){
+                this.selected_data[champ]['wins'] += this.data[r][champ]['wins']
+                this.selected_data[champ]['losses'] += this.data[r][champ]['losses']
+                this.selected_data[champ]['games'] += this.data[r][champ]['games']
+                this.selected_data[champ]['bans'] += this.data[r][champ]['bans']
+                this.selected_data[champ]['effectiveBans'] += this.data[r][champ]['effectiveBans']
+
+
+                }
+                if(rank == `${r}+`) break;
+            }
+
+            for(let champ in  this.selected_data){
+                this.selected_data[champ]['WR'] = (this.selected_data[champ]['wins'] / this.selected_data[champ]['games']) * 100
+            }
+        },        
+        setRank(rank){
+            this.rank = rank
+            this.setDataRank(rank)
+            this.totalGames = Object.values(this.selected_data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) / 10
+
+            this.x = d3.scaleLinear()
+                        .domain([50 + Math.ceil(this.highestWinDelta()), 50 - Math.ceil(this.highestWinDelta())])
+                        .range([this.height, 0]);
+            this.xAxis.transition()
+                        .duration(200).call(d3.axisBottom(this.x));
+
+            this.setDisplay(this.axisValue)
+            this.renderData(this.selected_data)
+        },
+        setMastery(){
+            for(let champClass in this.visible){
+                this.hideClass(champClass)
+            }
         },
         setIcons(displayIcons){
             this.displayIcons = displayIcons
@@ -337,28 +402,49 @@ export default{
 
         },
         renderData(){
+            let size = 25
+            let x = this.x
+            let y = this.y
+            let totalGames = this.totalGames 
+            let axisValue = this.axisValue
+
+            d3.select("#BannedScatter").select(`.dataWrapper`).selectAll("*").remove()
+
             let groups = d3.select("#BannedScatter").select(`.dataWrapper`)
                 .selectAll("dot")
-                .data(this.data)
+                .data(Object.values(Object(this.selected_data)))
                 .enter()
                 .append('g')
                 .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
 
             groups.append('image')
+                .attr("x", function (d) {return x(d.WR) - size / 2; } )
+                .attr("y", function (d) {
+                    if(axisValue == "games") {return y(d.games) - size / 2}
+                    if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                })
+                .attr("width", size)
+                .attr("height", size)
                 .style("display", "none")
-                .attr("href", function (d) {return Champions.iconPathFromID(d.name)})
-                // .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
+                .attr("href", function (d) {return Champions.iconPathFromID(d.name)})      
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
 
             groups.append('rect')
+                .attr("x", function (d) { return x(d.WR) - size / 2 } )
+                .attr("y", function (d) { return  y(d.games) - size / 2 + 1; } )
+                .attr("width", size)
+                .attr("height", size)
                 .style("display", "none")
                 .style("fill", "none")
                 .style("stroke", "black")
                 .style("stroke-width", "2px")
 
             groups.append("circle")
+                .attr("cx", function (d) { return x(d.WR); } )
+                .attr("cy", function (d) { if(axisValue == "games") {return y(d.games) - size / 2}
+                                           if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100);}})
                 .attr("r", 5)
                 .style("display", "none")
                 .style("fill", "#69b3a2")
@@ -367,10 +453,12 @@ export default{
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
 
-            let visData = this.data.filter((d) => this.visible[Champions.ClassesfromID(d.name)[0]])
+            let visData = Object.values(Object(this.selected_data)).filter((d) => this.visible[Champions.ClassesfromID(d.name)[0]])
             this.totalBans = visData.reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.effectiveBans)}, 0)
             this.maxBans = visData.reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.effectiveBans))}, 0)
             this.minBans = visData.reduce((accumulator, point) =>  {return Math.min(Number(accumulator), Number(point.effectiveBans))}, Infinity)
+            this.showAll()
+
         },
         createSVG(){
             var tooltip = d3.select("#BannedScatter")
@@ -394,7 +482,7 @@ export default{
                     .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
             // Add X axis
 
-        var xAxis = svg.append("g")
+        this.xAxis = svg.append("g")
             .attr("transform", "translate(0," + this.height + ")")
             .call(d3.axisBottom(this.x));
 
@@ -418,23 +506,24 @@ export default{
                 return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
             }, 0)
 
+            for(let rank in data){
+                for(let champ in data[rank]){
+                data[rank][champ]['WR'] = (data[rank][champ]['wins'] / data[rank][champ]['games']) * 100
+                data[rank][champ]['name'] = champ
+                }
 
-            for(let champ in data['all']){
-                data['all'][champ]['WR'] = (data['all'][champ]['wins'] / data['all'][champ]['games']) * 100
-                data['all'][champ]['name'] = champ
+                delete data[rank]['None']
             }
-
-            delete data['all']['None']
-            this.data = Object.values(data['all'])
+            this.data = data
+            this.selected_data = this.data['all']
 
             this.renderData()
             this.showAll()
-            console.log('test')
             this.yLine = svg.append("line")
                 .attr("x1", 0) 
-                .attr("y1", this.y(this.totalGames / this.data.length * 10))
+                .attr("y1", this.y(this.totalGames / Object.values(data['all']).length * 10))
                 .attr("x2", this.width)  
-                .attr("y2", this.y(this.totalGames / this.data.length * 10))
+                .attr("y2", this.y(this.totalGames / Object.values(data['all']).length * 10))
                 .style("stroke-width", 2)
                 .style("stroke", "gray")
                 .style("fill", "none")
@@ -460,7 +549,6 @@ export default{
             for(let tag in this.visible){
                 unfiltered = unfiltered && this.visible[tag];
             }
-            console.log(unfiltered)
             if(unfiltered){
                 for(let tag in this.visible){
                     this.hideClass(tag)

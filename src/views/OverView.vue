@@ -141,7 +141,8 @@ function getKDA(overview: GameOverview){
         <nav>
             <RouterLink to="/">Home</RouterLink>
             <RouterLink to="/champstats">Champs</RouterLink>
-            <RouterLink to="/champdetail">Champ Detail</RouterLink>
+            <RouterLink to="/champdetail">Champ Details</RouterLink>
+            <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
         <div class="wrap" >
             <input v-model="gameName" placeholder="Summoner name"></input>

@@ -24,6 +24,7 @@ export default{
         })
         let data = undefined
         let selected_data = undefined
+        let data_mastery = undefined
 
         const visible = ref({
             "Controller": true,
@@ -55,6 +56,7 @@ export default{
         return{
             data,
             selected_data,
+            data_mastery,
             displayIcons,
             colours,
             visible,
@@ -72,7 +74,7 @@ export default{
             rank
         }
     },
-    methods: {
+    methods: {  
         mostGames(){
             return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.games))}, 0)
         },
@@ -86,7 +88,6 @@ export default{
         setDisplay(axisValue){
             this.axisValue = axisValue
             if(axisValue == "games"){
-                console.log(this.rank)
                 if(this.rank == 'GRANDMASTER'){
                     this.y = d3.scaleLinear()
                         .domain([0, Math.ceil(this.mostGames() / 500) * 500])
@@ -109,9 +110,9 @@ export default{
                     .domain([0, Math.ceil(this.highestPresence() / 5) * 5])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
-                    .attr("y1", this.y(this.totalPresence / Object.values( this.selected_data).length))
+                    .attr("y1", this.y(this.totalPresence / Object.values(this.selected_data).length))
                     .attr("x2", this.width)
-                    .attr("y2", this.y(this.totalPresence /Object.values( this.selected_data).length))
+                    .attr("y2", this.y(this.totalPresence /Object.values(this.selected_data).length))
                     .style("stroke-width", 2)
                     .style("stroke", "gray")
                     .style("fill", "none")
@@ -123,7 +124,7 @@ export default{
 
             this.showAll()
         },
-        setData(rank){
+        setDataRank(rank){
             if(!String(rank).endsWith('+')){
                 this.selected_data = this.data[rank];
                 return
@@ -135,18 +136,76 @@ export default{
                 this.selected_data[champ]['wins'] += this.data[r][champ]['wins']
                 this.selected_data[champ]['losses'] += this.data[r][champ]['losses']
                 this.selected_data[champ]['games'] += this.data[r][champ]['games']
+                this.selected_data[champ]['bans'] += this.data[r][champ]['bans']
+                this.selected_data[champ]['effectiveBans'] += this.data[r][champ]['effectiveBans']
                 }
-                console.log(`${r}+`)
                 if(rank == `${r}+`) break;
             }
 
             for(let champ in  this.selected_data){
                 this.selected_data[champ]['WR'] = (this.selected_data[champ]['wins'] / this.selected_data[champ]['games']) * 100
             }
+        },        
+        setDataMastery(mastery){
+            this.selected_data = {}
+            mastery = Number(mastery)
+            
+            for(let m in this.data_mastery){
+                m = Number(m)
+                
+                if(m == -100) continue;
+                switch (mastery) {
+                    case 0:
+                        if(!(m >= 0 && m < 21600)) continue;
+                        break;
+                    case 1:
+                        if(!(m >= 12600 && m < 75600)) continue;
+                        break;
+                    case 2:
+                        if(!(m >= 75600 && m < 240600)) continue;
+                        break;
+                    case 3:
+                        if(!(m >= 240600)) continue;
+                        break;
+                    default:
+                        continue;
+                }
+
+                for(let champ in this.data_mastery[m]){
+                    if(!this.selected_data[champ]){
+                        this.selected_data[champ] = {}
+                        this.selected_data[champ]['wins'] = 0
+                        this.selected_data[champ]['losses'] = 0
+                        this.selected_data[champ]['games'] = 0
+                        this.selected_data[champ]['name'] = champ
+                    }
+                    this.selected_data[champ]['wins'] += this.data_mastery[m][champ]['wins']
+                    this.selected_data[champ]['losses'] += this.data_mastery[m][champ]['losses']
+                    this.selected_data[champ]['games'] += this.data_mastery[m][champ]['games']
+                }
+            }
+
+            for(let champ in  this.selected_data){
+                this.selected_data[champ]['WR'] = (this.selected_data[champ]['wins'] / this.selected_data[champ]['games']) * 100
+            }
+        },
+        setMastery(mastery){
+            this.setDisplay('games')
+            this.setDataMastery(mastery)
+            this.totalGames = Object.values(this.selected_data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) / 10
+            
+            this.x = d3.scaleLinear()
+            .domain([50 + Math.ceil(this.highestWinDelta()), 50 - Math.ceil(this.highestWinDelta())])
+            .range([this.height, 0]);
+            this.xAxis.transition()
+            .duration(200).call(d3.axisBottom(this.x));
+            
+            this.setDisplay(this.axisValue)
+            this.renderData(this.selected_data)
         },
         setRank(rank){
             this.rank = rank
-            this.setData(rank)
+            this.setDataRank(rank)
             this.totalGames = Object.values(this.selected_data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) / 10
 
             this.x = d3.scaleLinear()
@@ -392,6 +451,7 @@ export default{
             let totalGames = this.totalGames 
             let axisValue = this.axisValue
             d3.select("#ChampScatter").select(`.dataWrapper`).selectAll("*").remove()
+            
             let groups = d3.select("#ChampScatter").select(`.dataWrapper`)
                 .selectAll("dot")
                 .data(Object.values(Object(this.selected_data)))
@@ -409,7 +469,6 @@ export default{
                 .attr("height", size)
                 .style("display", "none")
                 .attr("href", function (d) {return Champions.iconPathFromID(d.name)})
-                // .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
@@ -480,7 +539,6 @@ export default{
         d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
             let values = Object.values(data['all'])
             this.totalGames = Object.values(data['all']).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) /10
-            console.log(this.totalGames)
             this.totalPresence = values.reduce((accumulator, point) => {
                 return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
             }, 0)
@@ -509,6 +567,17 @@ export default{
             this.showAll()
         })
 
+        d3.json("http://localhost:5173/stats/wbpr_mastery.json").then((data) => {
+            for(let mastery in data){
+                for(let champ in data[mastery]){
+                data[mastery][champ]['WR'] = (data[mastery][champ]['wins'] / data[mastery][champ]['games']) * 100
+                data[mastery][champ]['name'] = champ
+                }
+
+                delete data[mastery]['None']
+            }
+            this.data_mastery = data
+        })
         svg.append("line")
             .attr("x1", this.x(50))
             .attr("y1", 0)

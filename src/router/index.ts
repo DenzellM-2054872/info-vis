@@ -4,6 +4,7 @@ import OverView from '../views/OverView.vue'
 import Timeline from '../views/TimelineView.vue'
 import ChampStats from '../views/ChampStats.vue'
 import ChampDetailView from '@/views/ChampDetailView.vue'
+import GameDetails from '@/views/GameDetails.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +41,11 @@ const router = createRouter({
       path: '/champdetail',
       name: 'champdetail',
       component: ChampDetailView,
+    },
+    {
+      path: '/gamedetail',
+      name: 'gamedetail',
+      component: GameDetails,
     },
   ],
 })
