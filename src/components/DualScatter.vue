@@ -12,9 +12,14 @@
             </div>
             <select name="y_axis" id="y_axis" v-model="yAxis" @change="setDisplay">
                 <option value="games">Games</option>
-                <option value="presence">Presence</option>
+                <option v-if="filter == 'rank'" value="presence">Presence</option>
             </select>
-            <select name="rank" id="rank" v-model="rank" @change="setRank">
+            <select name="filter" id="filter" v-model="filter" @change="changeFilter">
+                <option value="rank">Rank</option>
+                <option v-if="yAxis == 'games'" value="mastery">Mastery</option>
+            </select>
+
+            <select v-if="filter == 'rank'" name="rank" id="rank" v-model="rank" @change="setRank">
                 <option value="all">all</option>
                 <option value="IRON">Iron</option>
                 <option value="BRONZE">Bronze</option>
@@ -28,6 +33,13 @@
                 <option value="EMERALD+">Emerald+</option>
                 <option value="DIAMOND+">Diamond+</option>
                 <option value="MASTER+">Master+</option>
+            </select>
+
+            <select v-if="filter == 'mastery'" name="mastery" id="mastery" v-model="mastery" @change="setMastery">
+                <option value=0>1 - 4</option>
+                <option value=1>5 - 9</option>
+                <option value=2>10 - 25</option>
+                <option value=3>25+</option>
             </select>
         </div>
     </div>
@@ -50,13 +62,17 @@ export default{
         let displayIcons = ref(false)
         let yAxis = ref("games")
         let rank = ref("all")
+        let filter = ref("rank")
+        let mastery = ref(0)
 
         return{
             bannedScatter,
             champScatter,
             displayIcons,
             yAxis,
-            rank
+            rank,
+            mastery,
+            filter
         }
     },
     methods: {
@@ -70,7 +86,17 @@ export default{
         },
         setRank(){
             this.champScatter.setRank(this.rank)
-            // this.bannedScatter.setDisplay(this.yAxis)
+            this.bannedScatter.setRank(this.rank)
+        },
+        setMastery(){
+            this.champScatter.setMastery(this.mastery)
+            this.bannedScatter.setMastery()
+
+        },
+        changeFilter(){
+
+            if(this.filter == "rank") this.setRank()
+            if(this.filter == "mastery") this.setMastery()
         }
     },
     mounted(){
@@ -82,6 +108,9 @@ export default{
 
 
 <style lang="scss" scoped>
+    #y_axis{
+        margin-bottom: 5px;
+    }
     .graph_controls{
         display: flex;
         flex-direction: column;
