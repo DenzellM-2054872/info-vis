@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import DualScatter from '@/components/DualScatter.vue';
-import SynergyComp from '@/components/SynergyComp.vue';
+
 import WinRate from '@/components/WinRate.vue';
 </script>
 
@@ -13,15 +12,10 @@ import WinRate from '@/components/WinRate.vue';
             <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
         <WinRate />
-        <DualScatter />
-        <SynergyComp />
     </div>
 </template>
 
 
 <style lang="scss" scoped>
-.content{
-    display: flex;
-    flex-direction: column;
-}
+
 </style>
