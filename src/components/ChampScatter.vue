@@ -117,8 +117,10 @@ export default{
                     .style("fill", "none")
                     .style("stroke-dasharray", "4");
             }
+
             this.yAxis.transition()
             .duration(200).call(d3.axisLeft(this.y));
+
             this.showAll()
         },
         setData(rank){
@@ -461,10 +463,6 @@ export default{
             .attr("transform", "translate(0," + this.height + ")")
             .call(d3.axisBottom(this.x));
 
-            this.yAxis = svg.append("g")
-                .call(d3.axisLeft(this.y));
-
-            
         this.yAxis = svg.append("g")
             .call(d3.axisLeft(this.y));
 
