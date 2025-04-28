@@ -12,13 +12,13 @@ class Champion:
         self.id = id
         self.counter = defaultdict(int)
         self.total_kills = defaultdict(int)
-        self.average_kills = defaultdict(int)
+        self.average_kills = defaultdict(float)
         self.total_deaths = defaultdict(int)
-        self.average_deaths = defaultdict(int)
+        self.average_deaths = defaultdict(float)
         self.total_assists = defaultdict(int)
-        self.average_assists = defaultdict(int)
+        self.average_assists = defaultdict(float)
         self.positions_played = defaultdict(lambda: defaultdict(int))
-        self.average_positions = defaultdict(lambda: defaultdict(int))
+        self.average_positions = defaultdict(lambda: defaultdict(float))
         self.runes_usage = defaultdict(lambda: defaultdict(int))
         self.wins = defaultdict(int)
         self.losses = defaultdict(int)
@@ -108,9 +108,9 @@ class Champion:
             'average_kills': dict(self.average_kills),
             'average_deaths': dict(self.average_deaths),
             'average_assists': dict(self.average_assists),
-            #'positions_played': dict(self.positions_played),
-            #'average_positions': dict(self.average_positions),
-            #'highest_runes_usage': sorted(self.runes_usage.items(), key=lambda x: x[1], reverse=True)[:3],
+            'positions_played': dict(self.positions_played),
+            'average_positions': dict(self.average_positions),
+            'highest_runes_usage': dict(self.runes_usage),#sorted(self.runes_usage.items(), key=lambda x: x[1], reverse=True)[:3],
             'total_games': dict(self.counter),
             'wins': dict(self.wins),
             'losses': dict(self.losses),
@@ -158,6 +158,7 @@ for json_file in json_files:
                 else:
                     all_champions[champion_id].update_loss_time(time_length, rank)
                 j += 1
+            #break
                     
     except json.JSONDecodeError as e:
         print(f"Invalid JSON in {json_file}: {e}")
@@ -169,7 +170,7 @@ for champion in all_champions.values():
     champ_data_list.append(champion.to_dict())
     #print(str(champion))
 
-with open("C:/Users/yoshu/Desktop/Info Vis/info-vis/src/data/champDetails2.json", "w") as f:
+with open("C:/Users/yoshu/Desktop/Info Vis/info-vis/src/data/champDetails3.json", "w") as f:
     json.dump(champ_data_list, f, indent=4, sort_keys=True, ensure_ascii=False)
 
 print(f"Total games processed: {i}")
