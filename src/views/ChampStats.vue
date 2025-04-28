@@ -12,7 +12,6 @@ import WinRate from '@/components/WinRate.vue';
             <RouterLink to="/champdetail">Champ Details</RouterLink>
             <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
-        <WinRate />
         <DualScatter />
         <SynergyComp />
     </div>
