@@ -5,7 +5,7 @@ import * as d3 from "d3";
 // filepath: c:\Users\yoshu\Desktop\test\info-vis\src\views\ChampDetailView.vue
 //import {ChampDetails} from "../data/ChampDetails.json";
 import WinratePerMinute from '@/components/WinratePerMinute.vue';
-import { match } from "assert";
+//import { match } from "assert";
 
 interface ChampDetailsType {
     "average_assists": {[rank: string]: number}
@@ -75,6 +75,7 @@ function searchChampion() {
                 return;
             }
             drawPositions()
+            drawWinratePerMinute()
             drawWinRatePerElo()
             drawWinsPerElo()
             drawKDABarCharts()
@@ -699,7 +700,7 @@ function drawWinsPerElo() {
         processedData.splice(allIndex, 1);
     }
 
-    drawBarchartPerElo("wins-per-elo", processedData, "Total Wins", [0,d3.max(processedData, (d) => d.value)!], winsData["all"]);
+    drawBarchartPerElo("wins-per-elo", processedData, "Total Games", [0,d3.max(processedData, (d) => d.value)!], winsData["all"]);
 }
 
 function drawKDABarCharts() {
@@ -720,7 +721,7 @@ function drawKDABarCharts() {
         processedData.splice(allIndex, 1);
     }
 
-    drawBarchartPerElo("avg-kills-graph", processedData, "Avg Kills Per Game", [0,d3.max(processedData, (d) => d.value)!], 0);
+    drawBarchartPerElo("avg-kills-graph", processedData, "Avg Kills Per Game", [0,d3.max(processedData, (d) => d.value)!], killsData["all"]);
 
     const deathsData = champData.average_deaths;
 
@@ -739,7 +740,7 @@ function drawKDABarCharts() {
         processedData.splice(allIndex, 1);
     }
 
-    drawBarchartPerElo("avg-deaths-graph", processedData, "Avg Deaths Per Game", [0,d3.max(processedData, (d) => d.value)!], 0);
+    drawBarchartPerElo("avg-deaths-graph", processedData, "Avg Deaths Per Game", [0,d3.max(processedData, (d) => d.value)!], deathsData["all"]);
 
     const assistsData = champData.average_assists;
 
@@ -758,7 +759,7 @@ function drawKDABarCharts() {
         processedData.splice(allIndex, 1);
     }
 
-    drawBarchartPerElo("avg-assists-graph", processedData, "Avg Assists Per Game", [0,d3.max(processedData, (d) => d.value)!], 0);
+    drawBarchartPerElo("avg-assists-graph", processedData, "Avg Assists Per Game", [0,d3.max(processedData, (d) => d.value)!], assistsData["all"]);
 
     sortedKeys = Object.keys(killsData).sort((a, b) => {
         return rankOrder.indexOf(a) - rankOrder.indexOf(b);
@@ -775,7 +776,26 @@ function drawKDABarCharts() {
         processedData.splice(allIndex, 1);
     }
 
-    drawBarchartPerElo("avg-kda-graph", processedData, "Avg KDA Per Game", [0,d3.max(processedData, (d) => d.value)!], 0);
+    const averageKDA = killsData["all"] + assistsData["all"] / (deathsData["all"] < 1 ? 1 : deathsData["all"]);
+
+    drawBarchartPerElo("avg-kda-graph", processedData, "Avg KDA Per Game", [0,d3.max(processedData, (d) => d.value)!], averageKDA);
+}
+
+function drawWinratePerMinute() {
+    const minuteData = champData.winrate_at_times;
+    console.log(minuteData);
+
+    var processedData = [];
+    for (const key in minuteData) {
+        processedData.push({
+            name: key,
+            value: minuteData[key] * 100,
+        });
+    }
+
+    const avgWinrate = champData.wins["all"] / champData.total_games["all"] * 100;
+
+    drawBarchartPerElo("winrate-per-minute", processedData, "Win Rate Per Minute", [0,100], avgWinrate);
 }
 
 // onMounted(() => {
@@ -842,6 +862,7 @@ function drawKDABarCharts() {
 
                     <div id="champion-list"></div>
                 </div>
+                <div id="winrate-per-minute"></div>
                 <div class="charts-container">
                     <div id="winrate-per-elo"></div>
                     <div id="wins-per-elo"></div>
