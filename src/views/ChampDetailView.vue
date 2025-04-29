@@ -5,6 +5,7 @@ import * as d3 from "d3";
 // filepath: c:\Users\yoshu\Desktop\test\info-vis\src\views\ChampDetailView.vue
 //import {ChampDetails} from "../data/ChampDetails.json";
 import WinratePerMinute from '@/components/WinratePerMinute.vue';
+import { match } from "assert";
 
 interface ChampDetailsType {
     "average_assists": {[rank: string]: number}
@@ -34,18 +35,26 @@ interface ChampionStats {
     //WR: number;
 }
 
+interface ChampionMatchup {
+    [champ: string] : {
+        wins: number;
+        losses: number;
+        games: number;
+    };
+}
+
 const champName = ref("");
 const champion : Ref<Champions | undefined> = ref();
 //const searchbar = useTemplateRef<ChampSearch>("champSearch");
 var champData: ChampDetailsType = {} as ChampDetailsType;
 //drawMatchupGraph();
 var champStats: ChampionStats = {} as ChampionStats;
+    const groupedData = ref<any[]>([]); // Declare groupedData as a reactive reference
 
 function searchChampion() {
     try {
         champion.value = undefined
         champion.value = new Champions(champName.value);
-        //console.log("Succes fetch champ");
         d3.json("http://localhost:5173/stats/wbpr.json")
             .then((globalData: any) => {
                 champStats = globalData["all"][champName.value];
@@ -54,7 +63,6 @@ function searchChampion() {
                 //     return;
                 // }
                 // champStats.value = foundStats; 
-                //console.log(champStats);
                 drawMatchupGraph()
             })
             .catch((error) => {
@@ -66,7 +74,6 @@ function searchChampion() {
                 console.warn("No data found for the selected champion: ", champName.value);
                 return;
             }
-            //console.log("i'm testing here", champData)
             drawPositions()
             drawWinRatePerElo()
             drawWinsPerElo()
@@ -81,6 +88,7 @@ function searchChampion() {
 
 function drawMatchupGraph() {
     if (!champion.value) return;
+    groupedData.value = [];
 
     const svgContainer = d3.select("#matchup-graph");
     svgContainer.selectAll("*").remove(); // Clear previous graph
@@ -100,84 +108,46 @@ function drawMatchupGraph() {
        
     const champAverageWR = champStats.wins/champStats.games * 100 || 0;
     const champTotalGames = champStats.games || 0;
-    const minGamesThreshold = champTotalGames < 12500 ? Math.max(0, champTotalGames * 0.3) : Math.max(350, champTotalGames * 0.02);
 
+    //const minGamesThreshold = champTotalGames < 12500 ? Math.max(0, champTotalGames * 0.02) : Math.max(350, champTotalGames * 0.02);
+    const minGamesThreshold = Math.max(5, champTotalGames * 0.02);
     const bounds = [
-        { label: "-7.5", range: [champAverageWR - 7.5, champAverageWR - 5], scale: 1.5 },
-        { label: "-5", range: [champAverageWR - 5, champAverageWR - 2.5], scale: 1.2 },
-        { label: "-2.5", range: [champAverageWR - 2.5, champAverageWR], scale: 1 },
-        { label: "+2.5", range: [champAverageWR, champAverageWR + 2.5], scale: 1 },
-        { label: "+5", range: [champAverageWR + 2.5, champAverageWR + 5], scale: 1.2 },
-        { label: "+7.5", range: [champAverageWR + 5, champAverageWR + 7.5], scale: 1.5 },
+        { label: "-7.5", range: [champAverageWR - 7.5, champAverageWR - 5], scale: 20 },
+        { label: "-5", range: [champAverageWR - 5, champAverageWR - 2.5], scale: 10 },
+        { label: "-2.5", range: [champAverageWR - 2.5, champAverageWR], scale: 0 },
+        { label: "+2.5", range: [champAverageWR, champAverageWR + 2.5], scale: 0 },
+        { label: "+5", range: [champAverageWR + 2.5, champAverageWR + 5], scale: 10 },
+        { label: "+7.5", range: [champAverageWR + 5, champAverageWR + 7.5], scale: 20 },
     ];
 
     // Load matchup data
-    d3.csv("http://localhost:5173/stats/wo_lanes/global_globalWR.csv").then((matchupData) => {
-        const groupedData = bounds.map((bound) => {
-            const filtered = matchupData.filter((d) => {
-                const wr = parseFloat(d.WR);
-                const games = parseInt(d.Games, 10);
-                return (
-                    d.Name === champName.value &&
-                    wr >= bound.range[0] &&
-                    wr < bound.range[1] &&
-                    games >= minGamesThreshold
-                );
-            });
-            return { label: bound.label, champions: filtered, size: Math.abs(bound.range[1] - bound.range[0]), scale: bound.scale };
+    d3.json("http://localhost:5173/stats/globalWR.json").then((globalData: any) => {
+        const matchups: ChampionMatchup[] = globalData["all"][champName.value];
+        const matchupData: { champ: string; wr: number; games: number }[] = [];
+        // Calculate win rates and filter matchups
+        for (const champ in matchups) {
+            const wins = Number(matchups[champ].wins) || 0;
+            const games = Number(matchups[champ].games) || 0;
+            const wr = (wins / games) * 100 || 0;
+            if (Number(games) >= minGamesThreshold) {
+                matchupData.push({ champ, wr, games });
+            }
+        }
+
+        // Group data based on bounds
+        groupedData.value = bounds.map((bound) => {
+            const filtered = matchupData.filter((d) => d.wr >= bound.range[0] && d.wr < bound.range[1]);
+            return {
+                label: bound.label,
+                champions: filtered,
+                size: Math.abs(bound.range[1] - bound.range[0]),
+                scale: bound.scale,
+            };
         });
-
-        const totalSize = groupedData.reduce((sum, d) => sum + d.size * d.scale, 0);
-        const scaleFactor = width / totalSize; // Scale blocks 
-
-        let currentX = 0;
-
-        // Create blocks 
-        svg.selectAll("rect")
-            .data(groupedData)
-            .enter()
-            .append("rect")
-            .attr("x", (d) => {
-                const x = currentX;
-                currentX += d.size * d.scale * scaleFactor;
-                return x;
-            })
-            .attr("y", (d) => {
-                // Change y
-                const centerY = height / 2;
-                return centerY - (d.scale * 40); 
-            })
-            .attr("width", (d) => d.size * d.scale * scaleFactor)
-            .attr("height", (d) => d.scale * 80) 
-            .attr("fill", (d) =>
-                d.label.includes("-") ? "#ff6b6b" : "#69b3a2"
-            )
-            .attr("stroke", "black")
-            .attr("stroke-width", 1)
-            .attr("rx", 20) // Round corners 
-            .attr("ry", 20) // Round corners 
-            .on("click", (event, d) => {
-                displayChampionList(d.champions);
-            });
-
-        // Labels
-        currentX = 0;
-        svg.selectAll("text")
-            .data(groupedData)
-            .enter()
-            .append("text")
-            .attr("x", (d) => {
-                const x = currentX + (d.size * d.scale * scaleFactor) / 2;
-                currentX += d.size * d.scale * scaleFactor;
-                return x;
-            })
-            .attr("y", (d) => {
-                const centerY = height / 2;
-                return centerY - (d.scale * 40) + (d.scale * 40); 
-            })
-            .attr("text-anchor", "middle")
-            .text((d) => d.label)
-            .attr("fill", "white");
+        
+        
+       
+        
     }).catch((error) => {
         console.error("Error loading matchup data:", error);
     });
@@ -185,28 +155,39 @@ function drawMatchupGraph() {
 }
 
 // Display the list in group
-function displayChampionList(champions: d3.DSVRowString<string>[]) {
+function displayChampionList(champions: { champ: string; wr: number; games: number }[]) {
     const listContainer = d3.select("#champion-list");
-    listContainer.selectAll("*").remove(); // Clear
-
+    listContainer.selectAll("*").remove(); // Clear previous list
+    
     if (champions.length === 0) {
         listContainer.append("p").text("No champions.");
         return;
     }
-
     const list = listContainer.append("ul");
-    champions.forEach((champ: d3.DSVRowString<string>) => {
-        const realName = Champions.NamefromID(champ.Opponent);
-        list.append("li").text(`${realName}: ${champ.WR}%`);
+    champions.forEach((champ) => {
+        const realName = Champions.NamefromID(champ.champ); 
+        list.append("li").text(`${realName}: ${champ.wr.toFixed(2)}% win rate (${champ.games} games)`);
     });
 }
-
-function getChampionCounters() {
-    if (champion.value) {
-        
+const clipPathStyles = (index: number, scale: number, label: number) => {
+    if (label > 0) {
+        return `polygon(0 ${scale}%,100% 0,100% 100%,0 ${100 - scale}%)`;
+    } else {
+        return `polygon(0 0%,100% ${scale}%,100% ${100 - scale}%,0 100%)`;
     }
-    return "No counters available";
-}
+};
+
+const boxHeight = (index : number, scale : number) => {
+    const baseHeight = 200; // Base height for the box
+    if (index === 0 || index === 5) return 200;
+    const secondHeight = baseHeight * (100 - 20*2) / 100;
+    if (index === 1 || index === 4) return secondHeight;
+    const thirdHeight = secondHeight * (100 - 10*2) / 100;
+    if (index === 2 || index === 3) return thirdHeight;
+    return 200;
+};
+
+
 
 const rankOrder = ["Unranked", 
             "IRONIV", "IRONIII", "IRONII", "IRONI", 
@@ -804,6 +785,8 @@ function drawKDABarCharts() {
 //     drawKillsBarChart();
 // });
 
+
+
 </script>
 
 <template>
@@ -840,7 +823,23 @@ function drawKDABarCharts() {
                 </div>
                 <div id="positions-graph"></div>
                 <div>   
-                    <div id="matchup-graph"></div>
+                    <div id="matchup-graph" class="matchup-graph">
+                        <div 
+                            v-for="(group, index) in groupedData" 
+                            :key="group.label" 
+                            class="matchup-box" 
+                            :style="{ 
+                                backgroundColor: group.label.includes('-') ? '#ff6b6b' : '#69b3a2',
+                                clipPath: clipPathStyles(index, group.scale, group.label), 
+                                height: boxHeight(index, group.scale) + 'px',
+                            }"
+                            @click="displayChampionList(group.champions)"
+                        >
+                            <h3>{{ group.label }}</h3>
+                            <p>{{ group.champions.length }} champions</p>
+                        </div>
+                    </div>
+
                     <div id="champion-list"></div>
                 </div>
                 <div class="charts-container">
@@ -866,6 +865,30 @@ function drawKDABarCharts() {
 </template>
 
 <style scoped>
+.matchup-graph {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Center boxes vertically */
+
+    margin-top: 16px;
+}
+
+.matchup-box {
+    flex: 1;
+    text-align: center;
+    padding: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, clip-path 0.2s ease;
+}
+
+.matchup-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .champion-container {
     border: 1px solid #ccc;
     padding: 16px;
