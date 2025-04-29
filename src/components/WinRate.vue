@@ -472,6 +472,9 @@ export default{
     background-color: blue;
     justify-items: start;
     display: grid;
+    align-content: center;
+    border-radius: 16px 0 0 16px;
+    padding-left: 5px;
 }
 
 #Right{
@@ -479,5 +482,8 @@ export default{
     background-color: red;
     justify-items: end;
     display: grid;
+    align-content: center;
+    border-radius: 0 16px 16px 0;
+    padding-right: 5px;
 }
 </style>
