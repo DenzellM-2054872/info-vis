@@ -111,7 +111,7 @@ function drawMatchupGraph() {
     const champTotalGames = champStats.games || 0;
 
     //const minGamesThreshold = champTotalGames < 12500 ? Math.max(0, champTotalGames * 0.02) : Math.max(350, champTotalGames * 0.02);
-    const minGamesThreshold = Math.max(5, champTotalGames * 0.02);
+    const minGamesThreshold = Math.max(5, champTotalGames * 0.04);
     const bounds = [
         { label: "-7.5", range: [champAverageWR - 7.5, champAverageWR - 5], scale: 20 },
         { label: "-5", range: [champAverageWR - 5, champAverageWR - 2.5], scale: 10 },
@@ -155,21 +155,36 @@ function drawMatchupGraph() {
     
 }
 
-// Display the list in group
 function displayChampionList(champions: { champ: string; wr: number; games: number }[]) {
     const listContainer = d3.select("#champion-list");
     listContainer.selectAll("*").remove(); // Clear previous list
-    
+
     if (champions.length === 0) {
         listContainer.append("p").text("No champions.");
         return;
     }
-    const list = listContainer.append("ul");
+
+    const grid = listContainer.append("div")
+        .attr("class", "champion-grid");
+    const champCount = champions.length;
+
     champions.forEach((champ) => {
-        const realName = Champions.NamefromID(champ.champ); 
-        list.append("li").text(`${realName}: ${champ.wr.toFixed(2)}% win rate (${champ.games} games)`);
+        const realName = Champions.NamefromID(champ.champ);
+        const iconUrl = Champions.iconPathFromID(champ.champ); 
+
+        const card = grid.append("div").attr("class", "champion-card");
+
+        card.append("img")
+            .attr("src", iconUrl)
+            .attr("alt", realName);
+
+        const text = card.append("div").attr("class", "champion-card-info");
+        text.append("span").attr("class", "champ-name").text(realName);
+        text.append("span").attr("class", "champ-stats")
+            .text(`${champ.wr.toFixed(1)}% WR • ${champ.games} games`);
     });
 }
+
 const clipPathStyles = (index: number, scale: number, label: number) => {
     if (label > 0) {
         return `polygon(0 ${scale}%,100% 0,100% 100%,0 ${100 - scale}%)`;
@@ -910,6 +925,62 @@ function drawWinratePerMinute() {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+#champion-list {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.champion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.champion-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 4px;
+    text-align: center;
+    color: white;
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.champion-card:hover {
+    transform: scale(1.5);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.champion-card img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+
+
+.champ-name {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.champ-stats {
+    font-size: 0.65rem;
+    opacity: 0.8;
+}
+
+.champion-card p {
+    margin: 4px 0 0;
+    font-size: 0.75rem;
+    color: #fff;
+    text-align: center;
+}
 .champion-container {
     border: 1px solid #ccc;
     padding: 16px;
@@ -981,9 +1052,6 @@ function drawWinratePerMinute() {
     min-width: 0; /* Prevent flexbox from forcing a minimum size */
 }
 
-#champion-list {
-    margin-top: 10px; 
-    color: white;
-}
+
 </style>
 
