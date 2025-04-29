@@ -228,7 +228,7 @@ export default{
         },
         showClass(champClass){
             let rb = new Rainbow().setNumberRange(this.minBans, this.maxBans)
-            rb.setSpectrum('#ffffff', '#ff0000', '000000')
+            rb.setSpectrum('#ffffff', '#ff0000')
             let size = 25
             let totalGames = this.totalGames
             let axisValue = this.axisValue  
@@ -324,7 +324,7 @@ export default{
         },
         highlightClass(champClass){
             let rb = new Rainbow().setNumberRange(this.minBans, this.maxBans)
-            rb.setSpectrum('#ffffff', '#ff0000', '000000')
+            rb.setSpectrum('#ffffff', '#ff0000')
             d3.select("#BannedScatter")
             .selectAll(`.${champClass}`).raise()
             let totalGames = this.totalGames

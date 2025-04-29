@@ -433,11 +433,15 @@ export default{
 
             if(this.game.dragonCount && !(this.team1.dragonCount.toString() == "" && this.team2.dragonCount.toString() == "")){
                 if(this.team1.dragonCount.toString() == ""){
-                    qual_games.push({
-                    wins: this.gameData['dragonCount'][this.team2.dragonCount].losses,
-                    losses: this.gameData['dragonCount'][this.team2.dragonCount].wins,
-                    WR: this.gameData['dragonCount'][this.team1.dragonCount].WR
-                    })
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['dragonCount']){
+                        if(!this.gameData['dragonCount'][count].vs[this.team2.dragonCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['dragonCount'][count].vs[this.team2.dragonCount].wins)
+                        game.losses = game.losses.concat(this.gameData['dragonCount'][count].vs[this.team2.dragonCount].losses)
+                        
+                    }
+                    qual_games.push(game)
                 } else if(this.team2.dragonCount.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['dragonCount'][this.team1.dragonCount].wins,
@@ -459,12 +463,16 @@ export default{
 
             if(this.game.grubCount && !(this.team1.grubCount.toString() == "" && this.team2.grubCount.toString() == "")){
                 if(this.team1.grubCount.toString() == ""){
-                    qual_games.push({
-                    wins: this.gameData['grubCount'][this.team2.grubCount].losses,
-                    losses: this.gameData['dragonCount'][this.team2.grubCount].wins,
-                    WR: this.gameData['grubCount'][this.team1.grubCount].WR
-                    })
-                } else if(this.team2.grubCount.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['grubCount']){
+                        if(!this.gameData['grubCount'][count].vs[this.team2.grubCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['grubCount'][count].vs[this.team2.grubCount].wins)
+                        game.losses = game.losses.concat(this.gameData['grubCount'][count].vs[this.team2.dragonCount].losses)
+                        
+                    }
+                    qual_games.push(game)
+                }  else if(this.team2.grubCount.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['grubCount'][this.team1.grubCount].wins,
                     losses: this.gameData['grubCount'][this.team1.grubCount].losses,
@@ -483,9 +491,18 @@ export default{
                 this.team2.grubCount = 0
             }
 
-            if(this.game.inhibCount){
-                if(!this.team1.inhibCount) this.team1.inhibCount = 0
-                if(this.team2.inhibCount.toString() == ""){
+            if(this.game.inhibCount && !(this.team1.inhibCount.toString() == "" && this.team2.inhibCount.toString() == "")){
+                if(this.team1.inhibCount.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['inhibCount']){
+                        if(!this.gameData['inhibCount'][count].vs[this.team2.inhibCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['inhibCount'][count].vs[this.team2.inhibCount].wins)
+                        game.losses = game.losses.concat(this.gameData['inhibCount'][count].vs[this.team2.inhibCount].losses)
+                        
+                    }
+                    qual_games.push(game)
+                } else if(this.team2.inhibCount.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['inhibCount'][this.team1.inhibCount].wins,
                     losses: this.gameData['inhibCount'][this.team1.inhibCount].losses,
@@ -504,9 +521,18 @@ export default{
                 this.team2.inhibCount = 0
             }
 
-            if(this.game.baron){
-                if(!this.team1.baron) this.team1.baron = 0
-                if(this.team2.baron.toString() == ""){
+            if(this.game.baron && !(this.team1.baron.toString() == "" && this.team2.baron.toString() == "")){
+                if(this.team1.baron.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['baron']){
+                        if(!this.gameData['baron'][count].vs[this.team2.baron]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['baron'][count].vs[this.team2.baron].wins)
+                        game.losses = game.losses.concat(this.gameData['baron'][count].vs[this.team2.baron].losses)
+                        
+                    }
+                    qual_games.push(game)
+                } else if(this.team2.baron.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['baron'][this.team1.baron].wins,
                     losses: this.gameData['baron'][this.team1.baron].losses,
