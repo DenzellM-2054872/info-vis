@@ -40,6 +40,8 @@ export default class Champions {
     }
 
     static nameFromID(ID: string){
+        if(ID == "FiddleSticks") 
+            ID = "Fiddlesticks"
         const typedData = data as DataType
         return typedData[ID].name
     }
@@ -47,6 +49,8 @@ export default class Champions {
 
     static NamefromID(ID: string){
         if(ID == "") return ""
+        if(ID == "FiddleSticks") 
+            ID = "Fiddlesticks"
         const typedData = data as DataType
         return typedData[ID].name
     }

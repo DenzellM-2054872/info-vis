@@ -17,11 +17,5 @@ import WinRate from '@/components/WinRate.vue';
 
 
 <style lang="scss" scoped>
-.content{
-    display: flex;
-    flex-direction: column;
-    max-width: inherit;
-    width: 1280px;
-    align-items: center;
-}   
+
 </style>
