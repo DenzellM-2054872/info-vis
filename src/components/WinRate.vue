@@ -1,6 +1,7 @@
 
 <template>
     <div id="WinRate">
+
         <div class="inputContainer">
             <div class="center">
                 <p>Rank</p>
@@ -138,6 +139,81 @@
             </div>
         </div>
 
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Dragon count</p>
+                <input type="number" v-model="team1.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0">
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.dragonCount" @change="getWinrate">
+            </div>
+            <div class="team2">
+                <p>Dragon count</p>
+                <input type="number" v-model="team2.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0">
+            </div>
+        </div>
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Grub count</p>
+                <input type="number" v-model="team1.grubCount" @change="getWinrate" :disabled="!game.grubCount" min="0" :max=" 6 - team2.grubCount">
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.grubCount" @change="getWinrate">
+            </div>
+            <div class="team2">
+                <p>Grub count</p>
+                <input type="number" v-model="team2.grubCount" @change="getWinrate" :disabled="!game.grubCount" min="0" :max=" 6 - team1.grubCount">
+            </div>
+        </div>
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Inhib count</p>
+                <input type="number" v-model="team1.inhibCount" @change="getWinrate" :disabled="!game.inhibCount" min="0">
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.inhibCount" @change="getWinrate">
+            </div>
+            <div class="team2">
+                <p>Inhib count</p>
+                <input type="number" v-model="team2.inhibCount" @change="getWinrate" :disabled="!game.inhibCount" min="0">
+            </div>
+        </div>
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Tower count</p>
+                <input type="number" v-model="team1.towerCount" @change="getWinrate" :disabled="!game.towerCount" min="0">
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.towerCount" @change="getWinrate">
+            </div>
+            <div class="team2">
+                <p>Tower count</p>
+                <input type="number" v-model="team2.towerCount" @change="getWinrate" :disabled="!game.towerCount" min="0">
+            </div>
+        </div>
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Baron count</p>
+                <input type="number" v-model="team1.baron" @change="getWinrate" :disabled="!game.baron" min="0">
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.baron" @change="getWinrate">
+            </div>
+            <div class="team2">
+                <p>Baron count</p>
+                <input type="number" v-model="team2.baron" @change="getWinrate" :disabled="!game.baron" min="0">
+            </div>
+        </div>
         <div id="RateBar">
             <div id="Left">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
             <div id="Right">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
@@ -148,8 +224,7 @@
 <script  lang="ts">
 import { ref, useTemplateRef, type Ref } from 'vue';
 import * as d3 from "d3" 
-import axios from 'axios';
-import type { Query } from '@codemix/ts-sql';
+
 class BaseDetail {
     wins: string[] = []
     losses: string[] = []
@@ -192,6 +267,13 @@ class Team{
     firstInhib: boolean = false
     firstTower: boolean = false
     herald: boolean = false
+
+    dragonCount: number = 0
+    grubCount: number = 0
+    inhibCount: number = 0
+    towerCount: number = 0
+    baron: number = 0
+
     winrate: number = 50
     gameCount: number = 0
 }
@@ -206,6 +288,12 @@ class Game{
     firstInhib: boolean = false
     firstTower: boolean = false
     herald: boolean = false
+
+    dragonCount: boolean = false
+    grubCount: boolean = false
+    inhibCount: boolean = false
+    towerCount: boolean = false
+    baron: boolean = false
 }
 export default{
     name: "WinRate",
@@ -329,6 +417,7 @@ export default{
                 this.team2.firstTower = false
             }
   
+
             if(this.game.herald){
                 let teamHerald = this.team1.herald ? 1 : 0
                 let oppHerald = this.team2.herald ? 1 : 0
@@ -341,6 +430,127 @@ export default{
                 this.team1.herald = false
                 this.team2.herald = false
             }
+
+            if(this.game.dragonCount && !(this.team1.dragonCount.toString() == "" && this.team2.dragonCount.toString() == "")){
+                if(this.team1.dragonCount.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['dragonCount']){
+                        if(!this.gameData['dragonCount'][count].vs[this.team2.dragonCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['dragonCount'][count].vs[this.team2.dragonCount].wins)
+                        game.losses = game.losses.concat(this.gameData['dragonCount'][count].vs[this.team2.dragonCount].losses)
+                        
+                    }
+                    qual_games.push(game)
+                } else if(this.team2.dragonCount.toString() == ""){
+                    qual_games.push({
+                    wins: this.gameData['dragonCount'][this.team1.dragonCount].wins,
+                    losses: this.gameData['dragonCount'][this.team1.dragonCount].losses,
+                    WR: this.gameData['dragonCount'][this.team1.dragonCount].WR
+                    })
+                }else{
+                    qual_games.push({
+                    wins: this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount].wins,
+                    losses: this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount].losses,
+                    WR: this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount].WR
+                    })
+                }
+
+            }else{
+                this.team1.dragonCount = 0
+                this.team2.dragonCount = 0
+            }
+
+            if(this.game.grubCount && !(this.team1.grubCount.toString() == "" && this.team2.grubCount.toString() == "")){
+                if(this.team1.grubCount.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['grubCount']){
+                        if(!this.gameData['grubCount'][count].vs[this.team2.grubCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['grubCount'][count].vs[this.team2.grubCount].wins)
+                        game.losses = game.losses.concat(this.gameData['grubCount'][count].vs[this.team2.dragonCount].losses)
+                        
+                    }
+                    qual_games.push(game)
+                }  else if(this.team2.grubCount.toString() == ""){
+                    qual_games.push({
+                    wins: this.gameData['grubCount'][this.team1.grubCount].wins,
+                    losses: this.gameData['grubCount'][this.team1.grubCount].losses,
+                    WR: this.gameData['grubCount'][this.team1.grubCount].WR
+                    })
+                }else{
+                    qual_games.push({
+                    wins: this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount].wins,
+                    losses: this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount].losses,
+                    WR: this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount].WR
+                    })
+                }
+
+            }else{
+                this.team1.grubCount = 0
+                this.team2.grubCount = 0
+            }
+
+            if(this.game.inhibCount && !(this.team1.inhibCount.toString() == "" && this.team2.inhibCount.toString() == "")){
+                if(this.team1.inhibCount.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['inhibCount']){
+                        if(!this.gameData['inhibCount'][count].vs[this.team2.inhibCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['inhibCount'][count].vs[this.team2.inhibCount].wins)
+                        game.losses = game.losses.concat(this.gameData['inhibCount'][count].vs[this.team2.inhibCount].losses)
+                        
+                    }
+                    qual_games.push(game)
+                } else if(this.team2.inhibCount.toString() == ""){
+                    qual_games.push({
+                    wins: this.gameData['inhibCount'][this.team1.inhibCount].wins,
+                    losses: this.gameData['inhibCount'][this.team1.inhibCount].losses,
+                    WR: this.gameData['inhibCount'][this.team1.inhibCount].WR
+                    })
+                }else{
+                    qual_games.push({
+                    wins: this.gameData['inhibCount'][this.team1.inhibCount].vs[this.team2.inhibCount].wins,
+                    losses: this.gameData['inhibCount'][this.team1.inhibCount].vs[this.team2.inhibCount].losses,
+                    WR: this.gameData['inhibCount'][this.team1.inhibCount].vs[this.team2.inhibCount].WR
+                    })
+                }
+
+            }else{
+                this.team1.inhibCount = 0
+                this.team2.inhibCount = 0
+            }
+
+            if(this.game.baron && !(this.team1.baron.toString() == "" && this.team2.baron.toString() == "")){
+                if(this.team1.baron.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['baron']){
+                        if(!this.gameData['baron'][count].vs[this.team2.baron]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['baron'][count].vs[this.team2.baron].wins)
+                        game.losses = game.losses.concat(this.gameData['baron'][count].vs[this.team2.baron].losses)
+                        
+                    }
+                    qual_games.push(game)
+                } else if(this.team2.baron.toString() == ""){
+                    qual_games.push({
+                    wins: this.gameData['baron'][this.team1.baron].wins,
+                    losses: this.gameData['baron'][this.team1.baron].losses,
+                    WR: this.gameData['baron'][this.team1.baron].WR
+                    })
+                }else{
+                    qual_games.push({
+                    wins: this.gameData['baron'][this.team1.baron].vs[this.team2.baron].wins,
+                    losses: this.gameData['baron'][this.team1.baron].vs[this.team2.baron].losses,
+                    WR: this.gameData['baron'][this.team1.baron].vs[this.team2.baron].WR
+                    })
+                }
+
+            }else{
+                this.team1.baron = 0
+                this.team2.baron = 0
+            }
+
 
             let accepted = qual_games.pop()
             if(!accepted){
@@ -417,6 +627,11 @@ export default{
     width: 100%;
     margin-top: 5px;    
     margin-bottom: 5px;
+    border-bottom: 1px solid grey;
+}
+
+#rank{
+    margin-bottom: 2px;
 }
 
 .team1{
@@ -472,6 +687,9 @@ export default{
     background-color: blue;
     justify-items: start;
     display: grid;
+    align-content: center;
+    border-radius: 16px 0 0 16px;
+    padding-left: 5px;
 }
 
 #Right{
@@ -479,5 +697,8 @@ export default{
     background-color: red;
     justify-items: end;
     display: grid;
+    align-content: center;
+    border-radius: 0 16px 16px 0;
+    padding-right: 5px;
 }
 </style>
