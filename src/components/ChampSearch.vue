@@ -1,7 +1,7 @@
 
 <template>
     <div id="champ_search">
-        <input class="search_bar" type="text" v-model="input" placeholder="Search champs..." />
+        <input class="search_bar" type="text" v-model="input" placeholder="Search champs..." @input="change"/>
         <div class="search_suggestion" v-if="input&&this.filteredList().length&&(input.length >= 3)">
             <div v-for="champ in filteredList()" :key="champ" class="champ" @click="this.fillChamp">
                 <img :src="this.getChampionImage(champ.id)" class="champ_image"/>
@@ -35,6 +35,12 @@ export default{
         }
     },
     methods: {
+        change(){
+            this.$emit('change', this.input)
+        },
+        getInput(){
+            return this.input
+        },
         filteredList() {
             if(!this.showSuggestions || this.input.length < 3) return []
             return this.champs.filter((champ) => {
@@ -51,6 +57,7 @@ export default{
             }else{
                 this.input = event.target.parentNode.innerText
             }
+            this.$emit('change', this.input)
             this.showSuggestions = false;
         },
         getChampionID(){

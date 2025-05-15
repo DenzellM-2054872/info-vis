@@ -41,6 +41,8 @@
                 <option value=2>10 - 25</option>
                 <option value=3>25+</option>
             </select>
+
+            <ChampSearch ref="champSearch" @change="setName"/>
         </div>
     </div>
 </template>
@@ -49,16 +51,19 @@
 import ChampScatter from '@/components/ChampScatter.vue';
 import BannedScatter from '@/components/BannedScatter.vue';
 import { ref, useTemplateRef } from 'vue';
+import ChampSearch from './ChampSearch.vue';
 
 export default{
     name: "DualScatter",
     components: {
         ChampScatter,
-        BannedScatter
+        BannedScatter,
+        ChampSearch
     },
     setup(){
         const bannedScatter = useTemplateRef<BannedScatter>('bannedScatter')
         const champScatter = useTemplateRef<ChampScatter>('champScatter')
+        const champSearch = useTemplateRef<ChampSearch>('champSearch')
         let displayIcons = ref(false)
         let yAxis = ref("games")
         let rank = ref("all")
@@ -93,6 +98,10 @@ export default{
             this.bannedScatter.setMastery()
 
         },
+        setName(name: any){
+            if(name.target) return 
+            this.champScatter.highlightName(name)
+        },
         changeFilter(){
 
             if(this.filter == "rank") this.setRank()
@@ -111,6 +120,15 @@ export default{
     #y_axis{
         margin-bottom: 5px;
     }
+
+    #mastery{
+        margin-bottom: 5px;
+    }
+
+    #rank{
+        margin-bottom: 5px;
+    }
+
     .graph_controls{
         display: flex;
         flex-direction: column;

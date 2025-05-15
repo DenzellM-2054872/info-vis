@@ -53,6 +53,7 @@ export default{
         let yLine = undefined
         let axisValue = "games"
         let rank = "all"
+        let name = ""
         return{
             data,
             selected_data,
@@ -71,10 +72,12 @@ export default{
             margin,
             width,
             height,
-            rank
+            rank,
+            name
         }
     },
-    methods: {  
+    methods: {
+
         mostGames(){
             return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.games))}, 0)
         },
@@ -123,6 +126,7 @@ export default{
             .duration(200).call(d3.axisLeft(this.y));
 
             this.showAll()
+            
         },
         setDataRank(rank){
             if(!String(rank).endsWith('+')){
@@ -222,6 +226,10 @@ export default{
             this.showAll()
         },
         showAll(){
+            if(this.name != ""){
+                this.highlightName(this.name)
+                return
+            }
             for(let champClass in this.visible){
                 if(this.visible[champClass]){
                     this.showClass(champClass)
@@ -234,9 +242,10 @@ export default{
             let totalGames = this.totalGames 
             let axisValue = this.axisValue  
             let x = this.x
-            let y = this.y 
+            let y = this.y
+            let size = 20
+            
             if(this.displayIcons){
-                let size = 20
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
                     .selectAll("image").transition()
@@ -265,6 +274,20 @@ export default{
                     })
                     .attr("width", size)
                     .attr("height", size)
+
+                    d3.select("#ChampScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("circle").transition()
+                    .duration(200)
+                    .style("fill", "lightgrey")
+                    .style("opacity", 0.33)
+                    .style("display", "none")
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                    })
+                    .attr("r", 4)
             }else{
                 d3.select("#ChampScatter")
                     .selectAll(`.${champClass}`)
@@ -279,6 +302,35 @@ export default{
                         if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 4)
+
+                    d3.select("#ChampScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("image").transition()
+                    .duration(200)
+                    .style("opacity", 0.33)
+                    .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
+
+                d3.select("#ChampScatter")
+                    .selectAll(`.${champClass}`)
+                    .selectAll("rect").transition()
+                    .duration(200)
+                    .style("stroke", "lightgrey")
+                    .style("opacity", 0.33)
+                    .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
             }
 
         },
@@ -372,6 +424,7 @@ export default{
             }
         },
         highlightClass(champClass){
+
             d3.select("#ChampScatter")
             .selectAll(`.${champClass}`).raise()
             let totalGames = this.totalGames 
@@ -421,6 +474,98 @@ export default{
                     .attr("r", 6)
                     .style("fill", this.colours[champClass])
             }
+        },
+        highlightName(name){
+            this.name = name
+            for(let champClass in this.visible){
+                if(this.visible[champClass]){
+                    this.lowLightClass(champClass)
+                }
+            }
+
+            let totalGames = this.totalGames 
+            let axisValue = this.axisValue  
+            let x = this.x
+            let y = this.y 
+            let colours = this.colours 
+            let visible = this.visible 
+            let size = 25
+            
+            let nodes = d3.select("#ChampScatter").selectAll("g").filter(
+                function(d) { return d && d.name && d.name.toLowerCase().includes(name.toLowerCase()) && visible[Champions.ClassesfromID(d.name)[0]]; 
+
+                })
+            nodes.raise()
+            if(this.displayIcons){
+                let size = 30
+                nodes.selectAll("image").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
+
+                nodes.selectAll("rect").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .style("display", "block")
+                    .attr("x", function (d) { return x(d.WR) - size / 2} )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .attr("width", size)
+                    .attr("height", size)
+                    .style("stroke", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
+
+                nodes.selectAll("circle").transition()
+                    .duration(200)
+                    .attr("r", 5)
+                    .style("opacity", 1)
+                    .style("display", "none")
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                    })
+                    .style("fill", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
+
+            }else{
+                nodes.selectAll("image").transition()
+                    .duration(200)
+                    .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+
+                nodes.selectAll("rect").transition()
+                    .duration(200)
+                    .style("display", "none")
+                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
+                    .attr("y", function (d) {
+                        if(axisValue == "games") {return y(d.games) - size / 2}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    })
+                    .style("stroke", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
+
+                nodes.selectAll("circle").transition()
+                    .duration(200)
+                    .style("opacity", 1)
+                    .attr("cx", function (d) { return x(d.WR); } )
+                    .attr("cy", function (d) { 
+                        if(axisValue == "games") {return y(d.games)}
+                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                    })
+                    .attr("r", 6)
+                    .style("fill", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
+            }
+
         },
         hideClass(champClass){
             if(this.displayIcons){
@@ -495,7 +640,9 @@ export default{
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
 
+
             this.showAll()
+            
         },
         createSVG(){
             //tooltip
@@ -598,6 +745,9 @@ export default{
 
         },
         legend_click(event, d) {
+            console.log(this.name)
+            if(this.name != "") return;
+            
             let unfiltered = true;
             for(let tag in this.visible){
                 unfiltered = unfiltered && this.visible[tag];
@@ -623,6 +773,7 @@ export default{
 
         },
         legend_mouseleave(event, d) {
+            if(this.name != "") return;
             for(let champClass in this.colours){
                 if(!this.visible[champClass]){
                     this.hideClass(champClass)
@@ -634,6 +785,7 @@ export default{
             this.$emit('legend_mouseleave')
         },
         legend_mouseover(event, d) {
+            if(this.name != "") return;
             let hoveredClass = d3.select(event.target).attr('class')
             this.$emit('legend_mouseover', hoveredClass)
             if(!this.visible[hoveredClass]){
@@ -657,7 +809,7 @@ export default{
                 .transition()
                 .style("opacity", 0)
                 .style("display", "none")
-
+            if(this.name != "") return;
             for(let champClass in this.colours){
                 if(this.visible[champClass]){
                     this.showClass(champClass)
@@ -685,7 +837,8 @@ export default{
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
-            
+            if(this.name != "") return;
+
             for(let champClass in this.visible){
                 if(!this.visible[champClass]) continue;
                 this.lowLightClass(champClass);
