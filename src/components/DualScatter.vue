@@ -12,7 +12,7 @@
             </div>
             <select name="y_axis" id="y_axis" v-model="yAxis" @change="setDisplay">
                 <option value="games">Games</option>
-                <option v-if="filter == 'rank'" value="presence">Presence</option>
+                <option v-if="filter == 'rank'" value="banrate">Banrate</option>
             </select>
             <select name="filter" id="filter" v-model="filter" @change="changeFilter">
                 <option value="rank">Rank</option>

@@ -47,7 +47,7 @@ export default{
                     .range([ height, 0]);
 
         let totalGames = 0
-        let totalPresence = 0
+        let totalBanrate = 0
         let yAxis = undefined
         let xAxis = undefined
         let yLine = undefined
@@ -62,7 +62,7 @@ export default{
             colours,
             visible,
             totalGames,
-            totalPresence,
+            totalBanrate,
             x,
             y,
             yAxis,
@@ -84,9 +84,9 @@ export default{
         highestWinDelta(){
             return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Math.abs(50 - Number(point.WR)))}, 0)
         },
-        highestPresence(){
+        highestBanrate(){
             let totalGames = this.totalGames
-            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), ((Number(point.effectiveBans) / totalGames + Number(point.games) / totalGames)  * 100))}, 0)
+            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), ((Number(point.effectiveBans) / totalGames)  * 100))}, 0)
         },
         setDisplay(axisValue){
             this.axisValue = axisValue
@@ -108,14 +108,14 @@ export default{
                     .style("stroke", "gray")
                     .style("fill", "none")
                     .style("stroke-dasharray", "4");
-            }else if(axisValue == "presence"){
+            }else if(axisValue == "banrate"){
                 this.y = d3.scaleLinear()
-                    .domain([0, Math.ceil(this.highestPresence() / 5) * 5])
+                    .domain([0, Math.ceil(this.highestBanrate() / 5) * 5])
                     .range([this.height, 0]);
                 this.yLine.attr("x1", 0)  
-                    .attr("y1", this.y(this.totalPresence / Object.values(this.selected_data).length))
+                    .attr("y1", this.y(this.totalBanrate / Object.values(this.selected_data).length))
                     .attr("x2", this.width)
-                    .attr("y2", this.y(this.totalPresence /Object.values(this.selected_data).length))
+                    .attr("y2", this.y(this.totalBanrate /Object.values(this.selected_data).length))
                     .style("stroke-width", 2)
                     .style("stroke", "gray")
                     .style("fill", "none")
@@ -255,7 +255,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -270,7 +270,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -285,7 +285,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 4)
             }else{
@@ -299,7 +299,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 4)
 
@@ -312,7 +312,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -327,7 +327,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -350,7 +350,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2 } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -364,7 +364,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -380,7 +380,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .style("fill", this.colours[champClass])
             }else{
@@ -392,7 +392,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .style("fill", this.colours[champClass])
 
@@ -404,7 +404,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .style("stroke", this.colours[champClass])
 
@@ -418,7 +418,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .style("fill", this.colours[champClass])
             }
@@ -441,7 +441,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -455,7 +455,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2} )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -469,7 +469,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 6)
                     .style("fill", this.colours[champClass])
@@ -504,7 +504,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -516,7 +516,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2} )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .attr("width", size)
                     .attr("height", size)
@@ -530,7 +530,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .style("fill", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
 
@@ -541,7 +541,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").transition()
@@ -550,7 +550,7 @@ export default{
                     .attr("x", function (d) { return x(d.WR) - size / 2; } )
                     .attr("y", function (d) {
                         if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                     })
                     .style("stroke", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
 
@@ -560,7 +560,7 @@ export default{
                     .attr("cx", function (d) { return x(d.WR); } )
                     .attr("cy", function (d) { 
                         if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100)}
+                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
                     })
                     .attr("r", 6)
                     .style("fill", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
@@ -608,7 +608,7 @@ export default{
                 .attr("x", function (d) {return x(d.WR) - size / 2; } )
                 .attr("y", function (d) {
                     if(axisValue == "games") {return y(d.games) - size / 2}
-                    if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100) - size / 2}
+                    if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
                 })
                 .attr("width", size)
                 .attr("height", size)
@@ -630,8 +630,10 @@ export default{
 
             groups.append("circle")
                 .attr("cx", function (d) { return x(d.WR); } )
-                .attr("cy", function (d) { if(axisValue == "games") {return y(d.games) - size / 2}
-                                           if(axisValue == "presence") {return y((Math.round((d.effectiveBans / totalGames + d.games / totalGames)  * 10000)) / 100);}})
+                .attr("cy", function (d) { 
+                    if(axisValue == "games") {return y(d.games) - size / 2}
+                    if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100);}
+                })
                 .attr("r", 5)
                 .style("display", "none")
                 .style("fill", "#69b3a2")
@@ -686,13 +688,20 @@ export default{
         d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
             let values = Object.values(data['all'])
             this.totalGames = Object.values(data['all']).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) /10
-            this.totalPresence = values.reduce((accumulator, point) => {
-                return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames + Number(point.games) / this.totalGames) * 100)
+            this.totalBanrate = values.reduce((accumulator, point) => {
+                return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames) * 100)
             }, 0)
 
             for(let rank in data){
+                let totalGames = 0
+                for(let champ in data[rank]){
+                    totalGames +=  data[rank][champ]['games']
+                }
+                totalGames /= 10
+
                 for(let champ in data[rank]){
                 data[rank][champ]['WR'] = (data[rank][champ]['wins'] / data[rank][champ]['games']) * 100
+                data[rank][champ]['BR'] = (data[rank][champ]['effectiveBans'] / totalGames) * 100
                 data[rank][champ]['name'] = champ
                 }
 
@@ -822,7 +831,7 @@ export default{
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#ChampScatter").select(`.tooltip`)
-                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% `)
+                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% <br>BR: ${Math.round(d.BR * 100) / 100}%`)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
@@ -833,7 +842,7 @@ export default{
             if(!this.visible[champClass]) return;
             d3.select("#ChampScatter").select(`.tooltip`)
                 .style("opacity", 1)            
-                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}%<br>`)
+                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% <br>BR: ${Math.round(Number(d.effectiveBans) / this.totalGames) * 10000 / 100}%`)
                 .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (event.y)+ "px")
                 .style("display", "block")
