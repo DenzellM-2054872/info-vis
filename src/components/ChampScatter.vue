@@ -118,8 +118,8 @@ export default{
 
             this.yAxis.transition()
             .duration(200).call(d3.axisLeft(this.y));
-
-            this.renderData()
+            this.newY = this.y
+            this.updatePosition(d3.select("#ChampScatter"), 25)
             
         },
         setDataRank(rank){
@@ -176,6 +176,7 @@ export default{
                         this.selected_data[champ]['losses'] = 0
                         this.selected_data[champ]['games'] = 0
                         this.selected_data[champ]['name'] = champ
+                        this.selected_data[champ]['class'] = Champions.ClassesfromID(champ)[0]
                     }
                     this.selected_data[champ]['wins'] += this.data_mastery[m][champ]['wins']
                     this.selected_data[champ]['losses'] += this.data_mastery[m][champ]['losses']
@@ -199,6 +200,7 @@ export default{
             .duration(200).call(d3.axisBottom(this.x));
             
             this.setDisplay(this.axisValue)
+            console.log(this.selected_data)
             this.renderData(this.selected_data)
         },
         setRank(rank){
@@ -211,380 +213,192 @@ export default{
                         .range([this.height, 0]);
             this.xAxis.transition()
                         .duration(200).call(d3.axisBottom(this.x));
+            this.newX = this.x
 
-            this.setDisplay(this.axisValue)
             this.renderData()
         },
         setIcons(displayIcons){
+            this.hide(d3.select("#ChampScatter"))
             this.displayIcons = displayIcons
-            this.showAll()
+            this.show(d3.select("#ChampScatter"))
         },
-        showAll(){
-            if(this.name != ""){
-                this.highlightName(this.name)
-                return
-            }
-            for(let champClass in this.visible){
-                if(this.visible[champClass]){
-                    this.showClass(champClass)
-                }else{
-                    this.hideClass(champClass)
-                }
-            }
-        },
-        lowLightClass(champClass){  
-            let totalGames = this.totalGames 
-            let axisValue = this.axisValue  
+        updatePosition(nodes, size){
+            let speed = 200
+                nodes.selectAll("image").transition()
+                    .duration(speed)
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                    })
 
-            let x = this.newX
-            let y = this.newY
+                nodes.selectAll("rect").filter((d) => d)
+                    .transition()
+                    .duration(speed)
+                    .attr("x",  (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y",  (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
+                    })
+
+                nodes.selectAll("circle")
+                    .transition()
+                    .duration(speed)
+                    .attr("cx", (d) => { return this.newX(d.WR); } )
+                    .attr("cy", (d) => { 
+                        if(this.axisValue == "games") return this.newY(d.games)
+                        if(this.axisValue == "banrate") return this.newY((Math.round((d.effectiveBans /  this.totalGames)  * 10000)) / 100)
+                    })
+
+
+        },
+        lowLight(nodes){ 
             let size = 20
-            
             if(this.displayIcons){
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("image").transition()
+                nodes.selectAll("image").transition()
                     .duration(200)
                     .style("opacity", 0.33)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
                     .attr("width", size)
                     .attr("height", size)
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                    })
 
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("rect").transition()
+                nodes.selectAll("rect").filter((d) => { return d; })
+                    .transition()
                     .duration(200)
                     .style("stroke", "lightgrey")
                     .style("opacity", 0.33)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
                     .attr("width", size)
                     .attr("height", size)
-
-                    d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("circle").transition()
-                    .duration(200)
-                    .style("fill", "lightgrey")
-                    .style("opacity", 0.33)
-                    .style("display", "none")
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
                     })
-                    .attr("r", 4)
+
             }else{
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("circle").transition()
-                    .duration(200)
-                    .style("fill", "lightgrey")
-                    .style("opacity", 0.33)
-                    .style("display", "block")
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
-                    })
-                    .attr("r", 4)
-
-                    d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("image").transition()
-                    .duration(200)
-                    .style("opacity", 0.33)
-                    .style("display", "none")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .attr("width", size)
-                    .attr("height", size)
-
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("rect").transition()
-                    .duration(200)
-                    .style("stroke", "lightgrey")
-                    .style("opacity", 0.33)
-                    .style("display", "none")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .attr("width", size)
-                    .attr("height", size)
+                nodes.selectAll("circle").transition()
+                .duration(200)
+                .style("fill", "lightgrey")
+                .style("opacity", 0.33)
+                .style("display", "block")
+                .attr("r", 5)
+                
             }
-
         },
-        showClass(champClass){
+        show(nodes){
             let size = 25
-            let x = this.newX
-            let y = this.newY
-            let totalGames = this.totalGames 
-            let axisValue = this.axisValue
             if(this.displayIcons){
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("image").transition()
+                nodes.selectAll("image")
+                    .transition()
                     .duration(200)
                     .style("opacity", 1)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2 } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
                     .attr("width", size)
                     .attr("height", size)
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                    })
 
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("rect").transition()
+                nodes.selectAll("rect").filter((d) => { return d; })
+                    .transition()
                     .duration(200)
                     .style("opacity", 1)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
                     .attr("width", size)
                     .attr("height", size)
-                    .style("stroke", this.colours[champClass])
-
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("circle").transition()
-                    .duration(200)
-                    .attr("r", 5)
-                    .style("opacity", 1)
-                    .style("display", "none")
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
+                    .attr("fill", "none")
+                    .style("stroke", (d) => this.colours[d.class])
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
                     })
-                    .style("fill", this.colours[champClass])
+
             }else{
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("image").transition()
-                    .duration(200)
-                    .style("display", "none")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .style("fill", this.colours[champClass])
-
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("rect").transition()
-                    .duration(200)
-                    .style("display", "none")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .style("stroke", this.colours[champClass])
-
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("circle").transition()
+                nodes.selectAll("circle")
+                    .transition()
                     .duration(200)
                     .attr("r", 5)
                     .style("opacity", 1)
                     .style("display", "block")
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
-                    })
-                    .style("fill", this.colours[champClass])
+                    .style("stroke", "black")
+                    .style("fill", (d) => this.colours[d.class])
             }
         },
-        highlightClass(champClass){
-
-            d3.select("#ChampScatter")
-            .selectAll(`.${champClass}`).raise()
-            let totalGames = this.totalGames 
-            let axisValue = this.axisValue  
-            let x = this.newX
-            let y = this.newY
+        highlight(nodes){
+            nodes.raise()
+            let size = 30
             if(this.displayIcons){
-                let size = 30
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("image").transition()
+                nodes.selectAll("image").transition()
                     .duration(200)
                     .style("opacity", 1)
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
                     .attr("width", size)
                     .attr("height", size)
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                    })
 
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("rect").transition()
+                nodes.selectAll("rect").filter((d) => { return d; })
+                    .transition()
                     .duration(200)
                     .style("opacity", 1)
                     .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2} )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
                     .attr("width", size)
                     .attr("height", size)
-                    .style("stroke", this.colours[champClass])
+                    .style("stroke", (d) => this.colours[d.class])
+                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("y", (d) => {
+                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                    })
             }else{
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("circle").transition()
+                nodes.selectAll("circle").transition()
                     .duration(200)
                     .style("opacity", 1)
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
-                    })
                     .attr("r", 6)
-                    .style("fill", this.colours[champClass])
+                    .style("fill", (d) => this.colours[d.class])
             }
+
         },
         highlightName(name){
             this.name = name
-            for(let champClass in this.visible){
-                if(this.visible[champClass]){
-                    this.lowLightClass(champClass)
-                }
-            }
-
-            let totalGames = this.totalGames 
-            let axisValue = this.axisValue  
-            let x = this.newX
-            let y = this.newY 
-            let colours = this.colours 
-            let size = 25
+            this.lowLight(d3.select("#ChampScatter"))
             
             let nodes = d3.select("#ChampScatter").selectAll("g").filter(
                 (d) => { return d && d.name && d.name.toLowerCase().includes(name.toLowerCase()) && this.visible[Champions.ClassesfromID(d.name)[0]]; 
 
                 })
             nodes.raise()
-            if(this.displayIcons){
-                let size = 30
-                nodes.selectAll("image").transition()
-                    .duration(200)
-                    .style("opacity", 1)
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .attr("width", size)
-                    .attr("height", size)
-
-                nodes.selectAll("rect").transition()
-                    .duration(200)
-                    .style("opacity", 1)
-                    .style("display", "block")
-                    .attr("x", function (d) { return x(d.WR) - size / 2} )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .attr("width", size)
-                    .attr("height", size)
-                    .style("stroke", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
-
-                nodes.selectAll("circle").transition()
-                    .duration(200)
-                    .attr("r", 5)
-                    .style("opacity", 1)
-                    .style("display", "none")
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
-                    })
-                    .style("fill", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
-
-            }else{
-                nodes.selectAll("image").transition()
-                    .duration(200)
-                    .style("display", "none")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
-                    })
-
-                nodes.selectAll("rect").transition()
-                    .duration(200)
-                    .style("display", "none")
-                    .attr("x", function (d) { return x(d.WR) - size / 2; } )
-                    .attr("y", function (d) {
-                        if(axisValue == "games") {return y(d.games) - size / 2}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
-                    })
-                    .style("stroke", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
-
-                nodes.selectAll("circle").transition()
-                    .duration(200)
-                    .style("opacity", 1)
-                    .attr("cx", function (d) { return x(d.WR); } )
-                    .attr("cy", function (d) { 
-                        if(axisValue == "games") {return y(d.games)}
-                        if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100)}
-                    })
-                    .attr("r", 6)
-                    .style("fill", function (d) {return colours[Champions.ClassesfromID(d.name)[0]]})
-            }
-
+            this.show(nodes)
         },
-        hideClass(champClass){
+        hide(nodes){
             if(this.displayIcons){
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("image").transition()
+                nodes.selectAll("image").transition()
                     .duration(200)
                     .style("display", "none")
 
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("rect").transition()
+                nodes.selectAll("rect").filter((d) => { return d; })
+                    .transition()
                     .duration(200)
                     .style("display", "none")
             }else{
-                d3.select("#ChampScatter")
-                    .selectAll(`.${champClass}`)
-                    .selectAll("circle").transition()
+                nodes.selectAll("circle").transition()
                     .duration(200)
                     .attr("r", 5)
                     .style("display", "none")
             }
         },
-        renderData(){
-            let size = 25            
+        renderData(){          
             d3.select("#ChampScatter").select(`.dataWrapper`).selectAll("*").remove()
             
             let groups = d3.select("#ChampScatter").select(`.dataWrapper`)
@@ -595,45 +409,29 @@ export default{
                 .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
 
             groups.append('image')
-                .attr("x", (d) => {return this.newX(d.WR) - size / 2; } )
-                .attr("y", (d) => {
-                    if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                    if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
-                })
-                .attr("width", size)
-                .attr("height", size)
+                .attr("href", (d) => {return Champions.iconPathFromID(d.name)})
                 .style("display", "none")
-                .attr("href", function (d) {return Champions.iconPathFromID(d.name)})
+
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
 
             groups.append('rect')
-                .attr("x", (d) => { return this.newX(d.WR) - size / 2 } )
-                .attr("y", (d) => { return  this.newY(d.games) - size / 2 + 1; } )
-                .attr("width", size)
-                .attr("height", size)
                 .style("display", "none")
-                .style("fill", "none")
-                .style("stroke", "black")
-                .style("stroke-width", "2px")
 
             groups.append("circle")
                 .attr("cx", (d) => { return this.newX(d.WR); } )
-                .attr("cy",  (d) => { 
-                    if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                    if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100);}
+                .attr("cy", (d) => { 
+                    if(this.axisValue == "games") return this.newY(d.games)
+                    if(this.axisValue == "banrate") return this.newY((Math.round((d.effectiveBans /  this.totalGames)  * 10000)) / 100)
                 })
-                .attr("r", 5)
-                .style("display", "none")
-                .style("fill", "#69b3a2")
-                .style("stroke", "black")
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
 
 
-            this.showAll()
+            this.updatePosition(d3.select("#ChampScatter"), 25)
+            this.show(d3.select("#ChampScatter"))
             
         },
         createSVG(){
@@ -718,9 +516,11 @@ export default{
                 totalGames /= 10
 
                 for(let champ in data[rank]){
-                data[rank][champ]['WR'] = (data[rank][champ]['wins'] / data[rank][champ]['games']) * 100
-                data[rank][champ]['BR'] = (data[rank][champ]['effectiveBans'] / totalGames) * 100
-                data[rank][champ]['name'] = champ
+                    data[rank][champ]['WR'] = (data[rank][champ]['wins'] / data[rank][champ]['games']) * 100
+                    data[rank][champ]['BR'] = (data[rank][champ]['effectiveBans'] / totalGames) * 100
+                    data[rank][champ]['name'] = champ
+                    if(champ != "None")
+                        data[rank][champ]['class'] = Champions.ClassesfromID(champ)[0]
                 }
 
                 delete data[rank]['None']
@@ -739,7 +539,7 @@ export default{
                 .style("stroke-dasharray", "4");
 
             this.renderData()
-            this.showAll()
+            this.show(d3.select("#ChampScatter"))
         })
 
         d3.json("http://localhost:5173/stats/wbpr_mastery.json").then((data) => {
@@ -821,10 +621,10 @@ export default{
             this.newY = newY
         },
         generateLegend(svg, yValue, size, champClass){
-            svg.append("rect").attr("x", 300).attr("y", yValue).attr("width", size).attr("class", champClass).attr("height", size).style("fill", this.colours[champClass])
+            svg.append("rect").attr("x", 300).attr("y", yValue).attr("data-class", champClass).attr("width", size).attr("height", size).style("fill", this.colours[champClass])
             .on("mouseover", this.legend_mouseover).on("mouseleave", this.legend_mouseleave).on("click", this.legend_click)
 
-            svg.append("text").attr("x", 320).attr("y", yValue + 10).text(champClass).attr("class", champClass).style("font-size", "15px").attr("alignment-baseline","middle").style("fill", this.colours[champClass])
+            svg.append("text").attr("x", 320).attr("y", yValue + 10).attr("data-class", champClass).text(champClass).style("font-size", "15px").attr("alignment-baseline","middle").style("fill", this.colours[champClass])
             .on("mouseover", this.legend_mouseover).on("mouseleave", this.legend_mouseleave).on("click", this.legend_click)
 
         },
@@ -837,19 +637,21 @@ export default{
             }
 
             if(unfiltered){
+                this.hide(d3.select("#ChampScatter"))
                 for(let tag in this.visible){
-                    this.hideClass(tag)
                     this.visible[tag] = false;
                 }
             }
-            let champClass = d3.select(event.target).attr('class')
+
+            let champClass = d3.select(event.target).attr('data-class')
+            let nodes = d3.select("#ChampScatter").selectAll(`.${champClass}`)
 
             if(this.visible[champClass]){
-                this.hideClass(champClass)
+                this.hide(nodes)
                 this.visible[champClass] = false;
 
             }else{
-                this.showClass(champClass)
+                this.show(nodes)
                 this.visible[champClass] = true
             }
             this.$emit('legend_click', champClass)
@@ -858,30 +660,34 @@ export default{
         legend_mouseleave(event, d) {
             if(this.name != "") return;
             for(let champClass in this.colours){
+                let nodes = d3.select("#ChampScatter").selectAll(`.${champClass}`)
                 if(!this.visible[champClass]){
-                    this.hideClass(champClass)
+                    this.hide(nodes)
                 } 
                 else{
-                    this.showClass(champClass)
+                    this.show(nodes)
                 } 
             }
             this.$emit('legend_mouseleave')
         },
         legend_mouseover(event, d) {
             if(this.name != "") return;
-            let hoveredClass = d3.select(event.target).attr('class')
-            this.$emit('legend_mouseover', hoveredClass)
+            let hoveredClass = d3.select(event.target).attr('data-class')
+
             if(!this.visible[hoveredClass]){
-                this.lowLightClass(hoveredClass);
+                let nodes = d3.select("#ChampScatter").selectAll(`.${hoveredClass}`)
+                this.lowLight(nodes);
                 return
             }
 
             for(let champClass in this.visible){
+                let nodes = d3.select("#ChampScatter").selectAll(`.${champClass}`)
                 if(champClass == hoveredClass){
-                    this.highlightClass(champClass);
+                    this.highlight(nodes);
                 }else{
-                    if(!this.visible[champClass]) continue;
-                    this.lowLightClass(champClass);
+                    if(this.visible[champClass]){
+                        this.lowLight(nodes);
+                    }
                 }
             }
         },
@@ -895,7 +701,8 @@ export default{
             if(this.name != "") return;
             for(let champClass in this.colours){
                 if(this.visible[champClass]){
-                    this.showClass(champClass)
+                    let nodes = d3.select("#ChampScatter").selectAll(`.${champClass}`)
+                    this.show(nodes)
                 } 
             }
 
@@ -911,9 +718,9 @@ export default{
                 .style("display", "block")
         },
         mouseover(event, d) {
-            let totalGames = this.totalGames 
             let champClass = d3.select(event.target.parentNode).attr("class")
             if(!this.visible[champClass]) return;
+
             d3.select("#ChampScatter").select(`.tooltip`)
                 .style("opacity", 1)            
                 .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% <br>BR: ${Math.round(Number(d.effectiveBans) / this.totalGames) * 10000 / 100}%`)
@@ -924,13 +731,14 @@ export default{
 
             for(let champClass in this.visible){
                 if(!this.visible[champClass]) continue;
-                this.lowLightClass(champClass);
+                let nodes = d3.select("#ChampScatter").selectAll(`.${champClass}`)
+                this.lowLight(nodes);
             }
             d3.select(event.target.parentNode).raise()
             d3.select(event.target)
                 .transition()
                 .duration(200)
-                .attr("opacity", 1)
+                .style("opacity", 1)
 
             if(!this.displayIcons){
                 d3.select(event.target).transition()
