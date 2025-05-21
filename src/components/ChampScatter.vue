@@ -41,10 +41,12 @@ export default{
         let x = d3.scaleLinear()
                         .domain([42, 58])
                         .range([ 0, width ])
+        let newX = x
 
         let y = d3.scaleLinear()
                     .domain([0, 60000])
                     .range([ height, 0]);
+        let newY = y
 
         let totalGames = 0
         let totalBanrate = 0
@@ -64,7 +66,9 @@ export default{
             totalGames,
             totalBanrate,
             x,
+            newX,
             y,
+            newY,
             yAxis,
             xAxis,
             yLine,
@@ -100,32 +104,22 @@ export default{
                         .domain([0, Math.ceil(this.mostGames() / 1000) * 1000])
                         .range([this.height, 0]);
                 }
-                this.yLine.attr("x1", 0)  
-                    .attr("y1", this.y(this.totalGames / Object.values( this.selected_data).length * 10))
-                    .attr("x2", this.width)  
-                    .attr("y2", this.y(this.totalGames /Object.values( this.selected_data).length * 10))
-                    .style("stroke-width", 2)
-                    .style("stroke", "gray")
-                    .style("fill", "none")
-                    .style("stroke-dasharray", "4");
+                this.yLine
+                    .attr("y1", this.y(this.totalGames / Object.values(this.selected_data).length * 10))
+                    .attr("y2", this.y(this.totalGames /Object.values(this.selected_data).length * 10))
             }else if(axisValue == "banrate"){
                 this.y = d3.scaleLinear()
                     .domain([0, Math.ceil(this.highestBanrate() / 5) * 5])
                     .range([this.height, 0]);
-                this.yLine.attr("x1", 0)  
+                this.yLine
                     .attr("y1", this.y(this.totalBanrate / Object.values(this.selected_data).length))
-                    .attr("x2", this.width)
                     .attr("y2", this.y(this.totalBanrate /Object.values(this.selected_data).length))
-                    .style("stroke-width", 2)
-                    .style("stroke", "gray")
-                    .style("fill", "none")
-                    .style("stroke-dasharray", "4");
             }
 
             this.yAxis.transition()
             .duration(200).call(d3.axisLeft(this.y));
 
-            this.showAll()
+            this.renderData()
             
         },
         setDataRank(rank){
@@ -219,7 +213,7 @@ export default{
                         .duration(200).call(d3.axisBottom(this.x));
 
             this.setDisplay(this.axisValue)
-            this.renderData(this.selected_data)
+            this.renderData()
         },
         setIcons(displayIcons){
             this.displayIcons = displayIcons
@@ -241,8 +235,9 @@ export default{
         lowLightClass(champClass){  
             let totalGames = this.totalGames 
             let axisValue = this.axisValue  
-            let x = this.x
-            let y = this.y
+
+            let x = this.newX
+            let y = this.newY
             let size = 20
             
             if(this.displayIcons){
@@ -336,8 +331,8 @@ export default{
         },
         showClass(champClass){
             let size = 25
-            let x = this.x
-            let y = this.y
+            let x = this.newX
+            let y = this.newY
             let totalGames = this.totalGames 
             let axisValue = this.axisValue
             if(this.displayIcons){
@@ -429,8 +424,8 @@ export default{
             .selectAll(`.${champClass}`).raise()
             let totalGames = this.totalGames 
             let axisValue = this.axisValue  
-            let x = this.x
-            let y = this.y 
+            let x = this.newX
+            let y = this.newY
             if(this.displayIcons){
                 let size = 30
                 d3.select("#ChampScatter")
@@ -485,14 +480,13 @@ export default{
 
             let totalGames = this.totalGames 
             let axisValue = this.axisValue  
-            let x = this.x
-            let y = this.y 
+            let x = this.newX
+            let y = this.newY 
             let colours = this.colours 
-            let visible = this.visible 
             let size = 25
             
             let nodes = d3.select("#ChampScatter").selectAll("g").filter(
-                function(d) { return d && d.name && d.name.toLowerCase().includes(name.toLowerCase()) && visible[Champions.ClassesfromID(d.name)[0]]; 
+                (d) => { return d && d.name && d.name.toLowerCase().includes(name.toLowerCase()) && this.visible[Champions.ClassesfromID(d.name)[0]]; 
 
                 })
             nodes.raise()
@@ -590,11 +584,7 @@ export default{
             }
         },
         renderData(){
-            let size = 25
-            let x = this.x
-            let y = this.y
-            let totalGames = this.totalGames 
-            let axisValue = this.axisValue
+            let size = 25            
             d3.select("#ChampScatter").select(`.dataWrapper`).selectAll("*").remove()
             
             let groups = d3.select("#ChampScatter").select(`.dataWrapper`)
@@ -605,10 +595,10 @@ export default{
                 .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
 
             groups.append('image')
-                .attr("x", function (d) {return x(d.WR) - size / 2; } )
-                .attr("y", function (d) {
-                    if(axisValue == "games") {return y(d.games) - size / 2}
-                    if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100) - size / 2}
+                .attr("x", (d) => {return this.newX(d.WR) - size / 2; } )
+                .attr("y", (d) => {
+                    if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                    if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
                 })
                 .attr("width", size)
                 .attr("height", size)
@@ -619,8 +609,8 @@ export default{
                 .on("mouseleave", this.mouseleave )
 
             groups.append('rect')
-                .attr("x", function (d) { return x(d.WR) - size / 2 } )
-                .attr("y", function (d) { return  y(d.games) - size / 2 + 1; } )
+                .attr("x", (d) => { return this.newX(d.WR) - size / 2 } )
+                .attr("y", (d) => { return  this.newY(d.games) - size / 2 + 1; } )
                 .attr("width", size)
                 .attr("height", size)
                 .style("display", "none")
@@ -629,10 +619,10 @@ export default{
                 .style("stroke-width", "2px")
 
             groups.append("circle")
-                .attr("cx", function (d) { return x(d.WR); } )
-                .attr("cy", function (d) { 
-                    if(axisValue == "games") {return y(d.games) - size / 2}
-                    if(axisValue == "banrate") {return y((Math.round((d.effectiveBans / totalGames)  * 10000)) / 100);}
+                .attr("cx", (d) => { return this.newX(d.WR); } )
+                .attr("cy",  (d) => { 
+                    if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
+                    if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100);}
                 })
                 .attr("r", 5)
                 .style("display", "none")
@@ -660,19 +650,37 @@ export default{
                 .style("position", "absolute")
                 .style("padding", "10px")
 
+
+
             var svg = d3.select("#ChampScatter")
                 .append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)
                 .attr("height", this.height + this.margin.top + this.margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+                
+            // Set the zoom and Pan features: how much you can zoom, on which part, and what to do when there is a zoom
+            var zoom = d3.zoom()
+                    .scaleExtent([.5, 20])  // This control how much you can unzoom (x0.5) and zoom (x20)
+                    .extent([[0, 0], [this.width, this.height]])
+                    .on("zoom", this.updateChart);
 
-        this.xAxis = svg.append("g")
-            .attr("transform", "translate(0," + this.height + ")")
-            .call(d3.axisBottom(this.x));
+            // This add an invisible rect on top of the chart area. This rect can recover pointer events: necessary to understand when the user zoom
+            svg.append("rect")
+                .attr("width", this.width)
+                .attr("height", this.height)
+                .style("position", "absolute")
+                .style("display", "block")
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .call(zoom);
 
-        this.yAxis = svg.append("g")
-            .call(d3.axisLeft(this.y));
+            this.xAxis = svg.append("g")
+                .attr("transform", "translate(0," + this.height + ")")
+                .call(d3.axisBottom(this.x));
+
+            this.yAxis = svg.append("g")
+                .call(d3.axisLeft(this.y));
 
         var size = 10
         let yValue = 30
@@ -680,10 +688,20 @@ export default{
             this.generateLegend(svg, yValue, size, champClass)
             yValue += 20
         }
- 
+        // Add clipPath definition before creating the scatter plot container
+        svg.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", this.width)
+            .attr("height", this.height)
+            .attr("x", 0)
+            .attr("y", 0);
+            
         var scatter = svg.append('g')
                 .attr("clip-path", "url(#clip)")
                 .attr("class", "dataWrapper")
+                // .style("width", "100%")
+                // .style("height", "100%")
         //Read the data
         d3.json("http://localhost:5173/stats/wbpr.json").then((data) => {
             let values = Object.values(data['all'])
@@ -710,6 +728,7 @@ export default{
             this.data = data
             this.selected_data = this.data['all']
             this.yLine = svg.append("line")
+                .attr("class", "horizontal")
                 .attr("x1", 0) 
                 .attr("y1", this.y(this.totalGames / Object.values(data['all']).length * 10))
                 .attr("x2", this.width)  
@@ -735,6 +754,7 @@ export default{
             this.data_mastery = data
         })
         svg.append("line")
+            .attr("class", "vertical")
             .attr("x1", this.x(50))
             .attr("y1", 0)
             .attr("x2", this.x(50))
@@ -744,7 +764,62 @@ export default{
             .style("fill", "none")
             .style("stroke-dasharray", "4");
 
-        },   
+
+
+        },
+        updateChart(event){
+            let size = 20
+            // recover the new scale
+            var newX = event.transform.rescaleX(this.x);
+            var newY = event.transform.rescaleY(this.y);
+
+            // update axes with these new boundaries
+            this.xAxis.call(d3.axisBottom(newX))
+            this.yAxis.call(d3.axisLeft(newY))
+
+            let data = d3.select("#ChampScatter").selectAll("g").filter(
+                function(d) { return d && d.name; }
+            )
+
+            data.selectAll("image")
+                .attr("x", function (d) { return newX(d.WR) - size / 2; } )
+                .attr("y", (d) => { 
+                    if(this.axisValue == "games") {return newY(d.games)  - size / 2}
+                    if(this.axisValue == "banrate") {return newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
+                })
+
+            data.selectAll("rect")
+                .attr("x", function (d) { return newX(d.WR) - size / 2; } )
+                .attr("y", (d) => { 
+                    if(this.axisValue == "games") {return newY(d.games)  - size / 2}
+                    if(this.axisValue == "banrate") {return newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
+                })
+
+            data.selectAll("circle")
+                .attr("cx", function (d) { return newX(d.WR); } )
+                .attr("cy", (d) => { 
+                    if(this.axisValue == "games") {return newY(d.games)}
+                    if(this.axisValue == "banrate") {return newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100)}
+                })
+            
+            d3.select("#ChampScatter").selectAll("line.vertical")
+                .attr("x1", newX(50))
+                .attr("x2", newX(50))
+            
+            d3.select("#ChampScatter").selectAll("line.horizontal")
+                .attr("y1",() => { 
+                    if(this.axisValue == "games")    { return newY(this.totalGames / Object.values(this.selected_data).length * 10) }
+                    if(this.axisValue == "banrate")  { return newY(this.totalBanrate / Object.values(this.selected_data).length) }
+                })
+                .attr("y2", () => { 
+                    if(this.axisValue == "games")    { return newY(this.totalGames / Object.values(this.selected_data).length * 10) }
+                    if(this.axisValue == "banrate")  { return newY(this.totalBanrate / Object.values(this.selected_data).length) }
+                })
+
+
+            this.newX = newX
+            this.newY = newY
+        },
         generateLegend(svg, yValue, size, champClass){
             svg.append("rect").attr("x", 300).attr("y", yValue).attr("width", size).attr("class", champClass).attr("height", size).style("fill", this.colours[champClass])
             .on("mouseover", this.legend_mouseover).on("mouseleave", this.legend_mouseleave).on("click", this.legend_click)
@@ -754,7 +829,6 @@ export default{
 
         },
         legend_click(event, d) {
-            console.log(this.name)
             if(this.name != "") return;
             
             let unfiltered = true;

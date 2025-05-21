@@ -1,10 +1,7 @@
 <template>
     <div class="dual_scatter">
-        <BannedScatter  ref="bannedScatter" />
-        <ChampScatter v-if="bannedScatter" ref="champScatter"
-        @legend_mouseover="bannedScatter.legend_mouseover"
-        @legend_click="bannedScatter.legend_click"
-        @legend_mouseleave="bannedScatter.legend_mouseleave"/>
+        <!-- <BannedScatter  ref="bannedScatter" /> -->
+        <ChampScatter ref="champScatter"/>
         <div class="graph_controls">
             <div class="icon_controls">
                 <input @change="toggleIcons()" id="ShowIcons" type="checkbox" v-model="displayIcons"/>
@@ -83,19 +80,19 @@ export default{
     methods: {
         toggleIcons(){
             this.champScatter.setIcons(this.displayIcons)
-            this.bannedScatter.setIcons(this.displayIcons)
+            // this.bannedScatter.setIcons(this.displayIcons)
         },
         setDisplay(){
             this.champScatter.setDisplay(this.yAxis)
-            this.bannedScatter.setDisplay(this.yAxis)
+            // this.bannedScatter.setDisplay(this.yAxis)
         },
         setRank(){
             this.champScatter.setRank(this.rank)
-            this.bannedScatter.setRank(this.rank)
+            // this.bannedScatter.setRank(this.rank)
         },
         setMastery(){
             this.champScatter.setMastery(this.mastery)
-            this.bannedScatter.setMastery()
+            // this.bannedScatter.setMastery()
 
         },
         setName(name: any){
