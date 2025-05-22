@@ -51,7 +51,9 @@ export default{
         let totalGames = 0
         let totalBanrate = 0
         let yAxis = undefined
+        let yLabel = undefined
         let xAxis = undefined
+        let xLabel = undefined
         let yLine = undefined
         let axisValue = "games"
         let rank = "all"
@@ -70,7 +72,9 @@ export default{
             y,
             newY,
             yAxis,
+            yLabel,
             xAxis,
+            xLabel,
             yLine,
             axisValue,
             margin,
@@ -95,6 +99,7 @@ export default{
         setDisplay(axisValue){
             this.axisValue = axisValue
             if(axisValue == "games"){
+                this.yLabel.text("Games")
                 if(this.rank == 'GRANDMASTER'){
                     this.y = d3.scaleLinear()
                         .domain([0, Math.ceil(this.mostGames() / 500) * 500])
@@ -108,6 +113,8 @@ export default{
                     .attr("y1", this.y(this.totalGames / Object.values(this.selected_data).length * 10))
                     .attr("y2", this.y(this.totalGames /Object.values(this.selected_data).length * 10))
             }else if(axisValue == "banrate"){
+                this.yLabel.text("Banrate (%)")
+
                 this.y = d3.scaleLinear()
                     .domain([0, Math.ceil(this.highestBanrate() / 5) * 5])
                     .range([this.height, 0]);
@@ -411,7 +418,6 @@ export default{
             groups.append('image')
                 .attr("href", (d) => {return Champions.iconPathFromID(d.name)})
                 .style("display", "none")
-
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
                 .on("mouseleave", this.mouseleave )
@@ -476,6 +482,24 @@ export default{
             this.xAxis = svg.append("g")
                 .attr("transform", "translate(0," + this.height + ")")
                 .call(d3.axisBottom(this.x));
+
+            // y label
+            this.yLabel = svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - this.margin.left)
+                .attr("x", 0 - (this.height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Games")
+                .style("fill", "white");
+
+            this.xLabel = svg.append("text")
+                .attr("y", 0 + this.height + (this.margin.bottom / 2))
+                .attr("x", 0 + (this.width / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Winrate (%)")
+                .style("fill", "white");
 
             this.yAxis = svg.append("g")
                 .call(d3.axisLeft(this.y));
