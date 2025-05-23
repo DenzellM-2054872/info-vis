@@ -158,7 +158,7 @@ function getKDA(overview: GameOverview){
         
         <li v-for="overview in sortedOverviews" @click="toTimeline(overview)">
             <div class="game_overview" >
-                <div class="content">
+                <div class="game">
                 <div class="age">{{moment(overview._gameAge).fromNow()}}</div>
                     <div class="front">
                         <div class="pregame_container">
@@ -222,7 +222,10 @@ function getKDA(overview: GameOverview){
   </template>
   
   <style lang="scss" scoped>
-    .content > .age{
+  .page{
+        width: 100%;
+  }
+    .game > .age{
         position: absolute;
         color: rgb(255, 255, 255);
         padding-right: 2.5%;
@@ -248,22 +251,23 @@ function getKDA(overview: GameOverview){
         border-radius: inherit;
     }
         
-    .content{
+    .game{
         border-style: solid;
         border-radius: 25px;
         display: flex;
         z-index: 2;
+
     }
 
 
-    .game_overview > .content{
+    .game_overview > .game{
         width: inherit;
         height: inherit;
         position: absolute;
         z-index: 100;
     }
 
-    .content > .front{
+    .game > .front{
         width: 55%;
         height: inherit;
         z-index: 100;
@@ -271,7 +275,7 @@ function getKDA(overview: GameOverview){
         flex-direction: row;
     }
 
-    .content > .back{
+    .game > .back{
         width: 45%;
         height: inherit;
         z-index: 100;
@@ -338,7 +342,7 @@ function getKDA(overview: GameOverview){
         position: relative;
     }
 
-    .content > .front > .pregame_container {
+    .game > .front > .pregame_container {
         display: flex;
         height: fit-content;
         margin-top: 17.5%;
@@ -413,7 +417,7 @@ function getKDA(overview: GameOverview){
         justify-self: center;
     }
 
-    .content > .rows > .row{
+    .game > .rows > .row{
         display: flex;
     }
 
@@ -469,7 +473,7 @@ function getKDA(overview: GameOverview){
         color: rgb(255, 255, 255);   
     }
 
-  .content> .back > .game_container {
+  .game> .back > .game_container {
         display: flex;
         flex-direction: column;
         height: 65%;

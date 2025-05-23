@@ -36,8 +36,8 @@ export default{
             "Slayer": true,
         })
         const margin = {top: 10, right: 30, bottom: 30, left: 60}
-        const width = 460 - margin.left - margin.right
-        const height = 400 - margin.top - margin.bottom
+        const width = 588 - margin.left - margin.right
+        const height = 512 - margin.top - margin.bottom
         let x = d3.scaleLinear()
                         .domain([42, 58])
                         .range([ 0, width ])
@@ -459,7 +459,7 @@ export default{
             var svg = d3.select("#ChampScatter")
                 .append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)
-                .attr("height", this.height + this.margin.top + this.margin.bottom)
+                .attr("height", this.height + this.margin.top + this.margin.bottom + 10)
                 .append("g")
                 .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
                 
@@ -645,10 +645,10 @@ export default{
             this.newY = newY
         },
         generateLegend(svg, yValue, size, champClass){
-            svg.append("rect").attr("x", 300).attr("y", yValue).attr("data-class", champClass).attr("width", size).attr("height", size).style("fill", this.colours[champClass])
+            svg.append("rect").attr("x", this.width - 70).attr("y", yValue).attr("data-class", champClass).attr("width", size).attr("height", size).style("fill", this.colours[champClass])
             .on("mouseover", this.legend_mouseover).on("mouseleave", this.legend_mouseleave).on("click", this.legend_click)
 
-            svg.append("text").attr("x", 320).attr("y", yValue + 10).attr("data-class", champClass).text(champClass).style("font-size", "15px").attr("alignment-baseline","middle").style("fill", this.colours[champClass])
+            svg.append("text").attr("x", this.width - 55).attr("y", yValue + 10).attr("data-class", champClass).text(champClass).style("font-size", "15px").attr("alignment-baseline","middle").style("fill", this.colours[champClass])
             .on("mouseover", this.legend_mouseover).on("mouseleave", this.legend_mouseleave).on("click", this.legend_click)
 
         },
@@ -758,21 +758,8 @@ export default{
                 let nodes = d3.select("#ChampScatter").selectAll(`.${champClass}`)
                 this.lowLight(nodes);
             }
-            d3.select(event.target.parentNode).raise()
-            d3.select(event.target)
-                .transition()
-                .duration(200)
-                .style("opacity", 1)
+            this.highlight(d3.select(event.target.parentNode))
 
-            if(!this.displayIcons){
-                d3.select(event.target).transition()
-                    .duration(200)
-                    .attr("r", 6)
-            }else{
-                d3.select(event.target.parentNode).select('rect').transition()
-                    .duration(200)
-                    .style("stroke", this.colours[champClass])
-            }
         }
     },
     mounted(){

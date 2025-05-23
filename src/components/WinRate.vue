@@ -672,6 +672,7 @@ export default{
 }
 
 #WinRate{
+    margin-top: 25px;
     width:70%;
     height: fit-content;
 }

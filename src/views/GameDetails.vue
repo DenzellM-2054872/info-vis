@@ -20,8 +20,8 @@ import WinRate from '@/components/WinRate.vue';
 .content{
     display: flex;
     flex-direction: column;
-    max-width: inherit;
-    width: 1280px;
     align-items: center;
+    width: 100%;
+    color: white;
 }   
 </style>

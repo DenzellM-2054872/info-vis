@@ -65,6 +65,7 @@
             </div>
         </div>
         <div class="top">
+            <h1>Best scoring combos</h1>
             <div v-for="top in tops" class="champs_wrapper">
                 <div class="champ_wrapper">
                 <img :src="getChampionImage(top, 0)" class="champ"/>
@@ -349,10 +350,15 @@ export default{
 
 
 <style lang="scss" scoped>
+h1{
+    text-align: center;
+}
 #SynergyComp{
     display: flex;
     flex-direction: row;
     width: fit-content;
+    margin-top: 25px;
+    margin-inline: auto;
 }
 #champ_search{
     align-self: center;
@@ -365,11 +371,10 @@ export default{
     margin-top: 2px;
     height: 22px;
 }
-.top{
-    margin-top: 24px;
-}
+
 .search{
     margin-right: 50px;
+    margin-top: 25px
 }
 .suggestions{
     opacity: 30%;
@@ -386,9 +391,9 @@ export default{
     width: inherit;
 }
 .search_bar{
+    justify-content: center;
     display: flex;
     flex-direction: row;
-    align-self: center;
     margin-bottom: 10px;
 }
 .champs_wrapper{

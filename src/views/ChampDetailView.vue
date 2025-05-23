@@ -825,14 +825,14 @@ function drawWinratePerMinute() {
 </script>
 
 <template>
-    <div>
+    <div class="content">
         <nav>
             <RouterLink to="/">Home</RouterLink>
             <RouterLink to="/champstats">Champs</RouterLink>
             <RouterLink to="/champdetail">Champ Details</RouterLink>
             <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
-        <div>
+        <div class="search-container">
             <input 
                 type="text" 
                 v-model="champName" 
@@ -901,6 +901,13 @@ function drawWinratePerMinute() {
 </template>
 
 <style scoped>
+.content{
+    align-items: center;
+}
+.search-container {
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
 .matchup-graph {
     display: flex;
     justify-content: space-between;

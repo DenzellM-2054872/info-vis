@@ -5,6 +5,8 @@ import WinRate from '@/components/WinRate.vue';
 </script>
 
 <template>
+
+
     <div class="content">
         <nav>
             <RouterLink to="/">Home</RouterLink>
@@ -19,8 +21,10 @@ import WinRate from '@/components/WinRate.vue';
 
 
 <style lang="scss" scoped>
-.content{
-    display: flex;
-    flex-direction: column;
+
+#app{
+    width: 80%;
+    justify-content: center;
 }
+
 </style>
