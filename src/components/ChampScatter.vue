@@ -272,7 +272,7 @@ export default{
                     .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
                     .attr("y", (d) => {
                         if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => { return d; })
@@ -286,7 +286,7 @@ export default{
                     .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
                     .attr("y", (d) => {
                         if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
             }else{
@@ -295,7 +295,7 @@ export default{
                 .style("fill", "lightgrey")
                 .style("opacity", 0.33)
                 .style("display", "block")
-                .attr("r", 5)
+                .attr("r", 4)
                 
             }
         },
@@ -312,7 +312,7 @@ export default{
                     .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
                     .attr("y", (d) => {
                         if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => { return d; })
@@ -327,7 +327,7 @@ export default{
                     .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
                     .attr("y", (d) => {
                         if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
             }else{
@@ -353,7 +353,7 @@ export default{
                     .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
                     .attr("y", (d) => {
                         if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => { return d; })
@@ -367,7 +367,7 @@ export default{
                     .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
                     .attr("y", (d) => {
                         if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
             }else{
                 nodes.selectAll("circle").transition()
@@ -733,7 +733,6 @@ export default{
 
         },
         mousemove(event, d) {
-            let totalGames = this.totalGames 
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#ChampScatter").select(`.tooltip`)
