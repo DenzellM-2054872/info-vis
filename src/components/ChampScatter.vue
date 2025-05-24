@@ -221,7 +221,8 @@ export default{
             this.xAxis.transition()
                         .duration(200).call(d3.axisBottom(this.x));
             this.newX = this.x
-
+            
+            this.setDisplay(this.axisValue)
             this.renderData()
         },
         setIcons(displayIcons){
