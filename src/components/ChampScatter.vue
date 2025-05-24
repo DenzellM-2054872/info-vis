@@ -23,7 +23,7 @@ export default{
             "Slayer": "#e41a1c",
         })
         let data = undefined
-        let selected_data = undefined
+        let selected_data = 'all'
         let data_mastery = undefined
 
         const visible = ref({
@@ -85,16 +85,14 @@ export default{
         }
     },
     methods: {
-
         mostGames(){
-            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point.games))}, 0)
+            return Object.values(this.data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Number(point[this.selected_data].games))}, 0)
         },
         highestWinDelta(){
-            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Math.abs(50 - Number(point.WR)))}, 0)
+            return Object.values(this.data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), Math.abs(50 - Number(point[this.selected_data].WR)))}, 0)
         },
         highestBanrate(){
-            let totalGames = this.totalGames
-            return Object.values(this.selected_data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), ((Number(point.effectiveBans) / totalGames)  * 100))}, 0)
+            return Object.values(this.data).reduce((accumulator, point) =>  {return Math.max(Number(accumulator), ((Number(point[this.selected_data].effectiveBans) / this.totalGames)  * 100))}, 0)
         },
         setDisplay(axisValue){
             this.axisValue = axisValue
@@ -110,8 +108,8 @@ export default{
                         .range([this.height, 0]);
                 }
                 this.yLine
-                    .attr("y1", this.y(this.totalGames / Object.values(this.selected_data).length * 10))
-                    .attr("y2", this.y(this.totalGames /Object.values(this.selected_data).length * 10))
+                    .attr("y1", this.y(this.totalGames / Object.values(this.data).length * 10))
+                    .attr("y2", this.y(this.totalGames /Object.values(this.data).length * 10))
             }else if(axisValue == "banrate"){
                 this.yLabel.text("Banrate (%)")
 
@@ -119,8 +117,8 @@ export default{
                     .domain([0, Math.ceil(this.highestBanrate() / 5) * 5])
                     .range([this.height, 0]);
                 this.yLine
-                    .attr("y1", this.y(this.totalBanrate / Object.values(this.selected_data).length))
-                    .attr("y2", this.y(this.totalBanrate /Object.values(this.selected_data).length))
+                    .attr("y1", this.y(this.totalBanrate / Object.values(this.data).length))
+                    .attr("y2", this.y(this.totalBanrate /Object.values(this.data).length))
             }
 
             this.yAxis.transition()
@@ -128,134 +126,79 @@ export default{
             this.newY = this.y
             this.updatePosition(d3.select("#ChampScatter"), 25)
             
-        },
-        setDataRank(rank){
-            if(!String(rank).endsWith('+')){
-                this.selected_data = this.data[rank];
-                return
-            }
-            this.selected_data = structuredClone(this.data["GRANDMASTER"]);
-
-            for(let r of ["MASTER", "DIAMOND", "EMERALD", "PLATINUM"]){
-                for(let champ in this.data[r]){
-                this.selected_data[champ]['wins'] += this.data[r][champ]['wins']
-                this.selected_data[champ]['losses'] += this.data[r][champ]['losses']
-                this.selected_data[champ]['games'] += this.data[r][champ]['games']
-                this.selected_data[champ]['bans'] += this.data[r][champ]['bans']
-                this.selected_data[champ]['effectiveBans'] += this.data[r][champ]['effectiveBans']
-                }
-                if(rank == `${r}+`) break;
-            }
-
-            for(let champ in  this.selected_data){
-                this.selected_data[champ]['WR'] = (this.selected_data[champ]['wins'] / this.selected_data[champ]['games']) * 100
-            }
-        },        
-        setDataMastery(mastery){
-            this.selected_data = {}
-            mastery = Number(mastery)
-            
-            for(let m in this.data_mastery){
-                m = Number(m)
-                
-                if(m == -100) continue;
-                switch (mastery) {
-                    case 0:
-                        if(!(m >= 0 && m < 21600)) continue;
-                        break;
-                    case 1:
-                        if(!(m >= 12600 && m < 75600)) continue;
-                        break;
-                    case 2:
-                        if(!(m >= 75600 && m < 240600)) continue;
-                        break;
-                    case 3:
-                        if(!(m >= 240600)) continue;
-                        break;
-                    default:
-                        continue;
-                }
-
-                for(let champ in this.data_mastery[m]){
-                    if(!this.selected_data[champ]){
-                        this.selected_data[champ] = {}
-                        this.selected_data[champ]['wins'] = 0
-                        this.selected_data[champ]['losses'] = 0
-                        this.selected_data[champ]['games'] = 0
-                        this.selected_data[champ]['name'] = champ
-                        this.selected_data[champ]['class'] = Champions.ClassesfromID(champ)[0]
-                    }
-                    this.selected_data[champ]['wins'] += this.data_mastery[m][champ]['wins']
-                    this.selected_data[champ]['losses'] += this.data_mastery[m][champ]['losses']
-                    this.selected_data[champ]['games'] += this.data_mastery[m][champ]['games']
-                }
-            }
-
-            for(let champ in  this.selected_data){
-                this.selected_data[champ]['WR'] = (this.selected_data[champ]['wins'] / this.selected_data[champ]['games']) * 100
-            }
-        },
+        },      
         setMastery(mastery){
-            this.setDisplay('games')
-            this.setDataMastery(mastery)
-            this.totalGames = Object.values(this.selected_data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) / 10
+            let old = this.selected_data
+            this.selected_data = mastery
+            this.totalGames = Object.values(this.data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point[this.selected_data].games)}, 0) / 10
             
             this.x = d3.scaleLinear()
-            .domain([50 + Math.ceil(this.highestWinDelta()), 50 - Math.ceil(this.highestWinDelta())])
-            .range([this.height, 0]);
+                .domain([50 + Math.ceil(this.highestWinDelta()), 50 - Math.ceil(this.highestWinDelta())])
+                .range([this.height, 0]);
             this.xAxis.transition()
-            .duration(200).call(d3.axisBottom(this.x));
-            
-            this.setDisplay(this.axisValue)
-            console.log(this.selected_data)
-            this.renderData(this.selected_data)
-        },
-        setRank(rank){
-            this.rank = rank
-            this.setDataRank(rank)
-            this.totalGames = Object.values(this.selected_data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point.games)}, 0) / 10
+                .duration(200).call(d3.axisBottom(this.x));
+                
+            d3.select("#ChampScatter").selectAll("line.vertical")
+                .attr("x1", this.x(50))
+                .attr("x2", this.x(50))
 
+            this.newX = this.x
+
+            this.setDisplay('games')
+            if(String(Number(old)) == 'NaN') this.renderData();
+        },
+
+        setRank(rank){
+            let old = this.selected_data
+            this.rank = rank
+            this.selected_data = rank
+            this.totalGames = Object.values(this.data).reduce((accumulator, point) =>  {return Number(accumulator) + Number(point[this.selected_data].games)}, 0) / 10
             this.x = d3.scaleLinear()
                         .domain([50 + Math.ceil(this.highestWinDelta()), 50 - Math.ceil(this.highestWinDelta())])
                         .range([this.height, 0]);
             this.xAxis.transition()
                         .duration(200).call(d3.axisBottom(this.x));
+
+            d3.select("#ChampScatter").selectAll("line.vertical")
+                .attr("x1", this.x(50))
+                .attr("x2", this.x(50))
+
             this.newX = this.x
             
             this.setDisplay(this.axisValue)
-            this.renderData()
+            if(!(String(Number(old)) == 'NaN')) this.renderData();
+
         },
         setIcons(displayIcons){
             this.hide(d3.select("#ChampScatter"))
             this.displayIcons = displayIcons
             this.show(d3.select("#ChampScatter"))
         },
-        updatePosition(nodes, size){
-            let speed = 200
+        updatePosition(nodes, size, speed = 1000){
                 nodes.selectAll("image").transition()
                     .duration(speed)
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => d)
                     .transition()
                     .duration(speed)
-                    .attr("x",  (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("x",  (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y",  (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("circle")
                     .transition()
                     .duration(speed)
-                    .attr("cx", (d) => { return this.newX(d.WR); } )
+                    .attr("cx", (d) => { return this.newX(d[this.selected_data].WR); } )
                     .attr("cy", (d) => { 
-                        if(this.axisValue == "games") return this.newY(d.games)
-                        if(this.axisValue == "banrate") return this.newY((Math.round((d.effectiveBans /  this.totalGames)  * 10000)) / 100)
+                        if(this.axisValue == "games") return this.newY(d[this.selected_data].games)
+                        if(this.axisValue == "banrate") return this.newY((Math.round((d[this.selected_data].effectiveBans /  this.totalGames)  * 10000)) / 100)
                     })
 
 
@@ -269,10 +212,10 @@ export default{
                     .style("display", "block")
                     .attr("width", size)
                     .attr("height", size)
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => { return d; })
@@ -283,10 +226,10 @@ export default{
                     .style("display", "block")
                     .attr("width", size)
                     .attr("height", size)
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
             }else{
@@ -309,10 +252,10 @@ export default{
                     .style("display", "block")
                     .attr("width", size)
                     .attr("height", size)
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => { return d; })
@@ -323,11 +266,11 @@ export default{
                     .attr("width", size)
                     .attr("height", size)
                     .attr("fill", "none")
-                    .style("stroke", (d) => this.colours[d.class])
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .style("stroke", (d) => this.colours[d[this.selected_data].class])
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
             }else{
@@ -338,7 +281,7 @@ export default{
                     .style("opacity", 1)
                     .style("display", "block")
                     .style("stroke", "black")
-                    .style("fill", (d) => this.colours[d.class])
+                    .style("fill", (d) => this.colours[d[this.selected_data].class])
             }
         },
         highlight(nodes){
@@ -350,10 +293,10 @@ export default{
                     .style("opacity", 1)
                     .attr("width", size)
                     .attr("height", size)
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
 
                 nodes.selectAll("rect").filter((d) => { return d; })
@@ -363,18 +306,18 @@ export default{
                     .style("display", "block")
                     .attr("width", size)
                     .attr("height", size)
-                    .style("stroke", (d) => this.colours[d.class])
-                    .attr("x", (d) => { return this.newX(d.WR) - size / 2; } )
+                    .style("stroke", (d) => this.colours[d[this.selected_data].class])
+                    .attr("x", (d) => { return this.newX(d[this.selected_data].WR) - size / 2; } )
                     .attr("y", (d) => {
-                        if(this.axisValue == "games") {return this.newY(d.games) - size / 2}
-                        if(this.axisValue == "banrate") {return this.newY((Math.round((d.effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
+                        if(this.axisValue == "games") {return this.newY(d[this.selected_data].games) - size / 2}
+                        if(this.axisValue == "banrate") {return this.newY((Math.round((d[this.selected_data].effectiveBans / this.totalGames )  * 10000)) / 100) - size / 2}
                     })
             }else{
                 nodes.selectAll("circle").transition()
                     .duration(200)
                     .style("opacity", 1)
                     .attr("r", 6)
-                    .style("fill", (d) => this.colours[d.class])
+                    .style("fill", (d) => this.colours[d[this.selected_data].class])
             }
 
         },
@@ -383,7 +326,7 @@ export default{
             this.lowLight(d3.select("#ChampScatter"))
             
             let nodes = d3.select("#ChampScatter").selectAll("g").filter(
-                (d) => { return d && d.name && d.name.toLowerCase().includes(name.toLowerCase()) && this.visible[Champions.ClassesfromID(d.name)[0]]; 
+                (d) => { return d && d[this.selected_data] && d[this.selected_data].name && d[this.selected_data].name.toLowerCase().includes(name.toLowerCase()) && this.visible[d[this.selected_data].class]; 
 
                 })
             nodes.raise()
@@ -411,13 +354,13 @@ export default{
             
             let groups = d3.select("#ChampScatter").select(`.dataWrapper`)
                 .selectAll("dot")
-                .data(Object.values(Object(this.selected_data)))
+                .data(Object.values(Object(this.data)))
                 .enter()
                 .append('g')
-                .attr("class", function (d) {return Champions.ClassesfromID(d.name)[0]; })         
+                .attr("class",(d) => {return d[this.selected_data].class; })         
 
             groups.append('image')
-                .attr("href", (d) => {return Champions.iconPathFromID(d.name)})
+                .attr("href", (d) => {return Champions.iconPathFromID(d[this.selected_data].name)})
                 .style("display", "none")
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
@@ -427,10 +370,10 @@ export default{
                 .style("display", "none")
 
             groups.append("circle")
-                .attr("cx", (d) => { return this.newX(d.WR); } )
-                .attr("cy", (d) => { 
-                    if(this.axisValue == "games") return this.newY(d.games)
-                    if(this.axisValue == "banrate") return this.newY((Math.round((d.effectiveBans /  this.totalGames)  * 10000)) / 100)
+                .attr("cx", (d) => {return this.newX(d[this.selected_data].WR); } )
+                .attr("cy", (d) => {
+                    if(this.axisValue == "games") return this.newY(d[this.selected_data].games)
+                    if(this.axisValue == "banrate") return this.newY((Math.round((d[this.selected_data].effectiveBans /  this.totalGames)  * 10000)) / 100)
                 })
                 .on("mouseover", this.mouseover )
                 .on("mousemove", this.mousemove )
@@ -445,11 +388,11 @@ export default{
             //tooltip
             d3.select("#ChampScatter")
                 .append("div")
-                .style("opacity", 0)
                 .attr("class", "tooltip")
                 .style("background-color", "white")
                 .style("color", "black")
                 .style("border", "solid")
+                .style("display", "none")
                 .style("border-width", "1px")
                 .style("border-radius", "5px")
                 .style("position", "absolute")
@@ -532,26 +475,51 @@ export default{
             this.totalBanrate = values.reduce((accumulator, point) => {
                 return Number(accumulator) + ((Number(point.effectiveBans) / this.totalGames) * 100)
             }, 0)
-
+            let totalGames = {}
             for(let rank in data){
-                let totalGames = 0
-                for(let champ in data[rank]){
-                    totalGames +=  data[rank][champ]['games']
-                }
-                totalGames /= 10
-
-                for(let champ in data[rank]){
-                    data[rank][champ]['WR'] = (data[rank][champ]['wins'] / data[rank][champ]['games']) * 100
-                    data[rank][champ]['BR'] = (data[rank][champ]['effectiveBans'] / totalGames) * 100
-                    data[rank][champ]['name'] = champ
-                    if(champ != "None")
-                        data[rank][champ]['class'] = Champions.ClassesfromID(champ)[0]
-                }
-
                 delete data[rank]['None']
+                totalGames[rank] = 0
+                for(let champ in data[rank]){
+                    if(!this.data) this.data = {}
+                    if(!this.data[champ]) this.data[champ] = {}
+                    if(!this.data[champ][rank]) this.data[champ][rank] = {}
+                    this.data[champ][rank] = data[rank][champ]
+                    totalGames[rank] += data[rank][champ]['games']
+                }
+                totalGames[rank] /= 10
             }
-            this.data = data
-            this.selected_data = this.data['all']
+
+            let topRanks = {5: "CHALLENGER", 4: "GRANDMASTER", 3: "MASTER", 2:"DIAMOND", 1:"EMERALD", 0:"PLATINUM"}
+            for(let i in topRanks){
+                if(i >= 4) continue
+                for(let j in topRanks){
+                    if(j < i) continue
+                    console.log(topRanks[i], topRanks[j])
+                    for(let champ in this.data){
+                        if(!this.data[champ][`${topRanks[i]}+`]) this.data[champ][`${topRanks[i]}+`] = {wins: 0, losses: 0, games: 0, effectiveBans: 0, bans: 0}
+                        this.data[champ][`${topRanks[i]}+`]['wins'] += this.data[champ][topRanks[j]]['wins']
+                        this.data[champ][`${topRanks[i]}+`]['losses'] += this.data[champ][topRanks[j]]['losses']
+                        this.data[champ][`${topRanks[i]}+`]['games'] += this.data[champ][topRanks[j]]['games']
+                        this.data[champ][`${topRanks[i]}+`]['bans'] += this.data[champ][topRanks[j]]['bans']
+                        this.data[champ][`${topRanks[i]}+`]['effectiveBans'] += this.data[champ][topRanks[j]]['effectiveBans']
+
+                    }
+                    if(!totalGames[`${topRanks[i]}+`])totalGames[`${topRanks[i]}+`] = 0
+                    totalGames[`${topRanks[i]}+`] += totalGames[topRanks[j]]
+                }
+            }
+                console.log(totalGames)
+
+            for(let champ in this.data){
+                for(let rank in this.data[champ]){
+                    this.data[champ][rank]['WR'] = (this.data[champ][rank]['wins'] / this.data[champ][rank]['games']) * 100
+                    this.data[champ][rank]['BR'] = (this.data[champ][rank]['effectiveBans'] / totalGames[rank]) * 100
+                    this.data[champ][rank]['name'] = champ
+                    this.data[champ][rank]['class'] = Champions.ClassesfromID(champ)[0]
+                }
+            }
+
+            // this.selected_data = this.data['all']
             this.yLine = svg.append("line")
                 .attr("class", "horizontal")
                 .attr("x1", 0) 
@@ -569,14 +537,32 @@ export default{
 
         d3.json("http://localhost:5173/stats/wbpr_mastery.json").then((data) => {
             for(let mastery in data){
+                delete data[mastery]['None']
+                mastery = Number(mastery)
+                if(mastery == -100) continue;
+                let rank = 0
+
+                if((mastery >= 0 && mastery < 21600)) rank = 0;
+                else if((mastery >= 12600 && mastery < 75600)) rank = 1;
+                else if((mastery >= 75600 && mastery < 240600)) rank = 2;
+                else rank = 3;
+
                 for(let champ in data[mastery]){
-                data[mastery][champ]['WR'] = (data[mastery][champ]['wins'] / data[mastery][champ]['games']) * 100
-                data[mastery][champ]['name'] = champ
+                    if(!this.data[champ][rank]) this.data[champ][rank] = {wins: 0, losses: 0, games: 0}
+                    this.data[champ][rank]['wins'] += data[mastery][champ]['wins']
+                    this.data[champ][rank]['losses'] += data[mastery][champ]['losses']
+                    this.data[champ][rank]['games'] += data[mastery][champ]['games']
                 }
 
-                delete data[mastery]['None']
             }
-            this.data_mastery = data
+            for(let champ in this.data){
+                for(let rank in this.data[champ]){
+                    this.data[champ][rank]['WR'] = (this.data[champ][rank]['wins'] / this.data[champ][rank]['games']) * 100
+                    this.data[champ][rank]['name'] = champ
+                    this.data[champ][rank]['class'] = Champions.ClassesfromID(champ)[0]
+                }
+            }
+            console.log(this.data)
         })
         svg.append("line")
             .attr("class", "vertical")
@@ -602,48 +588,28 @@ export default{
             this.xAxis.call(d3.axisBottom(newX))
             this.yAxis.call(d3.axisLeft(newY))
 
-            let data = d3.select("#ChampScatter").selectAll("g").filter(
-                function(d) { return d && d.name; }
-            )
+            this.newX = newX
+            this.newY = newY
 
-            data.selectAll("image")
-                .attr("x", function (d) { return newX(d.WR) - size / 2; } )
-                .attr("y", (d) => { 
-                    if(this.axisValue == "games") {return newY(d.games)  - size / 2}
-                    if(this.axisValue == "banrate") {return newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
-                })
+            this.updatePosition(d3.select("#ChampScatter"), size, 0)
 
-            data.selectAll("rect")
-                .attr("x", function (d) { return newX(d.WR) - size / 2; } )
-                .attr("y", (d) => { 
-                    if(this.axisValue == "games") {return newY(d.games)  - size / 2}
-                    if(this.axisValue == "banrate") {return newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100) - size / 2}
-                })
 
-            data.selectAll("circle")
-                .attr("cx", function (d) { return newX(d.WR); } )
-                .attr("cy", (d) => { 
-                    if(this.axisValue == "games") {return newY(d.games)}
-                    if(this.axisValue == "banrate") {return newY((Math.round((d.effectiveBans / this.totalGames)  * 10000)) / 100)}
-                })
-            
             d3.select("#ChampScatter").selectAll("line.vertical")
                 .attr("x1", newX(50))
                 .attr("x2", newX(50))
             
             d3.select("#ChampScatter").selectAll("line.horizontal")
                 .attr("y1",() => { 
-                    if(this.axisValue == "games")    { return newY(this.totalGames / Object.values(this.selected_data).length * 10) }
-                    if(this.axisValue == "banrate")  { return newY(this.totalBanrate / Object.values(this.selected_data).length) }
+                    if(this.axisValue == "games")    { return newY(this.totalGames / Object.values(this.data).length * 10) }
+                    if(this.axisValue == "banrate")  { return newY(this.totalBanrate / Object.values(this.data).length) }
                 })
                 .attr("y2", () => { 
-                    if(this.axisValue == "games")    { return newY(this.totalGames / Object.values(this.selected_data).length * 10) }
-                    if(this.axisValue == "banrate")  { return newY(this.totalBanrate / Object.values(this.selected_data).length) }
+                    if(this.axisValue == "games")    { return newY(this.totalGames / Object.values(this.data).length * 10) }
+                    if(this.axisValue == "banrate")  { return newY(this.totalBanrate / Object.values(this.data).length) }
                 })
 
 
-            this.newX = newX
-            this.newY = newY
+
         },
         generateLegend(svg, yValue, size, champClass){
             svg.append("rect").attr("x", this.width - 70).attr("y", yValue).attr("data-class", champClass).attr("width", size).attr("height", size).style("fill", this.colours[champClass])
@@ -720,8 +686,7 @@ export default{
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
 
             d3.select("#ChampScatter").select(`.tooltip`)
-                .transition()
-                .style("opacity", 0)
+                .transition()   
                 .style("display", "none")
             if(this.name != "") return;
             for(let champClass in this.colours){
@@ -734,23 +699,38 @@ export default{
         },
         mousemove(event, d) {
             if(!this.visible[d3.select(event.target.parentNode).attr("class")]) return;
-
-            d3.select("#ChampScatter").select(`.tooltip`)
-                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% <br>BR: ${Math.round(d.BR * 100) / 100}%`)
-                .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-                .style("top", (event.y)+ "px")
-                .style("display", "block")
+            if(!this.data['Aatrox'][this.selected_data].BR){
+                d3.select("#ChampScatter").select(`.tooltip`)
+                    .html(`${Champions.nameFromID(d[this.selected_data].name)}<br>Games: ${d[this.selected_data].games}<br>WR: ${Math.round(d[this.selected_data].WR * 100) / 100}%`)
+                    .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.y)+ "px")
+                    .style("display", "block")
+            }else{
+                d3.select("#ChampScatter").select(`.tooltip`)
+                    .html(`${Champions.nameFromID(d[this.selected_data].name)}<br>Games: ${d[this.selected_data].games}<br>WR: ${Math.round(d[this.selected_data].WR * 100) / 100}% <br>BR: ${Math.round(d[this.selected_data].BR * 100) / 100}%`)
+                    .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.y)+ "px")
+                    .style("display", "block")
+            }
         },
         mouseover(event, d) {
             let champClass = d3.select(event.target.parentNode).attr("class")
             if(!this.visible[champClass]) return;
 
-            d3.select("#ChampScatter").select(`.tooltip`)
-                .style("opacity", 1)            
-                .html(`${Champions.nameFromID(d.name)}<br>Games: ${d.games}<br>WR: ${Math.round(d.WR * 100) / 100}% <br>BR: ${Math.round(Number(d.effectiveBans) / this.totalGames) * 10000 / 100}%`)
-                .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-                .style("top", (event.y)+ "px")
-                .style("display", "block")
+            if(!this.data['Aatrox'][this.selected_data].BR){
+                d3.select("#ChampScatter").select(`.tooltip`)
+                    .html(`${Champions.nameFromID(d[this.selected_data].name)}<br>Games: ${d[this.selected_data].games}<br>WR: ${Math.round(d[this.selected_data].WR * 100) / 100}%`)
+                    .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.y)+ "px")
+                    .style("display", "block")
+            }else{
+                console.log(this.data['Aatrox'][this.selected_data].BR)
+                d3.select("#ChampScatter").select(`.tooltip`)
+                    .html(`${Champions.nameFromID(d[this.selected_data].name)}<br>Games: ${d[this.selected_data].games}<br>WR: ${Math.round(d[this.selected_data].WR * 100) / 100}% <br>BR: ${Math.round(d[this.selected_data].BR * 100) / 100}%`)
+                    .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.y)+ "px")
+                    .style("display", "block")
+            }
             if(this.name != "") return;
 
             for(let champClass in this.visible){
