@@ -40,7 +40,7 @@
                     :champStats = "abilityStats"
                     :champion = champion />
 
-                <RuneUsage id="rune-usage" ref="RuneUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
+                <RuneUsage id="rune-usage" ref="runeUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
 
                 <div id="positions-graph"></div>
                 <ChampMatchup ref="ChampMatchup" v-if="champStatsSet && champStats" :champStats="champStats!" :key="champStats?.name"/>
@@ -119,6 +119,7 @@ export default{
         const champStats = ref<ChampionStats | null>(null);
 
         const abilityComp = useTemplateRef<typeof AbilityComp>('abilityComp');
+        const runeComp = useTemplateRef<typeof RuneUsage>('runeUsage');
 
         var champDataSet = ref(false);
         var champStatsSet = ref(false);
@@ -133,12 +134,14 @@ export default{
             champStats,
             champDataSet,
             champStatsSet,
-            rank
+            rank,
+            runeComp
         };
     },
     methods: {
         setRank(){
             this.abilityComp?.setRank(this.rank)
+            this.runeComp?.setRank(this.rank)
         },
         searchChampion() {
             try {

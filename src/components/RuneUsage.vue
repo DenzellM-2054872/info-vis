@@ -1,6 +1,6 @@
 <template>
     <div id="RuneUsage" v-if="reloader">
-        <label for="rank-select">Rank: </label>
+        <!-- <label for="rank-select">Rank: </label>
         <select id="rank-select" v-model="rank" @change="calculatePercentages">
             <option value="all">all</option>
             <option value="IRON">Iron</option>
@@ -17,7 +17,7 @@
             <option value="DIAMOND+">Diamond+</option>
             <option value="MASTER+">Master+</option>
             <option value="GRANDMASTER+">Grandmaster+</option>
-        </select>
+        </select> -->
         <h1>Primary rune usage</h1>
         <div class="all-primaries">
             <div class="primary-style" id="precision">
@@ -694,6 +694,11 @@ export default{
         }
     },
     methods: {
+        setRank(rank: string){
+            this.rank = rank
+            this.calculatePercentages()
+            this.$forceUpdate()
+        },
         sortDictByCustomOrder(
             dict: { [key: number]: string },
             order: number[]
