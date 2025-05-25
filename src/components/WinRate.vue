@@ -233,6 +233,66 @@
                 </select>
             </div>
         </div>
+            <div class="inputContainer" v-if="game.dragonCount">
+                <div class="team1">
+                    <input type="number" v-model="team1.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0" :max="team1.dragonCount == 4 ? 3 : 4">
+                </div>
+                <div class="center">
+                    <h3>Dragon count</h3>
+                </div>
+                <div class="team2">
+                    <input type="number" v-model="team2.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0" :max="team1.dragonCount == 4 ? 3 : 4">
+                </div>
+            </div>
+
+            <div class="inputContainer" v-if="game.elderCount">
+                <div class="team1">
+                    <input type="number" v-model="team1.elderCount" @change="getWinrate" :disabled="!game.elderCount" min="0" max="2">
+                </div>
+                <div class="center">
+                    <h3>Elder count</h3>
+                </div>
+                <div class="team2">
+                    <input type="number" v-model="team2.elderCount" @change="getWinrate" :disabled="!game.elderCount" min="0" max="2">
+                </div>
+            </div>
+
+            <div class="inputContainer" v-if="game.grubCount">
+                <div class="team1">
+                    <input type="number" v-model="team1.grubCount" @change="getWinrate" :disabled="!game.grubCount" min="0" max="6">
+                </div>
+                <div class="center">
+                    <h3>Grub count</h3>
+                </div>
+                <div class="team2">
+                    <input type="number" v-model="team2.grubCount" @change="getWinrate" :disabled="!game.grubCount" min="0" max="6">
+                </div>
+            </div>
+
+            <div class="inputContainer" v-if="game.inhibCount">
+                <div class="team1">
+                    <input type="number" v-model="team1.inhibCount" @change="getWinrate" :disabled="!game.inhibCount" min="0" max="3">
+                </div>
+                <div class="center">
+                    <h3>Inhib count</h3>
+                </div>
+                <div class="team2">
+                    <input type="number" v-model="team2.inhibCount" @change="getWinrate" :disabled="!game.inhibCount" min="0" max="3">
+                </div>
+            </div>
+
+            <div class="inputContainer" v-if="game.towerCount">
+                <div class="team1">
+                    <input type="number" v-model="team1.towerCount" @change="getWinrate" :disabled="!game.towerCount" min="0" max="11">
+                </div>
+                <div class="center">
+                    <h3>Tower count</h3>
+                </div>
+                <div class="team2">
+                    <input type="number" v-model="team2.towerCount" @change="getWinrate" :disabled="!game.towerCount" min="0" max="11">
+                </div>
+            </div>
+
         <div id="RateBar" v-if="!game.advanced">
             <div class="wins" >{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
             <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
