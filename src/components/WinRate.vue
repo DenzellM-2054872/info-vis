@@ -3,246 +3,214 @@
     <div id="WinRate">
 
         <div class="inputContainer">
-            <div class="center">
-                <p>Rank</p>
-                <select name="rank" id="rank" v-model="game.rank" @change="getWinrate">
-                    <option value="all">any</option>
-                    <option value="IRON">Iron</option>
-                    <option value="BRONZE">Bronze</option>
-                    <option value="GOLD">Gold</option>
-                    <option value="PLATINUM">Platinum</option>
-                    <option value="EMERALD">Emerald</option>
-                    <option value="DIAMOND">Diamond</option>
-                    <option value="MASTER">Master</option>
-                    <option value="GRANDMASTER">Grandmaster</option>
-                </select>
+            <div class="center" style="justify-content: space-between; margin: 0;">
+                <div style="position: relative;">
+                    <button @click="showDropdown = !showDropdown">Add events</button>
+                    <div v-if="showDropdown" class="dropdown">
+                        <div>
+                            <div class="eventLabel">
+                                Feats
+                                <input type="checkbox" v-model="game.feats" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                First Dragon
+                                <input type="checkbox" v-model="game.firstDragon" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                First Inhib
+                                <input type="checkbox" v-model="game.firstInhib" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                First Tower
+                                <input type="checkbox" v-model="game.firstTower" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Herald
+                                <input type="checkbox" v-model="game.herald" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Dragon Count
+                                <input type="checkbox" v-model="game.dragonCount" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Elder Count
+                                <input type="checkbox" v-model="game.elderCount" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Grub Count
+                                <input type="checkbox" v-model="game.grubCount" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Inhib Count
+                                <input type="checkbox" v-model="game.inhibCount" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Tower Count
+                                <input type="checkbox" v-model="game.towerCount" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Baron
+                                <input type="checkbox" v-model="game.baron" @change="getWinrate"> 
+                            </div>
+                            <div class="eventLabel">
+                                Soul
+                                <input type="checkbox" v-model="game.soul" @change="getWinrate"> 
+                            </div>
+                            
+                            <div class="eventLabel">
+                                Atakhan
+                                <input type="checkbox" v-model="game.atakhan" @change="getWinrate"> 
+                            </div>
 
-                <p>Advanced Breakdown</p>
-                <input type="checkbox" v-model="game.advanced" @change="getWinrate">
+                            <div class="eventLabel">
+                                First Blood
+                                <input type="checkbox" v-model="game.firstBlood" @change="getWinrate"> 
+                            </div>
+
+                            <div class="eventLabel">
+                                First Baron
+                                <input type="checkbox" v-model="game.firstBaron" @change="getWinrate"> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex;">
+                    <p style="margin-right: 5px;">Rank</p>
+                    <select name="rank" id="rank" v-model="game.rank" @change="getWinrate">
+                        <option value="all">any</option>
+                        <option value="IRON">Iron</option>
+                        <option value="BRONZE">Bronze</option>
+                        <option value="GOLD">Gold</option>
+                        <option value="PLATINUM">Platinum</option>
+                        <option value="EMERALD">Emerald</option>
+                        <option value="DIAMOND">Diamond</option>
+                        <option value="MASTER">Master</option>
+                        <option value="GRANDMASTER">Grandmaster</option>
+                    </select>
+                </div>
+                <div style="display: flex;">
+                    <p style="margin-right: 5px;">Advanced Breakdown</p>
+                    <input type="checkbox" v-model="game.advanced" @change="getWinrate">
+                </div>
+
             </div>
         </div>
 
-
-
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.atakhan">
             <div class="team1">
-                <p>Atakhan</p>
-                <input type="checkbox" v-model="team1.atakhan" @change="getWinrate" :disabled="!game.atakhan || team2.atakhan">
+                <input type="checkbox" v-model="team1.atakhan" @change="getWinrate" :disabled="team2.atakhan">
             </div>
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.atakhan" @change="getWinrate">
+                <h3>Atakhan</h3>
             </div>
             <div class="team2">
-                <p>Atakhan</p>
-                <input type="checkbox" v-model="team2.atakhan" @change="getWinrate" :disabled="!game.atakhan || team1.atakhan">
+                <input type="checkbox" v-model="team2.atakhan" @change="getWinrate" :disabled="team1.atakhan">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.feats">
             <div class="team1">
-                <p>Feats</p>
-                <input type="checkbox" v-model="team1.feats" @change="getWinrate" :disabled="!game.feats || team2.feats">
+                <input type="checkbox" v-model="team1.feats" @change="getWinrate" :disabled=" team2.feats">
             </div>
+
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.feats" @change="getWinrate">
+                <h3>Feats</h3>
             </div>
+
             <div class="team2">
-                <p>Feats</p>
-                <input type="checkbox" v-model="team2.feats" @change="getWinrate" :disabled="!game.feats || team1.feats">
+                <input type="checkbox" v-model="team2.feats" @change="getWinrate" :disabled=" team1.feats">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.firstBaron">
             <div class="team1">
-                <p>First baron</p>
-                <input type="checkbox" v-model="team1.firstBaron" @change="getWinrate" :disabled="!game.firstBaron || team2.firstBaron">
+                <input type="checkbox" v-model="team1.firstBaron" @change="getWinrate" :disabled="team2.firstBaron">
             </div>
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.firstBaron" @change="getWinrate">
+                <h3>First Baron</h3>
             </div>
             <div class="team2">
-                <p>First baron</p>
-                <input type="checkbox" v-model="team2.firstBaron" @change="getWinrate" :disabled="!game.firstBaron || team1.firstBaron">
+                <input type="checkbox" v-model="team2.firstBaron" @change="getWinrate" :disabled=" team1.firstBaron">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.firstBlood">
             <div class="team1">
-                <p>First blood</p>
-                <input type="checkbox" v-model="team1.firstBlood" @change="getWinrate" :disabled="!game.firstBlood || team2.firstBlood">
+                <input type="checkbox" v-model="team1.firstBlood" @change="getWinrate" :disabled="team2.firstBlood">
             </div>
+
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.firstBlood" @change="getWinrate">
+                <h3>First Blood</h3>
             </div>
+
             <div class="team2">
-                <p>First blood</p>
-                <input type="checkbox" v-model="team2.firstBlood" @change="getWinrate" :disabled="!game.firstBlood || team1.firstBlood">
+                <input type="checkbox" v-model="team2.firstBlood" @change="getWinrate" :disabled=" team1.firstBlood">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.firstDragon">
             <div class="team1">
-                <p>First dragon</p>
-                <input type="checkbox" v-model="team1.firstDragon" @change="getWinrate" :disabled="!game.firstDragon || team2.firstDragon">
+                <input type="checkbox" v-model="team1.firstDragon" @change="getWinrate" :disabled=" team2.firstDragon">
             </div>
+
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.firstDragon" @change="getWinrate">
+                <h3>First Dragon</h3>
             </div>
+
             <div class="team2">
-                <p>First dragon</p>
                 <input type="checkbox" v-model="team2.firstDragon" @change="getWinrate" :disabled="!game.firstDragon || team1.firstDragon">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.firstInhib">
             <div class="team1">
-                <p>First inhib</p>
                 <input type="checkbox" v-model="team1.firstInhib" @change="getWinrate" :disabled="!game.firstInhib || team2.firstInhib">
             </div>
+
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.firstInhib" @change="getWinrate">
+                <h3>First Inhib</h3>
             </div>
+
             <div class="team2">
-                <p>First inhib</p>
                 <input type="checkbox" v-model="team2.firstInhib" @change="getWinrate" :disabled="!game.firstInhib || team1.firstInhib">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.firstTower">
             <div class="team1">
-                <p>First tower</p>
                 <input type="checkbox" v-model="team1.firstTower" @change="getWinrate" :disabled="!game.firstTower || team2.firstTower">
             </div>
+
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.firstTower" @change="getWinrate">
+                <h3>First Tower</h3>
             </div>
+
             <div class="team2">
-                <p>Firts tower</p>
                 <input type="checkbox" v-model="team2.firstTower" @change="getWinrate" :disabled="!game.firstTower || team1.firstTower">
             </div>
         </div>
 
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.herald">
             <div class="team1">
-                <p>Herald</p>
                 <input type="checkbox" v-model="team1.herald" @change="getWinrate" :disabled="!game.herald || team2.herald">
             </div>
+            
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.herald" @change="getWinrate">
+                <h3>Herald</h3>
             </div>
+
             <div class="team2">
-                <p>Herald</p>
                 <input type="checkbox" v-model="team2.herald" @change="getWinrate" :disabled="!game.herald || team1.herald">
             </div>
         </div>
 
-
-        <div class="inputContainer">
+        <div class="inputContainer" v-if="game.soul">
             <div class="team1">
-                <p>Dragon count</p>
-                <input type="number" v-model="team1.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0" :max = "team1.dragonCount == 4 ? 3 : 4 ">
-            </div>
-            <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.dragonCount" @change="getWinrate">
-            </div>
-            <div class="team2">
-                <p>Dragon count</p>
-                <input type="number" v-model="team2.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0" :max = "team1.dragonCount == 4 ? 3 : 4 ">
-            </div>
-        </div>
-
-        <div class="inputContainer">
-            <div class="team1">
-                <p>Elder Dragon count</p>
-                <input type="number" v-model="team1.elderCount" @change="getWinrate" :disabled="!game.elderCount" min="0" >
-            </div>
-            <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.elderCount" @change="getWinrate" :disabled="game.dragonCount && !(team1.dragonCount == 4 || team2.dragonCount == 4)">
-            </div>
-            <div class="team2">
-                <p>Elder Dragon count</p>
-                <input type="number" v-model="team2.elderCount" @change="getWinrate" :disabled="!game.elderCount" min="0">
-            </div>
-        </div>
-
-        <div class="inputContainer">
-            <div class="team1">
-                <p>Grub count</p>
-                <input type="number" v-model="team1.grubCount" @change="getWinrate" :disabled="!game.grubCount" min="0" :max=" 6 - team2.grubCount">
-            </div>
-            <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.grubCount" @change="getWinrate">
-            </div>
-            <div class="team2">
-                <p>Grub count</p>
-                <input type="number" v-model="team2.grubCount" @change="getWinrate" :disabled="!game.grubCount" min="0" :max=" 6 - team1.grubCount">
-            </div>
-        </div>
-
-        <div class="inputContainer">
-            <div class="team1">
-                <p>Inhib count</p>
-                <input type="number" v-model="team1.inhibCount" @change="getWinrate" :disabled="!game.inhibCount" min="0">
-            </div>
-            <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.inhibCount" @change="getWinrate">
-            </div>
-            <div class="team2">
-                <p>Inhib count</p>
-                <input type="number" v-model="team2.inhibCount" @change="getWinrate" :disabled="!game.inhibCount" min="0">
-            </div>
-        </div>
-
-        <div class="inputContainer">
-            <div class="team1">
-                <p>Tower count</p>
-                <input type="number" v-model="team1.towerCount" @change="getWinrate" :disabled="!game.towerCount" min="0">
-            </div>
-            <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.towerCount" @change="getWinrate">
-            </div>
-            <div class="team2">
-                <p>Tower count</p>
-                <input type="number" v-model="team2.towerCount" @change="getWinrate" :disabled="!game.towerCount" min="0">
-            </div>
-        </div>
-
-        <div class="inputContainer">
-            <div class="team1">
-                <p>Baron count</p>
-                <input type="number" v-model="team1.baron" @change="getWinrate" :disabled="!game.baron" min="0">
-            </div>
-            <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.baron" @change="getWinrate">
-            </div>
-            <div class="team2">
-                <p>Baron count</p>
-                <input type="number" v-model="team2.baron" @change="getWinrate" :disabled="!game.baron" min="0">
-            </div>
-        </div>
-
-        <div class="inputContainer">
-            <div class="team1">
-                <p>Dragon soul</p>
-                <select name="soul" id="soul" v-model="team1.soul" @change="getWinrate" :disabled="!game.soul || team2.soul != 'none'">
+                <select name="soul" id="soul" v-model="team1.soul" @change="getWinrate" :disabled=" team2.soul != 'none'">
                     <option value="any">Any</option>
                     <option value="Hextech">Hextech</option>
                     <option value="Chemtech">Chemtech</option>
-                    <option value="Infenal">Infenal</option>
+                    <option value="Infernal">Infernal</option>
                     <option value="Ocean">Ocean</option>
                     <option value="Cloud">Cloud</option>
                     <option value="Mountain">Mountain</option>
@@ -250,16 +218,14 @@
                 </select>
             </div>
             <div class="center">
-                <p>Enabled</p>
-                <input type="checkbox" v-model="game.soul" @change="getWinrate">
+                <h3>Dragon soul</h3>
             </div>
             <div class="team2">
-                <p>Dragon soul</p>
-                <select name="soul" id="soul" v-model="team2.soul" @change="getWinrate" :disabled="!game.soul || team1.soul != 'none'"> 
+                <select name="soul" id="soul" v-model="team2.soul" @change="getWinrate" :disabled="team1.soul != 'none'"> 
                     <option value="any">Any</option>
                     <option value="Hextech">Hextech</option>
                     <option value="Chemtech">Chemtech</option>
-                    <option value="Infenal">Infenal</option>
+                    <option value="Infernal">Infernal</option>
                     <option value="Ocean">Ocean</option>
                     <option value="Cloud">Cloud</option>
                     <option value="Mountain">Mountain</option>
@@ -268,27 +234,27 @@
             </div>
         </div>
         <div id="RateBar" v-if="!game.advanced">
-            <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
+            <div class="wins" >{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
             <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
         </div>
         <div id="Advanced" v-else>
 
             <h2>Ahead</h2>
             <div id="aheadBar"> 
-                <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
-                <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+                <div class="wins">{{ Math.round(team1.aheadWinrate * 100) / 100 }}% ({{ team1.aheadGameCount }})</div>
+                <div class="losses">{{ Math.round(team2.aheadWinrate * 100) / 100 }}% ({{ team2.aheadGameCount }})</div>
             </div>
 
             <h2>Even</h2>
             <div id="evenBar"> 
-                <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
-                <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+                <div class="wins">{{ Math.round(team1.evenWinrate * 100) / 100 }}% ({{ team1.evenGameCount }})</div>
+                <div class="losses">{{ Math.round(team2.evenWinrate * 100) / 100 }}% ({{ team2.evenGameCount }})</div>
             </div>
 
             <h2>Behind</h2>
             <div id="behindBar"> 
-                <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
-                <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+                <div class="wins">{{ Math.round(team1.behindWinrate * 100) / 100 }}% ({{ team1.behindGameCount }})</div>
+                <div class="losses">{{ Math.round(team2.behindWinrate * 100) / 100 }}% ({{ team2.behindGameCount }})</div>
             </div>
         </div>
     </div>
@@ -410,7 +376,9 @@ export default{
         let team2: Ref<Team> = ref(new Team)
         let game: Ref<Game> = ref(new Game)
         let gameData: Ref<Details> = ref(new Details)
+        let showDropdown = ref(false)
         return{
+            showDropdown,
             team1,
             team2,
             game,
@@ -418,9 +386,42 @@ export default{
         }
     },
     methods: {
-        adjustWidth(){
-            d3.select("#Left").transition().duration(200).style("width", `${this.team1.winrate}%`)
-            d3.select("#Right").transition().duration(200).style("width", `${this.team2.winrate}%`)
+        adjustWidth(state: string, team1Winrate: number, team2Winrate: number, team1GameCount: number, team2GameCount: number){ 
+            if(state == 'all'){
+                this.team1.winrate = team1Winrate
+                this.team2.winrate = team2Winrate
+                this.team1.gameCount = team1GameCount
+                this.team2.gameCount = team2GameCount
+                d3.select("#RateBar").select(".wins").transition().duration(200).style("width", `${this.team1.winrate}%`)
+                d3.select("#RateBar").select(".losses").transition().duration(200).style("width", `${this.team2.winrate}%`)
+            }
+
+            if(state == 'ahead'){
+                this.team1.aheadWinrate = team1Winrate
+                this.team2.aheadWinrate = team2Winrate
+                this.team1.aheadGameCount = team1GameCount
+                this.team2.aheadGameCount = team2GameCount
+                d3.select("#aheadBar").select(".wins").transition().duration(200).style("width", `${this.team1.aheadWinrate}%`)
+                d3.select("#aheadBar").select(".losses").transition().duration(200).style("width", `${this.team2.aheadWinrate}%`)
+            }
+
+            if(state == 'even'){
+                this.team1.evenWinrate = team1Winrate
+                this.team2.evenWinrate = team2Winrate
+                this.team1.evenGameCount = team1GameCount
+                this.team2.evenGameCount = team2GameCount
+                d3.select("#evenBar").select(".wins").transition().duration(200).style("width", `${this.team1.evenWinrate}%`)
+                d3.select("#evenBar").select(".losses").transition().duration(200).style("width", `${this.team2.evenWinrate}%`)
+            }
+
+            if(state == 'behind'){
+                this.team1.behindWinrate = team1Winrate
+                this.team2.behindWinrate = team2Winrate
+                this.team1.behindGameCount = team1GameCount
+                this.team2.behindGameCount = team2GameCount
+                d3.select("#behindBar").select(".wins").transition().duration(200).style("width", `${this.team1.behindWinrate}%`)
+                d3.select("#behindBar").select(".losses").transition().duration(200).style("width", `${this.team2.behindWinrate}%`)
+            }
         },
         getStateGames(data: BaseStateDetail, state: string, out: BaseDetail[]){
             if(state == "even"){
@@ -429,18 +430,21 @@ export default{
                     losses: data.even.losses,
                     WR: 0
                 })
+                return
             }else if(state == "ahead"){
-                out.push({
-                    wins: data.ahead.wins,
-                    losses: data.ahead.losses,
-                    WR: 0
-                })
-            }else if(state == "behind"){   
                 out.push({
                     wins: data.behind.wins,
                     losses: data.behind.losses,
                     WR: 0
                 })
+                return
+            }else if(state == "behind"){   
+                out.push({
+                    wins: data.ahead.wins,
+                    losses: data.ahead.losses,
+                    WR: 0
+                })
+                return
             }
             out.push({
                 wins: data.even.wins.concat(data.ahead.wins).concat(data.behind.wins),
@@ -456,13 +460,13 @@ export default{
             })
         },
         getWinrate(){
-            console.log('started')
             let games: BaseDetail[] = []
             let ahead_games: BaseDetail[] = []
             let even_games: BaseDetail[] = []
             let behind_games: BaseDetail[] = []
 
             if(this.game.rank != "all"){
+                console.log(this.gameData['rank'][this.game.rank])
                 this.getStateGames(this.gameData['rank'][this.game.rank], 'all', games)
                 this.getStateGames(this.gameData['rank'][this.game.rank], 'ahead', ahead_games)
                 this.getStateGames(this.gameData['rank'][this.game.rank], 'even', even_games)
@@ -577,8 +581,6 @@ export default{
             if(this.game.soul){
                 let teamSoul = this.team1.soul
                 let oppSoul = this.team2.soul
-                console.log(teamSoul, oppSoul)
-                console.log(this.gameData['soul'])
 
                 this.getStateGames(this.gameData['soul'][teamSoul].vs[oppSoul], 'all', games)
                 this.getStateGames(this.gameData['soul'][teamSoul].vs[oppSoul], 'ahead', ahead_games)
@@ -669,17 +671,15 @@ export default{
                     this.getGames(game, even_games)
                     this.getGames(game, behind_games)
                 }  else if(this.team2.grubCount.toString() == ""){
-                    qual_games.push({
-                    wins: this.gameData['grubCount'][this.team1.grubCount].wins,
-                    losses: this.gameData['grubCount'][this.team1.grubCount].losses,
-                    WR: this.gameData['grubCount'][this.team1.grubCount].WR
-                    })
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount], games)
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount], ahead_games)
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount], even_games)
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount], behind_games)
                 }else{
-                    qual_games.push({
-                    wins: this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount].wins,
-                    losses: this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount].losses,
-                    WR: this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount].WR
-                    })
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount], games)
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount], ahead_games)
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount], even_games)
+                    this.getGames(this.gameData['grubCount'][this.team1.grubCount].vs[this.team2.grubCount], behind_games)
                 }
 
             }else{
@@ -702,17 +702,16 @@ export default{
                     this.getGames(game, even_games)
                     this.getGames(game, behind_games)
                 } else if(this.team2.inhibCount.toString() == ""){
-                    qual_games.push({
-                    wins: this.gameData['inhibCount'][this.team1.inhibCount].wins,
-                    losses: this.gameData['inhibCount'][this.team1.inhibCount].losses,
-                    WR: this.gameData['inhibCount'][this.team1.inhibCount].WR
-                    })
+
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], games)
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], ahead_games)
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], even_games)
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], behind_games)
                 }else{
-                    qual_games.push({
-                    wins: this.gameData['inhibCount'][this.team1.inhibCount].vs[this.team2.inhibCount].wins,
-                    losses: this.gameData['inhibCount'][this.team1.inhibCount].vs[this.team2.inhibCount].losses,
-                    WR: this.gameData['inhibCount'][this.team1.inhibCount].vs[this.team2.inhibCount].WR
-                    })
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], games)
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], ahead_games)
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], even_games)
+                    this.getGames(this.gameData['inhibCount'][this.team1.inhibCount], behind_games)
                 }
 
             }else{
@@ -735,17 +734,15 @@ export default{
                     this.getGames(game, even_games)
                     this.getGames(game, behind_games)
                 } else if(this.team2.baron.toString() == ""){
-                    qual_games.push({
-                    wins: this.gameData['baron'][this.team1.baron].wins,
-                    losses: this.gameData['baron'][this.team1.baron].losses,
-                    WR: this.gameData['baron'][this.team1.baron].WR
-                    })
+                    this.getGames(this.gameData['baron'][this.team1.baron], games)
+                    this.getGames(this.gameData['baron'][this.team1.baron], ahead_games)
+                    this.getGames(this.gameData['baron'][this.team1.baron], even_games)
+                    this.getGames(this.gameData['baron'][this.team1.baron], behind_games)
                 }else{
-                    qual_games.push({
-                    wins: this.gameData['baron'][this.team1.baron].vs[this.team2.baron].wins,
-                    losses: this.gameData['baron'][this.team1.baron].vs[this.team2.baron].losses,
-                    WR: this.gameData['baron'][this.team1.baron].vs[this.team2.baron].WR
-                    })
+                    this.getGames(this.gameData['baron'][this.team1.baron].vs[this.team2.baron], games)
+                    this.getGames(this.gameData['baron'][this.team1.baron].vs[this.team2.baron], ahead_games)
+                    this.getGames(this.gameData['baron'][this.team1.baron].vs[this.team2.baron], even_games)
+                    this.getGames(this.gameData['baron'][this.team1.baron].vs[this.team2.baron], behind_games)
                 }
 
             }else{
@@ -753,42 +750,31 @@ export default{
                 this.team2.baron = 0
             }
 
-
-            let accepted = qual_games.pop()
+            this.calcWinrate('all', games)
+            this.calcWinrate('ahead', ahead_games)
+            this.calcWinrate('even', even_games)
+            this.calcWinrate('behind', behind_games)
+        },
+        calcWinrate(state: string, games: BaseDetail[]){
+            let accepted = games.pop()
             if(!accepted){
-                this.team1.winrate = 50
-                this.team1.gameCount = 0
-                this.team2.winrate = 50
-                this.team2.gameCount = 0
-                this.adjustWidth()  
+                this.adjustWidth(state, 50, 50, 0, 0)  
                 return
             }
-            console.log('filtering')
 
-            for(let game of qual_games){
+            for(let game of games){
                 accepted.wins = this.intersection(accepted.wins, game.wins)
                 accepted.losses = this.intersection(accepted.losses, game.losses)
-                console.log(accepted)
-            }
-            console.log('done')
 
+            }
             accepted.WR = (accepted.wins.length / (accepted.wins.length + accepted.losses.length)) * 100
 
             if(accepted.losses.length == 0 || accepted.wins.length == 0){
-                this.team1.winrate = 50
-                this.team1.gameCount = 0
-                this.team2.winrate = 50
-                this.team2.gameCount = 0
-                this.adjustWidth()  
+                this.adjustWidth(state, 50, 50, 0, 0)   
                 return
             }
 
-            this.team1.winrate = accepted.WR
-            this.team1.gameCount = accepted.wins.length
-            this.team2.winrate = 100 - accepted.WR
-            this.team2.gameCount = accepted.losses.length
-
-            this.adjustWidth()  
+            this.adjustWidth(state, accepted.WR, 100 - accepted.WR, accepted.wins.length, accepted.losses.length)
         },
         readData(){
             d3.json("http://localhost:5173/stats/overview2.json").then((data: any) => {
@@ -827,8 +813,7 @@ export default{
     display: flex;
     flex-direction: row;
     width: 100%;
-    margin-top: 5px;    
-    margin-bottom: 5px;
+    padding-block: 5px;
     border-bottom: 1px solid grey;
 }
 
@@ -881,6 +866,7 @@ export default{
 }
 
 #RateBar{
+    margin-top: 25px;
     display: flex;
     flex-direction: row;
     height: 50px;
@@ -901,9 +887,29 @@ export default{
     height: 50px;
 }
 
+
+#aheadBar > .wins{
+    // background-color: #11afe4;
+    background-color: #05b5f0;
+
+}
+#aheadBar > .losses{
+    background-color: #ff5757;
+
+}
+#behindBar > .wins{
+    // background-color: #4297b3;
+    background-color: #4e90a6;
+
+}
+#behindBar > .losses{
+    // background-color: #dd7878;
+    background-color: #cd8989;
+
+}
 .wins{
     width: 50%;
-    background-color: blue;
+    background-color: #2aa3cc;
     justify-items: start;
     display: grid;
     align-content: center;
@@ -913,11 +919,31 @@ export default{
 
 .losses{
     width: 50%;
-    background-color: red;
+    // background-color: #ee6868;
+    background-color: #e67070;
     justify-items: end;
     display: grid;
     align-content: center;
     border-radius: 0 16px 16px 0;
     padding-right: 5px;
+}
+.eventLabel > input{
+    margin-left: 5px;
+}
+.eventLabel{
+    color: black;
+    justify-content: space-between;
+    display: flex;
+    padding-inline: 5px;
+    border-bottom: 1px solid #ccc;
+}
+.dropdown{
+    display: flex;
+    flex-direction: column;
+    position: absolute; 
+    z-index: 10; 
+    width: 150px;
+    background: white; 
+    border: 1px solid #ccc; 
 }
 </style>

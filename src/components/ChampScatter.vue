@@ -494,7 +494,6 @@ export default{
                 if(i >= 4) continue
                 for(let j in topRanks){
                     if(j < i) continue
-                    console.log(topRanks[i], topRanks[j])
                     for(let champ in this.data){
                         if(!this.data[champ][`${topRanks[i]}+`]) this.data[champ][`${topRanks[i]}+`] = {wins: 0, losses: 0, games: 0, effectiveBans: 0, bans: 0}
                         this.data[champ][`${topRanks[i]}+`]['wins'] += this.data[champ][topRanks[j]]['wins']
@@ -508,7 +507,6 @@ export default{
                     totalGames[`${topRanks[i]}+`] += totalGames[topRanks[j]]
                 }
             }
-                console.log(totalGames)
 
             for(let champ in this.data){
                 for(let rank in this.data[champ]){
@@ -562,7 +560,6 @@ export default{
                     this.data[champ][rank]['class'] = Champions.ClassesfromID(champ)[0]
                 }
             }
-            console.log(this.data)
         })
         svg.append("line")
             .attr("class", "vertical")
@@ -579,7 +576,7 @@ export default{
 
         },
         updateChart(event){
-            let size = 20
+
             // recover the new scale
             var newX = event.transform.rescaleX(this.x);
             var newY = event.transform.rescaleY(this.y);
@@ -591,7 +588,7 @@ export default{
             this.newX = newX
             this.newY = newY
 
-            this.updatePosition(d3.select("#ChampScatter"), size, 0)
+            this.updatePosition(d3.select("#ChampScatter"), 25, 0)
 
 
             d3.select("#ChampScatter").selectAll("line.vertical")
@@ -724,7 +721,6 @@ export default{
                     .style("top", (event.y)+ "px")
                     .style("display", "block")
             }else{
-                console.log(this.data['Aatrox'][this.selected_data].BR)
                 d3.select("#ChampScatter").select(`.tooltip`)
                     .html(`${Champions.nameFromID(d[this.selected_data].name)}<br>Games: ${d[this.selected_data].games}<br>WR: ${Math.round(d[this.selected_data].WR * 100) / 100}% <br>BR: ${Math.round(d[this.selected_data].BR * 100) / 100}%`)
                     .style("left", (event.x) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
