@@ -98,7 +98,11 @@ export default{
             this.axisValue = axisValue
             if(axisValue == "games"){
                 this.yLabel.text("Games")
-                if(this.rank == 'GRANDMASTER'){
+                if(this.rank == 'CHALLENGER' ){
+                    this.y = d3.scaleLinear()
+                        .domain([0, Math.ceil(this.mostGames() / 100) * 100])
+                        .range([this.height, 0]);
+                }else if(this.rank == 'GRANDMASTER' ){
                     this.y = d3.scaleLinear()
                         .domain([0, Math.ceil(this.mostGames() / 500) * 500])
                         .range([this.height, 0]);
@@ -147,7 +151,6 @@ export default{
             this.setDisplay('games')
             if(String(Number(old)) == 'NaN') this.renderData();
         },
-
         setRank(rank){
             let old = this.selected_data
             this.rank = rank

@@ -26,6 +26,7 @@
                 <option value="DIAMOND">Diamond</option>
                 <option value="MASTER">Master</option>
                 <option value="GRANDMASTER">Grandmaster</option>
+                <option value="CHALLENGER">Challenger</option>
                 <option value="PLATINUM+">Platinum+</option>
                 <option value="EMERALD+">Emerald+</option>
                 <option value="DIAMOND+">Diamond+</option>
