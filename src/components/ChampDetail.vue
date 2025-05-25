@@ -65,6 +65,7 @@ import * as d3 from "d3";
 import EloBarcharts from '@/components/EloBarcharts.vue';
 import ChampMatchup from '@/components/ChampMatchup.vue';
 import AbilityComp from '@/components/AbilityComp.vue';
+import RuneUsage from "@/components/RuneUsage.vue";
 
 class AbilitiyData{
     champs: {[key:string]: ChampAbilities} = {}
@@ -73,7 +74,7 @@ class AbilitiyData{
 class ChampAbilities{
     rank: {[key: string]: {[order: number]: {[ability: string]: {wins: number, losses: number}}}} = {}
 }
-import RuneUsage from "@/components/RuneUsage.vue";
+
 
 interface ChampDetailsType {
     "average_assists": {[rank: string]: number}
@@ -107,7 +108,8 @@ export default{
     components: {
         EloBarcharts,
         ChampMatchup,
-        AbilityComp
+        AbilityComp,
+        RuneUsage
     },
     setup(){
         const abilityStats = ref<ChampAbilities | null>(null);

@@ -1,67 +1,85 @@
 <template>
     <div id="RuneUsage" v-if="reloader">
-        <p>Rune Page</p>
+        <label for="rank-select">Rank: </label>
+        <select id="rank-select" v-model="rank" @change="calculatePercentages">
+            <option value="all">all</option>
+            <option value="IRON">Iron</option>
+            <option value="BRONZE">Bronze</option>
+            <option value="GOLD">Gold</option>
+            <option value="PLATINUM">Platinum</option>
+            <option value="EMERALD">Emerald</option>
+            <option value="DIAMOND">Diamond</option>
+            <option value="MASTER">Master</option>
+            <option value="GRANDMASTER">Grandmaster</option>
+            <option value="CHALLENGER">Challenger</option>
+            <option value="PLATINUM+">Platinum+</option>
+            <option value="EMERALD+">Emerald+</option>
+            <option value="DIAMOND+">Diamond+</option>
+            <option value="MASTER+">Master+</option>
+            <option value="GRANDMASTER+">Grandmaster+</option>
+        </select>
+        <h1>Primary rune usage</h1>
         <div class="all-primaries">
             <div class="primary-style" id="precision">
                 <div class="row">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8005]" />
-                        <span>{{ primaryStyleUsage[8005]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8005]" :style="{ filter: primaryStyleUsage[8005] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8005]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8008]" />
-                        <span>{{ primaryStyleUsage[8008]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8008]" :style="{ filter: primaryStyleUsage[8008] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8008]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8021]" />
-                        <span>{{ primaryStyleUsage[8021]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8021]" :style="{ filter: primaryStyleUsage[8021] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8021]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8010]" />
-                        <span>{{ primaryStyleUsage[8010]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8010]" :style="{ filter: primaryStyleUsage[8010] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8010]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div id="prec-subs">
                     <div class="column">
                         <div class="item">
-                            <img :src="runeToImgPath[9101]" />
-                            <span>{{ primarySubUsage[9101]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[9101]" :style="{ filter: primarySubUsage[9101] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[9101]?.toFixed(1) || "-" }}%</span>
                         </div>
                         <div class="item">
-                            <img :src="runeToImgPath[9104]" />
-                            <span>{{ primarySubUsage[9104]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[9104]" :style="{ filter: primarySubUsage[9104] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[9104]?.toFixed(1) || "-" }}%</span>
                         </div>
                         <div class="item">
-                            <img :src="runeToImgPath[8014]" />
-                            <span>{{ primarySubUsage[8014]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[8014]" :style="{ filter: primarySubUsage[8014] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[8014]?.toFixed(1) || "-" }}%</span>
                         </div>
                     </div>
                     <div class="column">
                         <div class="item">
-                            <img :src="runeToImgPath[9111]" />
-                            <span>{{ primarySubUsage[9111]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[9111]" :style="{ filter: primarySubUsage[9111] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[9111]?.toFixed(1) || "-" }}%</span>
                         </div>
                         <div class="item">
-                            <img :src="runeToImgPath[9105]" />
-                            <span>{{ primarySubUsage[9105]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[9105]" :style="{ filter: primarySubUsage[9105] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[9105]?.toFixed(1) || "-" }}%</span>
                         </div>
                         <div class="item">
-                            <img :src="runeToImgPath[8017]" />
-                            <span>{{ primarySubUsage[8017]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[8017]" :style="{ filter: primarySubUsage[8017] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[8017]?.toFixed(1) || "-" }}%</span>
                         </div>
                     </div>
                     <div class="column">
                         <div class="item">
-                            <img :src="runeToImgPath[8009]" />
-                            <span>{{ primarySubUsage[8009]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[8009]" :style="{ filter: primarySubUsage[8009] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[8009]?.toFixed(1) || "-" }}%</span>
                         </div>
                         <div class="item">
-                            <img :src="runeToImgPath[9103]" />
-                            <span>{{ primarySubUsage[9103]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[9103]" :style="{ filter: primarySubUsage[9103] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[9103]?.toFixed(1) || "-" }}%</span>
                         </div>
                         <div class="item">
-                            <img :src="runeToImgPath[8299]" />
-                            <span>{{ primarySubUsage[8299]?.toFixed(1) || 0 }}%</span>
+                            <img :src="runeToImgPath[8299]" :style="{ filter: primarySubUsage[8299] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ primarySubUsage[8299]?.toFixed(1) || "-" }}%</span>
                         </div>
                     </div>
                 </div>
@@ -69,501 +87,507 @@
             <div class="primary-style">
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8112]" />
-                        <span>{{ primaryStyleUsage[8112]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8112]" :style="{ filter: primaryStyleUsage[8112] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8112]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8126]" />
-                        <span>{{ primarySubUsage[8126]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8126]" :style="{ filter: primarySubUsage[8126] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8126]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8137]" />
-                        <span>{{ primarySubUsage[8137]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8137]" :style="{ filter: primarySubUsage[8137] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8137]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8135]" />
-                        <span>{{ primarySubUsage[8135]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8135]" :style="{ filter: primarySubUsage[8135] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8135]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8128]" />
-                        <span>{{ primaryStyleUsage[8128]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8128]" :style="{ filter: primaryStyleUsage[8128] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8128]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8139]" />
-                        <span>{{ primarySubUsage[8139]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8139]" :style="{ filter: primarySubUsage[8139] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8139]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8140]" />
-                        <span>{{ primarySubUsage[8140]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8140]" :style="{ filter: primarySubUsage[8140] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8140]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8105]" />
-                        <span>{{ primarySubUsage[8105]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8105]" :style="{ filter: primarySubUsage[8105] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8105]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[9923]" />
-                        <span>{{ primaryStyleUsage[9923]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[9923]" :style="{ filter: primaryStyleUsage[9923] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[9923]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8143]" />
-                        <span>{{ primarySubUsage[8143]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8143]" :style="{ filter: primarySubUsage[8143] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8143]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8141]" />
-                        <span>{{ primarySubUsage[8141]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8141]" :style="{ filter: primarySubUsage[8141] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8141]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8106]" />
-                        <span>{{ primarySubUsage[8106]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="primary-style">
-                <div class="column">
-                    <div class="primary-item">
-                        <img :src="runeToImgPath[8214]" />
-                        <span>{{ primaryStyleUsage[8214]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8224]" />
-                        <span>{{ primarySubUsage[8224]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8210]" />
-                        <span>{{ primarySubUsage[8210]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8237]" />
-                        <span>{{ primarySubUsage[8237]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="primary-item">
-                        <img :src="runeToImgPath[8229]" />
-                        <span>{{ primaryStyleUsage[8229]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8226]" />
-                        <span>{{ primarySubUsage[8226]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8234]" />
-                        <span>{{ primarySubUsage[8234]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8232]" />
-                        <span>{{ primarySubUsage[8232]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="primary-item">
-                        <img :src="runeToImgPath[8230]" />
-                        <span>{{ primaryStyleUsage[8230]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8275]" />
-                        <span>{{ primarySubUsage[8275]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8233]" />
-                        <span>{{ primarySubUsage[8233]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8236]" />
-                        <span>{{ primarySubUsage[8236]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8106]" :style="{ filter: primarySubUsage[8106] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8106]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
             </div>
             <div class="primary-style">
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8437]" />
-                        <span>{{ primaryStyleUsage[8437]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8214]" :style="{ filter: primaryStyleUsage[8214] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8214]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8446]" />
-                        <span>{{ primarySubUsage[8446]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8224]" :style="{ filter: primarySubUsage[8224] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8224]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8429]" />
-                        <span>{{ primarySubUsage[8429]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8210]" :style="{ filter: primarySubUsage[8210] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8210]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8451]" />
-                        <span>{{ primarySubUsage[8451]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8237]" :style="{ filter: primarySubUsage[8237] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8237]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8439]" />
-                        <span>{{ primaryStyleUsage[8439]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8229]" :style="{ filter: primaryStyleUsage[8229] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8229]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8463]" />
-                        <span>{{ primarySubUsage[8463]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8226]" :style="{ filter: primarySubUsage[8226] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8226]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8444]" />
-                        <span>{{ primarySubUsage[8444]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8234]" :style="{ filter: primarySubUsage[8234] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8234]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8453]" />
-                        <span>{{ primarySubUsage[8453]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8232]" :style="{ filter: primarySubUsage[8232] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8232]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8465]" />
-                        <span>{{ primaryStyleUsage[8465]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8230]" :style="{ filter: primaryStyleUsage[8230] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8230]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8401]" />
-                        <span>{{ primarySubUsage[8401]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8275]" :style="{ filter: primarySubUsage[8275] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8275]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8473]" />
-                        <span>{{ primarySubUsage[8473]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8233]" :style="{ filter: primarySubUsage[8233] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8233]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8242]" />
-                        <span>{{ primarySubUsage[8242]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8236]" :style="{ filter: primarySubUsage[8236] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8236]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
             </div>
             <div class="primary-style">
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8351]" />
-                        <span>{{ primaryStyleUsage[8351]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8437]" :style="{ filter: primaryStyleUsage[8437] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8437]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8306]" />
-                        <span>{{ primarySubUsage[8306]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8446]" :style="{ filter: primarySubUsage[8446] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8446]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8313]" />
-                        <span>{{ primarySubUsage[8313]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8429]" :style="{ filter: primarySubUsage[8429] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8429]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8347]" />
-                        <span>{{ primarySubUsage[8347]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8451]" :style="{ filter: primarySubUsage[8451] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8451]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8360]" />
-                        <span>{{ primaryStyleUsage[8360]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8439]" :style="{ filter: primaryStyleUsage[8439] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8439]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8304]" />
-                        <span>{{ primarySubUsage[8304]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8463]" :style="{ filter: primarySubUsage[8463] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8463]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8352]" />
-                        <span>{{ primarySubUsage[8352]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8444]" :style="{ filter: primarySubUsage[8444] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8444]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8410]" />
-                        <span>{{ primarySubUsage[8410]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8453]" :style="{ filter: primarySubUsage[8453] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8453]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
                 <div class="column">
                     <div class="primary-item">
-                        <img :src="runeToImgPath[8369]" />
-                        <span>{{ primaryStyleUsage[8369]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8465]" :style="{ filter: primaryStyleUsage[8465] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8465]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8321]" />
-                        <span>{{ primarySubUsage[8321]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8401]" :style="{ filter: primarySubUsage[8401] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8401]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8345]" />
-                        <span>{{ primarySubUsage[8345]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8473]" :style="{ filter: primarySubUsage[8473] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8473]?.toFixed(1) || "-" }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8316]" />
-                        <span>{{ primarySubUsage[8316]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[8242]" :style="{ filter: primarySubUsage[8242] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8242]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="primary-style">
+                <div class="column">
+                    <div class="primary-item">
+                        <img :src="runeToImgPath[8351]" :style="{ filter: primaryStyleUsage[8351] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8351]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8306]" :style="{ filter: primarySubUsage[8306] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8306]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8313]" :style="{ filter: primarySubUsage[8313] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8313]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8347]" :style="{ filter: primarySubUsage[8347] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8347]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="primary-item">
+                        <img :src="runeToImgPath[8360]" :style="{ filter: primaryStyleUsage[8360] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8360]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8304]" :style="{ filter: primarySubUsage[8304] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8304]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8352]" :style="{ filter: primarySubUsage[8352] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8352]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8410]" :style="{ filter: primarySubUsage[8410] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8410]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="primary-item">
+                        <img :src="runeToImgPath[8369]" :style="{ filter: primaryStyleUsage[8369] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primaryStyleUsage[8369]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8321]" :style="{ filter: primarySubUsage[8321] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8321]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8345]" :style="{ filter: primarySubUsage[8345] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8345]?.toFixed(1) || "-" }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[8316]" :style="{ filter: primarySubUsage[8316] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                        <span>{{ primarySubUsage[8316]?.toFixed(1) || "-" }}%</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="all-secondaries">
-            <div class="secondary-style">
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[9101]" />
-                        <span>{{ secondarySubUsage[9101]?.toFixed(1) || 0 }}%</span>
+        <div id="secondary-shards">
+            <div>
+            <h1>Secondary rune usage</h1>
+            <div class="all-secondaries">
+                <div class="secondary-style">
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[9101]" :style="{ filter: secondarySubUsage[9101] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[9101]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[9104]" :style="{ filter: secondarySubUsage[9104] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[9104]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8014]" :style="{ filter: secondarySubUsage[8014] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8014]?.toFixed(1) || "-" }}%</span>
+                        </div>
                     </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[9104]" />
-                        <span>{{ secondarySubUsage[9104]?.toFixed(1) || 0 }}%</span>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[9111]" :style="{ filter: secondarySubUsage[9111] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[9111]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[9105]" :style="{ filter: secondarySubUsage[9105] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[9105]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8017]" :style="{ filter: secondarySubUsage[8017] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8017]?.toFixed(1) || "-" }}%</span>
+                        </div>
                     </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8014]" />
-                        <span>{{ secondarySubUsage[8014]?.toFixed(1) || 0 }}%</span>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8009]" :style="{ filter: secondarySubUsage[8009] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8009]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[9103]" :style="{ filter: secondarySubUsage[9103] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[9103]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8299]" :style="{ filter: secondarySubUsage[8299] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8299]?.toFixed(1) || "-" }}%</span>
+                        </div>
                     </div>
                 </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[9111]" />
-                        <span>{{ secondarySubUsage[9111]?.toFixed(1) || 0 }}%</span>
+                <div class="secondary-style">
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8126]" :style="{ filter: secondarySubUsage[8126] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8126]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8137]" :style="{ filter: secondarySubUsage[8137] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8137]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8135]" :style="{ filter: secondarySubUsage[8135] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8135]?.toFixed(1) || "-" }}%</span>
+                        </div>
                     </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[9105]" />
-                        <span>{{ secondarySubUsage[9105]?.toFixed(1) || 0 }}%</span>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8139]" :style="{ filter: secondarySubUsage[8139] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8139]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8140]" :style="{ filter: secondarySubUsage[8140] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8140]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8105]" :style="{ filter: secondarySubUsage[8105] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8105]?.toFixed(1) || "-" }}%</span>
+                        </div>
                     </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8017]" />
-                        <span>{{ secondarySubUsage[8017]?.toFixed(1) || 0 }}%</span>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8143]" :style="{ filter: secondarySubUsage[8143] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8143]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8141]" :style="{ filter: secondarySubUsage[8141] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8141]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8106]" :style="{ filter: secondarySubUsage[8106] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8106]?.toFixed(1) || "-" }}%</span>
+                        </div>
                     </div>
                 </div>
-                <div class="column">
+                <div class="secondary-style">
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8224]" :style="{ filter: secondarySubUsage[8224] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8224]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8210]" :style="{ filter: secondarySubUsage[8210] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8210]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8237]" :style="{ filter: secondarySubUsage[8237] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8237]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8226]" :style="{ filter: secondarySubUsage[8226] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8226]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8234]" :style="{ filter: secondarySubUsage[8234] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8234]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8232]" :style="{ filter: secondarySubUsage[8232] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8232]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8275]" :style="{ filter: secondarySubUsage[8275] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8275]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8233]" :style="{ filter: secondarySubUsage[8233] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8233]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8236]" :style="{ filter: secondarySubUsage[8236] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8236]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="secondary-style">
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8446]" :style="{ filter: secondarySubUsage[8446] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8446]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8429]" :style="{ filter: secondarySubUsage[8429] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8429]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8451]" :style="{ filter: secondarySubUsage[8451] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8451]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8463]" :style="{ filter: secondarySubUsage[8463] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8463]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8444]" :style="{ filter: secondarySubUsage[8444] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8444]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8453]" :style="{ filter: secondarySubUsage[8453] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8453]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8401]" :style="{ filter: secondarySubUsage[8401] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8401]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8473]" :style="{ filter: secondarySubUsage[8473] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8473]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8242]" :style="{ filter: secondarySubUsage[8242] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8242]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="secondary-style">
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8306]" :style="{ filter: secondarySubUsage[8306] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8306]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8313]" :style="{ filter: secondarySubUsage[8313] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8313]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8347]" :style="{ filter: secondarySubUsage[8347] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8347]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8304]" :style="{ filter: secondarySubUsage[8304] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8304]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8352]" :style="{ filter: secondarySubUsage[8352] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8352]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8410]" :style="{ filter: secondarySubUsage[8410] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8410]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="item">
+                            <img :src="runeToImgPath[8321]" :style="{ filter: secondarySubUsage[8321] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8321]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8345]" :style="{ filter: secondarySubUsage[8345] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8345]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                        <div class="item">
+                            <img :src="runeToImgPath[8316]" :style="{ filter: secondarySubUsage[8316] > 1 ? 'none' : 'grayscale(100%)' }"/>
+                            <span>{{ secondarySubUsage[8316]?.toFixed(1) || "-" }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div>
+            <h1>Shard usage</h1>
+            <div id="stat-mods">
+                <div id="offense" class="stat-mods-item">
                     <div class="item">
-                        <img :src="runeToImgPath[8009]" />
-                        <span>{{ secondarySubUsage[8009]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[5008]" />
+                        <span>{{ offenseUsage[5008]?.toFixed(1) || 0 }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[9103]" />
-                        <span>{{ secondarySubUsage[9103]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[5005]" />
+                        <span>{{ offenseUsage[5005]?.toFixed(1) || 0 }}%</span>
                     </div>
                     <div class="item">
-                        <img :src="runeToImgPath[8299]" />
-                        <span>{{ secondarySubUsage[8299]?.toFixed(1) || 0 }}%</span>
+                        <img :src="runeToImgPath[5007]" />
+                        <span>{{ offenseUsage[5007]?.toFixed(1) || 0 }}%</span>
+                    </div>
+                </div>
+                <div id="flex" class="stat-mods-item">
+                    <div class="item">
+                        <img :src="runeToImgPath[5008]" />
+                        <span>{{ flexUsage[5008]?.toFixed(1) || 0 }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[5010]" />
+                        <span>{{ flexUsage[5010]?.toFixed(1) || 0 }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[5001]" />
+                        <span>{{ flexUsage[5001]?.toFixed(1) || 0 }}%</span>
+                    </div>
+                </div>
+                <div id="defense" class="stat-mods-item">
+                    <div class="item">
+                        <img :src="runeToImgPath[5011]" />
+                        <span>{{ defenseUsage[5011]?.toFixed(1) || 0 }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[5013]" />
+                        <span>{{ defenseUsage[5013]?.toFixed(1) || 0 }}%</span>
+                    </div>
+                    <div class="item">
+                        <img :src="runeToImgPath[5001]" />
+                        <span>{{ defenseUsage[5001]?.toFixed(1) || 0 }}%</span>
                     </div>
                 </div>
             </div>
-            <div class="secondary-style">
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8126]" />
-                        <span>{{ secondarySubUsage[8126]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8137]" />
-                        <span>{{ secondarySubUsage[8137]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8135]" />
-                        <span>{{ secondarySubUsage[8135]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8139]" />
-                        <span>{{ secondarySubUsage[8139]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8140]" />
-                        <span>{{ secondarySubUsage[8140]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8105]" />
-                        <span>{{ secondarySubUsage[8105]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8143]" />
-                        <span>{{ secondarySubUsage[8143]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8141]" />
-                        <span>{{ secondarySubUsage[8141]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8106]" />
-                        <span>{{ secondarySubUsage[8106]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="secondary-style">
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8224]" />
-                        <span>{{ secondarySubUsage[8224]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8210]" />
-                        <span>{{ secondarySubUsage[8210]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8237]" />
-                        <span>{{ secondarySubUsage[8237]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8226]" />
-                        <span>{{ secondarySubUsage[8226]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8234]" />
-                        <span>{{ secondarySubUsage[8234]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8232]" />
-                        <span>{{ secondarySubUsage[8232]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8275]" />
-                        <span>{{ secondarySubUsage[8275]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8233]" />
-                        <span>{{ secondarySubUsage[8233]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8236]" />
-                        <span>{{ secondarySubUsage[8236]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="secondary-style">
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8446]" />
-                        <span>{{ secondarySubUsage[8446]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8429]" />
-                        <span>{{ secondarySubUsage[8429]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8451]" />
-                        <span>{{ secondarySubUsage[8451]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8463]" />
-                        <span>{{ secondarySubUsage[8463]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8444]" />
-                        <span>{{ secondarySubUsage[8444]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8453]" />
-                        <span>{{ secondarySubUsage[8453]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8401]" />
-                        <span>{{ secondarySubUsage[8401]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8473]" />
-                        <span>{{ secondarySubUsage[8473]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8242]" />
-                        <span>{{ secondarySubUsage[8242]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="secondary-style">
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8306]" />
-                        <span>{{ secondarySubUsage[8306]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8313]" />
-                        <span>{{ secondarySubUsage[8313]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8347]" />
-                        <span>{{ secondarySubUsage[8347]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8304]" />
-                        <span>{{ secondarySubUsage[8304]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8352]" />
-                        <span>{{ secondarySubUsage[8352]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8410]" />
-                        <span>{{ secondarySubUsage[8410]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="item">
-                        <img :src="runeToImgPath[8321]" />
-                        <span>{{ secondarySubUsage[8321]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8345]" />
-                        <span>{{ secondarySubUsage[8345]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                    <div class="item">
-                        <img :src="runeToImgPath[8316]" />
-                        <span>{{ secondarySubUsage[8316]?.toFixed(1) || 0 }}%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="stat-mods">
-            <div id="offense" class="stat-mods-item">
-                <div class="item">
-                    <img :src="runeToImgPath[5008]" />
-                    <span>{{ offenseUsage[5008]?.toFixed(1) || 0 }}%</span>
-                </div>
-                <div class="item">
-                    <img :src="runeToImgPath[5005]" />
-                    <span>{{ offenseUsage[5005]?.toFixed(1) || 0 }}%</span>
-                </div>
-                <div class="item">
-                    <img :src="runeToImgPath[5007]" />
-                    <span>{{ offenseUsage[5007]?.toFixed(1) || 0 }}%</span>
-                </div>
-            </div>
-            <div id="flex" class="stat-mods-item">
-                <div class="item">
-                    <img :src="runeToImgPath[5008]" />
-                    <span>{{ flexUsage[5008]?.toFixed(1) || 0 }}%</span>
-                </div>
-                <div class="item">
-                    <img :src="runeToImgPath[5010]" />
-                    <span>{{ flexUsage[5010]?.toFixed(1) || 0 }}%</span>
-                </div>
-                <div class="item">
-                    <img :src="runeToImgPath[5001]" />
-                    <span>{{ flexUsage[5001]?.toFixed(1) || 0 }}%</span>
-                </div>
-            </div>
-            <div id="defense" class="stat-mods-item">
-                <div class="item">
-                    <img :src="runeToImgPath[5011]" />
-                    <span>{{ defenseUsage[5011]?.toFixed(1) || 0 }}%</span>
-                </div>
-                <div class="item">
-                    <img :src="runeToImgPath[5013]" />
-                    <span>{{ defenseUsage[5013]?.toFixed(1) || 0 }}%</span>
-                </div>
-                <div class="item">
-                    <img :src="runeToImgPath[5001]" />
-                    <span>{{ defenseUsage[5001]?.toFixed(1) || 0 }}%</span>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { ref, type Ref } from "vue";
-import Champions from "@/classes/Champion.ts"; 
-import * as d3 from "d3";
+import { ref } from "vue";
 
 export default{
     name: "ChampDetail",
@@ -576,13 +600,13 @@ export default{
     setup(){
         var rank = ref("all");
         var runeToImgPath: {[rune: number]: string} = {
-            5001: "public/perk-images/StatMods/StatModsHealthPlusIcon.png",
-            5011: "public/perk-images/StatMods/StatModsHealthScalingIcon.png",
-            5013: "public/perk-images/StatMods/StatModsTenacityIcon.png",
-            5008: "public/perk-images/StatMods/StatModsAdaptiveForceIcon.png",
-            5010: "public/perk-images/StatMods/StatModsMovementSpeedIcon.png",
-            5005: "public/perk-images/StatMods/StatModsAttackSpeedIcon.png",
-            5007: "public/perk-images/StatMods/StatModsCDRScalingIcon.png",
+            5001: "perk-images/StatMods/StatModsHealthPlusIcon.png",
+            5011: "perk-images/StatMods/StatModsHealthScalingIcon.png",
+            5013: "perk-images/StatMods/StatModsTenacityIcon.png",
+            5008: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
+            5010: "perk-images/StatMods/StatModsMovementSpeedIcon.png",
+            5005: "perk-images/StatMods/StatModsAttackSpeedIcon.png",
+            5007: "perk-images/StatMods/StatModsCDRScalingIcon.png",
             8005: "perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png",
             8008: "perk-images/Styles/Precision/LethalTempo/LethalTempoTemp.png",
             8010: "perk-images/Styles/Precision/Conqueror/Conqueror.png",
@@ -684,9 +708,136 @@ export default{
         },
 
         calculatePercentages() {
-            var rankRunes = this.runes[this.rank] || {};
-            //console.log("Calculating percentages for rank:", this.rank, "Runes:", rankRunes);
-            //var runeUsage: {[runes: string]: number} = {};
+            this.reloader = false;
+
+            var rankRunes: {[runes: string]: number} = {};
+            if (this.rank === "all") {
+                rankRunes = {
+                    ...this.runes["all"]
+                };
+            }
+            if (this.rank === "IRON") {
+                rankRunes = {
+                    ...this.runes["IRONI"],
+                    ...this.runes["IRONII"],
+                    ...this.runes["IRONIII"],
+                    ...this.runes["IRONIV"]
+                };
+            }
+            if (this.rank === "BRONZE") {
+                rankRunes = {
+                    ...this.runes["BRONZEI"],
+                    ...this.runes["BRONZEII"],
+                    ...this.runes["BRONZEIII"],
+                    ...this.runes["BRONZEIV"]
+                };
+            }
+            if (this.rank === "GOLD") {
+                rankRunes = {
+                    ...this.runes["GOLDI"],
+                    ...this.runes["GOLDII"],
+                    ...this.runes["GOLDIII"],
+                    ...this.runes["GOLDIV"]
+                };
+            }
+            if (this.rank === "PLATINUM") {
+                rankRunes = {
+                    ...this.runes["PLATINUMI"],
+                    ...this.runes["PLATINUMII"],
+                    ...this.runes["PLATINUMIII"],
+                    ...this.runes["PLATINUMIV"]
+                };
+            }
+            if (this.rank === "EMERALD") {
+                rankRunes = {
+                    ...this.runes["EMERALDI"],
+                    ...this.runes["EMERALDII"],
+                    ...this.runes["EMERALDIII"],
+                    ...this.runes["EMERALDIV"]
+                };
+            }
+            if (this.rank === "DIAMOND") {
+                rankRunes = {
+                    ...this.runes["DIAMONDI"],
+                    ...this.runes["DIAMONDII"],
+                    ...this.runes["DIAMONDIII"],
+                    ...this.runes["DIAMONDIV"]
+                };
+            }
+            if (this.rank === "MASTER") {
+                rankRunes = {
+                    ...this.runes["MASTERI"]
+                };
+            }
+            if (this.rank === "GRANDMASTER") {
+                rankRunes = {
+                    ...this.runes["GRANDMASTERI"]
+                };
+            }
+            if (this.rank === "CHALLENGER") {
+                rankRunes = {
+                    ...this.runes["CHALLENGERI"]
+                };
+            }
+            if (this.rank === "PLATINUM+") {
+                rankRunes = {
+                    ...this.runes["PLATINUMI"],
+                    ...this.runes["PLATINUMII"],
+                    ...this.runes["PLATINUMIII"],
+                    ...this.runes["PLATINUMIV"],
+                    ...this.runes["EMERALDI"],
+                    ...this.runes["EMERALDII"],
+                    ...this.runes["EMERALDIII"],
+                    ...this.runes["EMERALDIV"],
+                    ...this.runes["DIAMONDI"],
+                    ...this.runes["DIAMONDII"],
+                    ...this.runes["DIAMONDIII"],
+                    ...this.runes["DIAMONDIV"],
+                    ...this.runes["MASTERI"],
+                    ...this.runes["GRANDMASTERI"],
+                    ...this.runes["CHALLENGERI"]
+                };
+            }
+            if (this.rank === "EMERALD+") {
+                rankRunes = {
+                    ...this.runes["EMERALDI"],
+                    ...this.runes["EMERALDII"],
+                    ...this.runes["EMERALDIII"],
+                    ...this.runes["EMERALDIV"],
+                    ...this.runes["DIAMONDI"],
+                    ...this.runes["DIAMONDII"],
+                    ...this.runes["DIAMONDIII"],
+                    ...this.runes["DIAMONDIV"],
+                    ...this.runes["MASTERI"],
+                    ...this.runes["GRANDMASTERI"],
+                    ...this.runes["CHALLENGERI"]
+                };
+            }
+            if (this.rank === "DIAMOND+") {
+                rankRunes = {
+                    ...this.runes["DIAMONDI"],
+                    ...this.runes["DIAMONDII"],
+                    ...this.runes["DIAMONDIII"],
+                    ...this.runes["DIAMONDIV"],
+                    ...this.runes["MASTERI"],
+                    ...this.runes["GRANDMASTERI"],
+                    ...this.runes["CHALLENGERI"]
+                };
+            }
+            if (this.rank === "MASTER+") {
+                rankRunes = {
+                    ...this.runes["MASTERI"],
+                    ...this.runes["GRANDMASTERI"],
+                    ...this.runes["CHALLENGERI"]
+                };
+            }
+            if (this.rank === "GRANDMASTER+") {
+                rankRunes = {
+                    ...this.runes["GRANDMASTERI"],
+                    ...this.runes["CHALLENGERI"]
+                };
+            }
+
             var totalPages = 0;
 
             var defenseUsage: {[runes: string]: number} = {};
@@ -699,20 +850,14 @@ export default{
             var secondarySubUsage: {[runes: string]: number} = {};
 
             for (var runeString in rankRunes) {
-                //console.log("Rune:", runeString, "Usage:", rankRunes[runeString]);
                 var runeList = runeString.split(", ");
-                
-                // for every string in runeList, split by the : character
                 for (var i = 0; i < runeList.length; i++) {
                     var runeParts = runeList[i].split(": ");
-                    // get last index of runeParts
                     var runeName = runeParts[runeParts.length - 1];
                     var runeNameParts = runeName.split("}");
                     runeList[i] = runeNameParts[0];
                 }
-                // remove last item from runeList
                 runeList.pop();
-                //console.log("Rune List:", runeList);
 
                 defenseUsage[runeList[0]] = defenseUsage[runeList[0]] || 0;
                 defenseUsage[runeList[0]] += rankRunes[runeString];
@@ -787,7 +932,8 @@ export default{
             this.primarySubUsage = primarySubUsage;
             this.secondarySubUsage = secondarySubUsage;
 
-            this.reloader = !this.reloader;
+            
+            this.reloader = true; // Trigger re-render
         }
     },
     mounted(){
@@ -800,10 +946,25 @@ export default{
 </script>
 
 <style scoped>
+#stat-mods {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* margin-top: 20px; */
+    
+}
+
+#secondary-shards {
+    display: flex;
+    flex-direction: space-between;
+    align-items: center;
+    
+}
+
 .stat-mods-item {
     display: flex;
     justify-content: space-evenly;
-    margin-top: 10px;
+    /* margin-top: 10px; */
 }
 
 .primary-style, .secondary-style {
@@ -834,6 +995,7 @@ export default{
 .all-secondaries {
     display: flex;
     flex-direction: space-evenly;
+    margin-right: 100px;
 }
 
 .sub-row {
