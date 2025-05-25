@@ -333,7 +333,7 @@ export default{
 
                 })
             nodes.raise()
-            this.show(nodes)
+            this.highlight(nodes)
         },
         hide(nodes){
             if(this.displayIcons){
