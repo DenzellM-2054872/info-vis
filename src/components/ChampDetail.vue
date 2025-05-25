@@ -211,6 +211,8 @@ export default{
 .search-container {
     margin-top: 25px;
     margin-bottom: 10px;
+    justify-content: center;
+    display: flex;
 }
 .matchup-graph {
     display: flex;
