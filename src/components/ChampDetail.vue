@@ -30,11 +30,11 @@
                 <RuneUsage id="rune-usage" ref="RuneUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
                 
                 <div id="positions-graph"></div>
-                <ChampMatchup ref="ChampMatchup" v-if="champStatsSet" :champStats="champStats" :key="champStats?.name"/>
+                <ChampMatchup ref="ChampMatchup" v-if="champStats" :champStats="champStats" :key="champStats?.name"/>
                  <div v-else>
                     <p>Loading champion...</p>
                 </div> 
-                 <EloBarcharts ref="EloBarcharts" v-if="champDataSet" :champData="champData" :key="champData?.id"/> 
+                 <EloBarcharts ref="EloBarcharts" v-if="champData" :champData="champData" :key="champData?.id"/> 
                  <div v-else>
                     <p>Loading champion...</p>
                 </div>
@@ -157,7 +157,6 @@ export default{
                             return;
                         }
                         this.abilityStats! = foundData; // Update reactive champData
-                        this.champDataSet = true;
                         console.log("AbilityData", this.abilityStats);
                         this.$forceUpdate();
                     }).catch((error) => {
