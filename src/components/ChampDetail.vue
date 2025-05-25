@@ -10,7 +10,7 @@
             <button @click="searchChampion">Search</button>
 
             <select name="rank" id="rank" v-model="rank" @change="setRank">
-                <option value="all">all</option>
+                <option value="all">All</option>
                 <option value="IRON">Iron</option>
                 <option value="BRONZE">Bronze</option>
                 <option value="GOLD">Gold</option>
@@ -19,10 +19,6 @@
                 <option value="DIAMOND">Diamond</option>
                 <option value="MASTER">Master</option>
                 <option value="GRANDMASTER">Grandmaster</option>
-                <option value="PLATINUM+">Platinum+</option>
-                <option value="EMERALD+">Emerald+</option>
-                <option value="DIAMOND+">Diamond+</option>
-                <option value="MASTER+">Master+</option>
             </select>
         </div>
         <div v-if="champion" class="champion-container">
@@ -51,7 +47,7 @@
                  <div v-else>
                     <p>Loading champion...</p>
                 </div> 
-                 <EloBarcharts ref="EloBarcharts" v-if="champData" :champData="champData" :key="champData?.id"/> 
+                 <EloBarcharts ref="EloBarcharts" v-if="champData && rank == 'all'" :champData="champData" :key="champData?.id"/> 
                  <div v-else>
                     <p>Loading champion...</p>
                 </div>
@@ -304,13 +300,15 @@ export default{
     background-color: #181818;
     display: flex;
     flex-direction: column;
+    
 }
 
 .champion-header {
     display: flex;
     align-items: center;
     gap: 24px; 
-    margin-bottom: 24px; 
+    margin-bottom: 28px;
+  justify-content: center;
 }
 
 .champion-image {

@@ -1,9 +1,11 @@
 <template>
     <div id="ability_comp">
-        <input v-model="winning" type="checkbox" id="winning" name="winning" value="winning" @change="$forceUpdate()">
-        <label for="winning" style="margin-right: 5px;">Winning</label>
-        <input v-model="popular" type="checkbox" id="popular" name="popular" value="popular" @change="$forceUpdate()">
-        <label for="popular">Popular</label>
+        <div style="margin: auto; display: flex; justify-content: center;">
+            <input v-model="winning" type="checkbox" id="winning" name="winning" value="winning" @change="$forceUpdate()">
+            <label for="winning" style="margin-right: 5px;">Winning</label>
+            <input v-model="popular" type="checkbox" id="popular" name="popular" value="popular" @change="$forceUpdate()">
+            <label for="popular">Popular</label>
+        </div>
         <div class="abilityLine">
             <img class = "abilityPic" :src="champ?.getSpellIcon(0)" alt="Champion Q" />
             <div class="abilitySquare" :class="[getPopular(i - 1) == 1 && popular? 'popular':'', getWinning(i - 1) == 1 && winning? 'winning':'']" v-for="i in 18" :id="'Q' + i">
@@ -129,7 +131,6 @@ export default{
                     highestability = i;
                 }
             }
-            console.log("Highest ability for position", pos, "is", highestability);
             return highestability
         },
         getWinning(pos: number){
@@ -143,7 +144,6 @@ export default{
                     highestability = i;
                 }
             }
-            console.log("Highest ability for position", pos, "is", highestability);
             return highestability
         },
     },
