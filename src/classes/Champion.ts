@@ -30,11 +30,14 @@ export default class Champions {
 
 
     static portraitPathFromID(ID: string){
+        if(ID == "FiddleSticks") return (`/champion/Fiddlesticks.png`)
         return(`/centered/${ID}_0.jpg`)
 
     }
 
     static tilePathFromID(ID: string){
+        if(ID == "FiddleSticks") return (`/champion/Fiddlesticks.png`)
+
         return(`/tiles/${ID}_0.jpg`)
 
     }

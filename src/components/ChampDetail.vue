@@ -1,10 +1,10 @@
 <template>
     <div id="ChampDetail">
         <div class="search-container">
-            <input 
-                type="text" 
-                v-model="champName" 
-                placeholder="Search Champion" 
+            <input
+                type="text"
+                v-model="champName"
+                placeholder="Search Champion"
                 @keyup.enter="searchChampion"
             />
             <button @click="searchChampion">Search</button>
@@ -41,14 +41,14 @@
                     :champion = champion />
 
                 <RuneUsage id="rune-usage" ref="RuneUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
-                
+
                 <div id="positions-graph"></div>
-                <ChampMatchup ref="ChampMatchup" v-if="champStats" :champStats="champStats" :key="champStats?.name"/>
-                 <div v-else>
+                <ChampMatchup ref="ChampMatchup" v-if="champStatsSet && champStats" :champStats="champStats!" :key="champStats?.name"/>
+                <div v-else>
                     <p>Loading champion...</p>
-                </div> 
-                 <EloBarcharts ref="EloBarcharts" v-if="champData && rank == 'all'" :champData="champData" :key="champData?.id"/> 
-                 <div v-else>
+                </div>
+                <EloBarcharts ref="EloBarcharts" v-if="champDataSet && champData" :champData="champData!" :key="champData?.id"/>
+                <div v-else>
                     <p>Loading champion...</p>
                 </div>
         </div>
@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import { ref, useTemplateRef, type Ref } from "vue";
-import Champions from "@/classes/Champion.ts"; 
+import Champions from "@/classes/Champion.ts";
 import * as d3 from "d3";
 import EloBarcharts from '@/components/EloBarcharts.vue';
 import ChampMatchup from '@/components/ChampMatchup.vue';
@@ -117,9 +117,9 @@ export default{
         const champion: Ref<Champions | undefined> = ref();
         const champData = ref<ChampDetailsType | null>(null);
         const champStats = ref<ChampionStats | null>(null);
-        
+
         const abilityComp = useTemplateRef<typeof AbilityComp>('abilityComp');
-    
+
         var champDataSet = ref(false);
         var champStatsSet = ref(false);
         var rank = ref('all')
@@ -304,20 +304,20 @@ export default{
     background-color: #181818;
     display: flex;
     flex-direction: column;
-    
+
 }
 
 .champion-header {
     display: flex;
     align-items: center;
-    gap: 24px; 
+    gap: 24px;
     margin-bottom: 28px;
   justify-content: center;
 }
 
 .champion-image {
-    width: 120px; 
-    height: 120px; 
+    width: 120px;
+    height: 120px;
     border-radius: 8px;
     object-fit: cover;
 }
@@ -330,7 +330,7 @@ export default{
 
 .champion-info h1 {
     margin: 0;
-    font-size: 2rem; 
+    font-size: 2rem;
 }
 
 .champion-class {
