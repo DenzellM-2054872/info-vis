@@ -27,7 +27,7 @@
                     <div class="champion-info">
                         <h1>{{ champion!.getName() }}</h1>
                         <p class="champion-class">{{ champion!.getClass().join(', ') }}</p>
-                        <p> {{ }}</p>
+                        <p> {{ popularRole }}</p>
                         <div class="abilities-container">
                             <div v-for="(ability, index) in champion!.getSpells()" :key="index" class="ability">
                                 <img :src="`/spell/${ability.image.full}`" alt="Ability Image" class="ability-icon" />
@@ -130,6 +130,7 @@ export default{
         var champDataSet = ref(false);
         var champStatsSet = ref(false);
         var rank = ref('all')
+        var popularRole = ref('');
 
         return {
             abilityStats,
@@ -141,7 +142,8 @@ export default{
             champDataSet,
             champStatsSet,
             rank,
-            runeComp
+            runeComp,
+            popularRole
         };
     },
     methods: {
@@ -175,6 +177,7 @@ export default{
                         }
                         this.champData! = foundData; // Update reactive champData
                         this.champDataSet = true;
+                        this.popularRole = Object.entries(foundData.positions_played["all"]).reduce((a, b) => a[1] > b[1] ? a : b)[0];
                         //console.log("champData", this.champData);
                     }).catch((error) => {
                         console.error("Error loading JSON data:", error);
