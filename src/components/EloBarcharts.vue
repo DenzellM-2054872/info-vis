@@ -79,37 +79,38 @@ export default{
             "CHALLENGERI"];
 
         const colorMapping: { [key: string]: string } = {
-                "IRONI": "#706667",
-                "IRONII": "#9e9798",
-                "IRONIII": "#ccc8c8",
-                "IRONIV": "#f2f1f1",
-                "BRONZEI": "#8a7571",
-                "BRONZEII": "#a69794",
-                "BRONZEIII": "#c0b5b3",
-                "BRONZEIV": "#d5cecd",
-                "SILVERI": "#a6b0b8",
-                "SILVERII": "#c3c9ce",
-                "SILVERIII": "#dfe3e5",
-                "SILVERIV": "#f7f8f8",
-                "GOLDI": "#ae8f62",
-                "GOLDII": "#c8b394",
-                "GOLDIII": "#e2d7c7",
-                "GOLDIV": "#f7f4f0",
-                "PLATINUMI": "#417a85",
-                "PLATINUMII": "#7ea5ac",
-                "PLATINUMIII": "#bbcfd3",
-                "PLATINUMIV": "#edf2f3",
-                "EMERALDI": "#2f815e",
-                "EMERALDII": "#72a991",
-                "EMERALDIII": "#b4d2c5",
-                "EMERALDIV": "#ebf3f0",
-                "DIAMONDI": "#6486ca",
-                "DIAMONDII": "#95addb",
-                "DIAMONDIII": "#c7d3ec",
-                "DIAMONDIV": "#f0f4fa",
-                "MASTERI": "#b178b9",
-                "GRANDMASTERI": "#b04e4b",
-                "CHALLENGERI": "#8fcde4",
+                "Unranked": "#394f3d",
+                "IRONI": "#6936d2",
+                "IRONII": "#6936d2",
+                "IRONIII": "#6936d2",
+                "IRONIV": "#6936d2",
+                "BRONZEI": "#596627",
+                "BRONZEII": "#596627",
+                "BRONZEIII": "#596627",
+                "BRONZEIV": "#596627",
+                "SILVERI": "#9e2e9e",
+                "SILVERII": "#9e2e9e",
+                "SILVERIII": "#9e2e9e",
+                "SILVERIV": "#9e2e9e",
+                "GOLDI": "#a23c29",
+                "GOLDII": "#a23c29",
+                "GOLDIII": "#a23c29",
+                "GOLDIV": "#a23c29",
+                "PLATINUMI": "#4a3788",
+                "PLATINUMII": "#4a3788",
+                "PLATINUMIII": "#4a3788",
+                "PLATINUMIV": "#4a3788",
+                "EMERALDI": "#4b2630",
+                "EMERALDII": "#4b2630",
+                "EMERALDIII": "#4b2630",
+                "EMERALDIV": "#4b2630",
+                "DIAMONDI": "#963663",
+                "DIAMONDII": "#963663",
+                "DIAMONDIII": "#963663",
+                "DIAMONDIV": "#963663",
+                "MASTERI": "#4f5678",
+                "GRANDMASTERI": "#4f5678",
+                "CHALLENGERI": "#4f5678",
         };
 
         return{
@@ -123,7 +124,7 @@ export default{
             svgContainer.selectAll("*").remove();
 
             const margin = { top: 20, right: 30, bottom: 70, left: 50 };
-            const width = 600 - margin.left - margin.right;
+            const width = 800 - margin.left - margin.right;
             const height = 400 - margin.top - margin.bottom;
 
             const svg = svgContainer
@@ -156,6 +157,7 @@ export default{
                 .selectAll("text")
                 .attr("transform", "rotate(-45)")
                 .style("text-anchor", "end");
+                
             svg.append("g").call(d3.axisLeft(y));
 
             // Add bars
@@ -189,6 +191,59 @@ export default{
                 .attr("stroke-width", 2);
         },
 
+        drawStackedBarchart(divId: string, processedData: any[], y_label: string, subcategories: string[]) {
+            const margin = { top: 20, right: 30, bottom: 70, left: 50 };
+            const width = 800 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select("#" + divId)
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const x = d3.scaleBand()
+                .domain(processedData.map(d => d.name))
+                .range([0, width])
+                .padding(0.2);
+
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end");
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(processedData, d => d.kills + d.assists)!])
+                .range([height, 0]);
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            const color = d3.scaleOrdinal()
+                .domain(subcategories)
+                .range(['#e41a1c', '#377eb8']);
+
+            const stackedData = d3.stack()
+                .keys(subcategories)(processedData);
+
+            svg.append("g")
+                .selectAll("g")
+                .data(stackedData)
+                .enter().append("g")
+                    .attr("fill", d => color(d.key) as string)
+                .selectAll("rect")
+                .data(d => d)
+                .enter().append("rect")
+                    .attr("x", d => x(String(d.data.name))!)
+                    .attr("y", d => y(d[1]))
+                    .attr("height", d => y(d[0]) - y(d[1]))
+                    .attr("width", x.bandwidth());
+
+        },
+
         RadarChart(
             id: string,
             data: RadarChartData[], 
@@ -218,25 +273,7 @@ export default{
                 Object.entries(series).map(([axis, value]) => ({ axis, value }))
             );
 
-            // Get all unique axes from all series
-            // const allAxis = Array.from(new Set(
-            //     formattedData.flatMap(series => series.map(d => d.axis))
-            // )).sort(); // Sort for consistent ordering
-
-            //console.log("data before", data);
-
             const allAxis = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'SUPPORT'];
-            // sort 'data' by the order of allAxis
-            // data.sort((a, b) => {
-            //     const aIndex = allAxis.indexOf(Object.keys(a)[0]);
-            //     const bIndex = allAxis.indexOf(Object.keys(b)[0]);
-            //     return aIndex - bIndex;
-            // });
-            
-
-            //console.log("data after", data);
-
-            //console.log("allAxis", allAxis);
 
             const maxValue = Math.max(
                 cfg.maxValue,
@@ -304,8 +341,6 @@ export default{
                 .append("g")
                 .attr("class", "axis");
 
-            //console.log("axis", axis);
-
             axis.append("line")
                 .attr("x1", 0)
                 .attr("y1", 0)
@@ -340,25 +375,6 @@ export default{
                 .data(data)
                 .enter().append("g")
                 .attr("class", "radarWrapper");
-
-            // loop over data points
-            // for (let i = 0; i < formattedData[0].length; i++) {
-            //     const d = formattedData[0][i].value;
-            //     console.log("d", d);
-            //     svg.append("line")
-            //         .attr("class", "radarStroke")
-            //         .attr("x1", cfg.w/2 + cfg.margin.left)
-            //         .attr("y1", cfg.h/2 + cfg.margin.top)
-            //         .attr("x2", rScale(d) * Math.cos(angleSlice * i - Math.PI / 2))
-            //         .attr("y2", rScale(d) * Math.sin(angleSlice * i - Math.PI / 2))
-            //         .style("stroke-width", `${cfg.strokeWidth}px`)
-            //         .style("stroke", cfg.color(i.toString()))
-            //         .style("fill", "none")
-            //         .style("filter", "url(#glow)");
-            // }
-
-            // Areas
-
             
             blobWrapper.append("path")
                 .attr("class", "radarArea")
@@ -473,8 +489,6 @@ export default{
         drawPositions() {
             const positionsData = this.champData.average_positions;
 
-            //console.log(positionsData);
-
             var allRanksPositions = [];
             for (const key in positionsData) {
                 if (key !== "all") {
@@ -487,11 +501,8 @@ export default{
                     delete roles["Invalid"];
 
                     allRanksPositions.push(roles);
-                    //allRanksPositions.push(positionsData[key]);
                 }
             }
-
-            //console.log(allRanksPositions);
 
             const myData = {
                 "TOP": 0.1,
@@ -503,29 +514,12 @@ export default{
 
             const chartData = [myData]; // Wrap in array to support multiple data series
 
-            // var maxValue = 0;
-            // for (const key in positionsData["all"]) {
-            //     if (positionsData["all"][key] > maxValue) {
-            //         maxValue = positionsData["all"][key];
-            //     }
-            // }
-
             // Create the charts
             this.RadarChart("#positions-graph", allRanksPositions, {
                 maxValue: 1, // Set appropriate max value for your scale
                 wrapWidth: 80,
                 labelFactor: 1.2
             });
-            // const sortedKeys = Object.keys(positionsData).sort((a, b) => {
-            //     return rankOrder.indexOf(a) - rankOrder.indexOf(b);
-            // });
-
-            // const processedData = positionsData.map((key: string) => ({
-            //     name: key,
-            //     value: positionsData[key],
-            // }));
-
-            //drawBarchartPerElo("positions-graph", processedData, "Avg Position", [0,100], 0);
         },
 
         drawWinRatePerElo() {
@@ -567,6 +561,7 @@ export default{
 
         drawKDABarCharts() {
             const killsData = this.champData.average_kills;
+            const assistsData = this.champData.average_assists;
 
             var sortedKeys = Object.keys(killsData).sort((a, b) => {
                 return this.rankOrder.indexOf(a) - this.rankOrder.indexOf(b);
@@ -574,7 +569,8 @@ export default{
 
             var processedData = sortedKeys.map((key: string) => ({
                 name: key,
-                value: killsData[key],
+                kills: killsData[key],
+                assists: assistsData[key],
             }));
 
             // remove 'all' from processedData
@@ -583,7 +579,18 @@ export default{
                 processedData.splice(allIndex, 1);
             }
 
-            this.drawBarchartPerElo("avg-kills-graph", processedData, "Avg Kills Per Game", [0,d3.max(processedData, (d) => d.value)!], killsData["all"]);
+            // insert into processedData at index 1
+            processedData.splice(1, 0, {name: "1", kills: 0, assists: 0});
+            processedData.splice(6, 0, {name: "2", kills: 0, assists: 0});
+            processedData.splice(11, 0, {name: "3", kills: 0, assists: 0});
+            processedData.splice(16, 0, {name: "4", kills: 0, assists: 0});
+            processedData.splice(21, 0, {name: "5", kills: 0, assists: 0});
+            processedData.splice(26, 0, {name: "6", kills: 0, assists: 0});
+            processedData.splice(31, 0, {name: "7", kills: 0, assists: 0});
+            processedData.splice(36, 0, {name: "8", kills: 0, assists: 0});
+
+            //this.drawBarchartPerElo("avg-kills-graph", processedData, "Avg Kills Per Game", [0,d3.max(processedData, (d) => d.value)!], killsData["all"]);
+            this.drawStackedBarchart("avg-kills-graph", processedData, "Avg Kills Per Game", ["kills", "assists"]);
 
             const deathsData = this.champData.average_deaths;
 
@@ -591,56 +598,56 @@ export default{
                 return this.rankOrder.indexOf(a) - this.rankOrder.indexOf(b);
             });
 
-            processedData = sortedKeys.map((key: string) => ({
+            var processedDeathsData = sortedKeys.map((key: string) => ({
                 name: key,
                 value: deathsData[key],
             }));
 
             // remove 'all' from processedData
-            allIndex = processedData.findIndex((d) => d.name === "all");
+            allIndex = processedDeathsData.findIndex((d) => d.name === "all");
             if (allIndex !== -1) {
-                processedData.splice(allIndex, 1);
+                processedDeathsData.splice(allIndex, 1);
             }
 
-            this.drawBarchartPerElo("avg-deaths-graph", processedData, "Avg Deaths Per Game", [0,d3.max(processedData, (d) => d.value)!], deathsData["all"]);
+            this.drawBarchartPerElo("avg-deaths-graph", processedDeathsData, "Avg Deaths Per Game", [0,d3.max(processedDeathsData, (d) => d.value)!], deathsData["all"]);
 
-            const assistsData = this.champData.average_assists;
+            //const assistsData = this.champData.average_assists;
 
-            sortedKeys = Object.keys(assistsData).sort((a, b) => {
-                return this.rankOrder.indexOf(a) - this.rankOrder.indexOf(b);
-            });
+            // sortedKeys = Object.keys(assistsData).sort((a, b) => {
+            //     return this.rankOrder.indexOf(a) - this.rankOrder.indexOf(b);
+            // });
 
-            processedData = sortedKeys.map((key: string) => ({
-                name: key,
-                value: assistsData[key],
-            }));
+            // processedData = sortedKeys.map((key: string) => ({
+            //     name: key,
+            //     value: assistsData[key],
+            // }));
 
-            // remove 'all' from processedData
-            allIndex = processedData.findIndex((d) => d.name === "all");
-            if (allIndex !== -1) {
-                processedData.splice(allIndex, 1);
-            }
+            // // remove 'all' from processedData
+            // allIndex = processedData.findIndex((d) => d.name === "all");
+            // if (allIndex !== -1) {
+            //     processedData.splice(allIndex, 1);
+            // }
 
-            this.drawBarchartPerElo("avg-assists-graph", processedData, "Avg Assists Per Game", [0,d3.max(processedData, (d) => d.value)!], assistsData["all"]);
+            // this.drawBarchartPerElo("avg-assists-graph", processedData, "Avg Assists Per Game", [0,d3.max(processedData, (d) => d.value)!], assistsData["all"]);
 
             sortedKeys = Object.keys(killsData).sort((a, b) => {
                 return this.rankOrder.indexOf(a) - this.rankOrder.indexOf(b);
             });
 
-            processedData = sortedKeys.map((key: string) => ({
+            var processedKDAData = sortedKeys.map((key: string) => ({
                 name: key,
                 value: killsData[key] + assistsData[key] / (deathsData[key] < 1 ? 1 : deathsData[key]),
             }));
 
             // remove 'all' from processedData
-            allIndex = processedData.findIndex((d) => d.name === "all");
+            allIndex = processedKDAData.findIndex((d) => d.name === "all");
             if (allIndex !== -1) {
-                processedData.splice(allIndex, 1);
+                processedKDAData.splice(allIndex, 1);
             }
 
             const averageKDA = killsData["all"] + assistsData["all"] / (deathsData["all"] < 1 ? 1 : deathsData["all"]);
 
-            this.drawBarchartPerElo("avg-kda-graph", processedData, "Avg KDA Per Game", [0,d3.max(processedData, (d) => d.value)!], averageKDA);
+            this.drawBarchartPerElo("avg-kda-graph", processedKDAData, "Avg KDA Per Game", [0,d3.max(processedKDAData, (d) => d.value)!], averageKDA);
         },
 
         drawWinratePerMinute() {
@@ -685,7 +692,7 @@ export default{
         }
     },
     mounted(){
-        console.log("EloBarcharts mounted with champData", this.champData);
+        //console.log("EloBarcharts mounted with champData", this.champData);
         this.drawPositions()
         this.drawWinratePerMinute()
         this.drawWinRatePerElo()

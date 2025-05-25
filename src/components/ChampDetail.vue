@@ -23,6 +23,7 @@
                         </div>
                     </div>
                 </div>
+                <RuneUsage id="rune-usage" ref="RuneUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
                 <div id="positions-graph"></div>
                 <ChampMatchup ref="ChampMatchup" v-if="champStatsSet" :champStats="champStats" :key="champStats?.name"/>
                 <div v-else>
@@ -45,13 +46,14 @@ import Champions from "@/classes/Champion.ts";
 import * as d3 from "d3";
 import EloBarcharts from '@/components/EloBarcharts.vue';
 import ChampMatchup from '@/components/ChampMatchup.vue';
+import RuneUsage from "@/components/RuneUsage.vue";
 
 interface ChampDetailsType {
     "average_assists": {[rank: string]: number}
     "average_deaths": {[rank: string]: number}
     "average_kills": {[rank: string]: number}
     "average_positions": {[rank: string]: {[role: string]: number}}
-    // "highest_runes_usage:" string[]
+    "highest_runes_usage": {[rank: string]: {[runes: string]: number}}
     "id": number
     "losses": {[rank: string]: number}
     "name": string
@@ -77,7 +79,8 @@ export default{
     name: "ChampDetail",
     components: {
         EloBarcharts,
-        ChampMatchup
+        ChampMatchup,
+        RuneUsage
     },
     setup(){
         const champName = ref("");
@@ -110,7 +113,7 @@ export default{
                         this.champStats! = foundData;
                         this.champStats.name = this.champName; // Ensure champName is set
                         this.champStatsSet = true;
-                        console.log("champStats", this.champStats);
+                        //console.log("champStats", this.champStats);
                     })
                     .catch((error) => {
                         console.error("Error loading JSON data:", error);
@@ -124,7 +127,7 @@ export default{
                         }
                         this.champData! = foundData; // Update reactive champData
                         this.champDataSet = true;
-                        console.log("champData", this.champData);
+                        //console.log("champData", this.champData);
                     }).catch((error) => {
                         console.error("Error loading JSON data:", error);
                     });
@@ -143,6 +146,13 @@ export default{
 </script>
 
 <style scoped>
+.rune-usage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
 .content{
     align-items: center;
 }
