@@ -65,6 +65,19 @@ export default defineComponent({
     const drawTreemap = () => {
         const svgContainer = d3.select("#scatter-plot");
         svgContainer.selectAll("*").remove();
+// Tooltip setup
+const tooltip = d3.select("#ChampMatchup")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("background", "black")
+  .style("border", "1px solid #ccc")
+  .style("padding", "8px")
+  .style("border-radius", "6px")
+  .style("pointer-events", "none")
+  .style("font-size", "14px")
+  .style("display", "none")
+  .style("z-index", "1000");
 
         const containerElement = document.getElementById("ChampMatchup") as HTMLElement;
         const boundingRect = containerElement?.getBoundingClientRect();
@@ -164,15 +177,35 @@ export default defineComponent({
             .data(root.leaves())
             .enter()
             .append("g")
-            .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+            .attr("transform", (d: any) => `translate(${d.x},${d.y})`)
+            .on("mouseenter", function (event, d: any) {
+      d3.select(this).raise(); // Bring to front
+      tooltip
+        .style("display", "block")
+        .html(`
+          <strong>${d.data.name}</strong><br>
+          Winrate: ${d.data.wr.toFixed(1)}%<br>
+          WR Δ: ${d.data.wrDelta.toFixed(1)}<br>
+          Games: ${d.data.games}%
+        `);
+    })
+    .on("mousemove", function (event) {
+      tooltip
+        .style("left", `${event.pageX + 15}px`)
+        .style("top", `${event.pageY - 20}px`);
+    })
+    .on("mouseleave", function () {
+      tooltip.style("display", "none");
+    });
 
-            // Circles instead of rects
+            // Circles 
             nodes
             .append("circle")
             .attr("r", (d: any) => d.r)
             .attr("fill", (d: any) => colorForDelta(d.data.wrDelta))
             .attr("stroke", (d: any) => colorForDelta(d.data.wrDelta))
             .attr("stroke-width", 10);
+
 
             // Champion icon inside circle
             nodes
@@ -200,36 +233,14 @@ export default defineComponent({
                 return `saturate(${saturation})`;
             });
 
-            // Text below the circle with games and WR
-            /*
-            nodes
-            .append("text")
-            .attr("y", (d: any) => d.r + 14)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "12px")
-            .attr("fill", "black")
-            .selectAll("tspan")
-            .data((d: any) => [
-                `${d.data.games} Games`,
-                `${d.data.wr.toFixed(1)}%`,
-            ])
-            .enter()
-            .append("tspan")
-            .attr("x", 0)
-            .attr("dy", (d, i) => (i === 0 ? 0 : 16))
-            .text((d) => d);
-            */
-            // Hover effect to enlarge circle & text
-            // Inside the `drawTreemap` function, REPLACE the existing hover logic with this new fish-eye logic:
-
             const allNodes: {
-            group: d3.Selection<SVGGElement, any, any, any>;
-            circle: d3.Selection<SVGCircleElement, any, any, any>;
-            image: d3.Selection<SVGImageElement, any, any, any>;
-            clip: d3.Selection<SVGCircleElement, any, any, any>;
-            x: number;
-            y: number;
-            r: number;
+              group: d3.Selection<SVGGElement, any, any, any>;
+              circle: d3.Selection<SVGCircleElement, any, any, any>;
+              image: d3.Selection<SVGImageElement, any, any, any>;
+              clip: d3.Selection<SVGCircleElement, any, any, any>;
+              x: number;
+              y: number;
+              r: number;
             }[] = [];
 
             nodes.each(function (d: any) {
@@ -260,7 +271,7 @@ export default defineComponent({
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
                 const maxDist = 150;
-                const baseScale = 2.0; 
+                const baseScale = 2.4; 
                 const falloff = 5000; // Smaller = wider fish-eye area
 
                 let scaleFactor = 1;
@@ -269,9 +280,13 @@ export default defineComponent({
                 }
 
                 var newR = Math.min(r * scaleFactor, r * baseScale); // Cap zoom
-                    if (newR > 200) {
-                        newR = 200;
+                if (newR > 80) {
+                    if (r < 80) {
+                      newR = 80;
+                    } else {
+                      newR = r;
                     }
+                }
                 circle.attr("r", newR);
                 clip.attr("r", newR);
                 image
@@ -306,4 +321,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped> .controls { margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; } </style>
+<style scoped> 
+.controls { margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; } 
+.tooltip {
+  transition: opacity 0.2s ease;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.15);
+}
+</style>
