@@ -176,7 +176,7 @@ export default{
         }
     },
     mounted(){
-        console.log("ChampMatchup mounted with champStats", this.champStats);
+        //console.log("ChampMatchup mounted with champStats", this.champStats);
         this.drawMatchupGraph()
     }
 }
