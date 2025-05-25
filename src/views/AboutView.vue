@@ -18,7 +18,7 @@
                 <li><strong>Champion Details:</strong> Get in-depth information about individual champions.</li>
                 <li><strong>Game Details:</strong> Review game win rate based of off in game events.</li>
             </ul>
-            <p>This tool was created by Atilla Belgen, Yoshua Coene and Denzell Mgbokwere as part of the info-vis course at Hasselt University</p>
+            <p>This tool was created by Atilla Belgen, Yoshua Coene and Denzell Mgbokwere as part of the information visualisation course at Hasselt University</p>
             <br>
             <p>This tool isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. </p>
             <p>Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. </p>
