@@ -16,8 +16,13 @@
                     <option value="MASTER">Master</option>
                     <option value="GRANDMASTER">Grandmaster</option>
                 </select>
+
+                <p>Advanced Breakdown</p>
+                <input type="checkbox" v-model="game.advanced" @change="getWinrate">
             </div>
         </div>
+
+
 
         <div class="inputContainer">
             <div class="team1">
@@ -59,7 +64,7 @@
                 <input type="checkbox" v-model="game.firstBaron" @change="getWinrate">
             </div>
             <div class="team2">
-                <p>Firts baron</p>
+                <p>First baron</p>
                 <input type="checkbox" v-model="team2.firstBaron" @change="getWinrate" :disabled="!game.firstBaron || team1.firstBaron">
             </div>
         </div>
@@ -104,7 +109,7 @@
                 <input type="checkbox" v-model="game.firstInhib" @change="getWinrate">
             </div>
             <div class="team2">
-                <p>Firts inhib</p>
+                <p>First inhib</p>
                 <input type="checkbox" v-model="team2.firstInhib" @change="getWinrate" :disabled="!game.firstInhib || team1.firstInhib">
             </div>
         </div>
@@ -143,7 +148,7 @@
         <div class="inputContainer">
             <div class="team1">
                 <p>Dragon count</p>
-                <input type="number" v-model="team1.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0">
+                <input type="number" v-model="team1.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0" :max = "team1.dragonCount == 4 ? 3 : 4 ">
             </div>
             <div class="center">
                 <p>Enabled</p>
@@ -151,7 +156,22 @@
             </div>
             <div class="team2">
                 <p>Dragon count</p>
-                <input type="number" v-model="team2.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0">
+                <input type="number" v-model="team2.dragonCount" @change="getWinrate" :disabled="!game.dragonCount" min="0" :max = "team1.dragonCount == 4 ? 3 : 4 ">
+            </div>
+        </div>
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Elder Dragon count</p>
+                <input type="number" v-model="team1.elderCount" @change="getWinrate" :disabled="!game.elderCount" min="0" >
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.elderCount" @change="getWinrate" :disabled="game.dragonCount && !(team1.dragonCount == 4 || team2.dragonCount == 4)">
+            </div>
+            <div class="team2">
+                <p>Elder Dragon count</p>
+                <input type="number" v-model="team2.elderCount" @change="getWinrate" :disabled="!game.elderCount" min="0">
             </div>
         </div>
 
@@ -214,11 +234,66 @@
                 <input type="number" v-model="team2.baron" @change="getWinrate" :disabled="!game.baron" min="0">
             </div>
         </div>
-        <div id="RateBar">
-            <div id="Left">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
-            <div id="Right">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+
+        <div class="inputContainer">
+            <div class="team1">
+                <p>Dragon soul</p>
+                <select name="soul" id="soul" v-model="team1.soul" @change="getWinrate" :disabled="!game.soul || team2.soul != 'none'">
+                    <option value="any">Any</option>
+                    <option value="Hextech">Hextech</option>
+                    <option value="Chemtech">Chemtech</option>
+                    <option value="Infenal">Infenal</option>
+                    <option value="Ocean">Ocean</option>
+                    <option value="Cloud">Cloud</option>
+                    <option value="Mountain">Mountain</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+            <div class="center">
+                <p>Enabled</p>
+                <input type="checkbox" v-model="game.soul" @change="getWinrate">
+            </div>
+            <div class="team2">
+                <p>Dragon soul</p>
+                <select name="soul" id="soul" v-model="team2.soul" @change="getWinrate" :disabled="!game.soul || team1.soul != 'none'"> 
+                    <option value="any">Any</option>
+                    <option value="Hextech">Hextech</option>
+                    <option value="Chemtech">Chemtech</option>
+                    <option value="Infenal">Infenal</option>
+                    <option value="Ocean">Ocean</option>
+                    <option value="Cloud">Cloud</option>
+                    <option value="Mountain">Mountain</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+        </div>
+        <div id="RateBar" v-if="!game.advanced">
+            <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
+            <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+        </div>
+        <div id="Advanced" v-else>
+
+            <h2>Ahead</h2>
+            <div id="aheadBar"> 
+                <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
+                <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+            </div>
+
+            <h2>Even</h2>
+            <div id="evenBar"> 
+                <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
+                <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+            </div>
+
+            <h2>Behind</h2>
+            <div id="behindBar"> 
+                <div class="wins">{{ Math.round(team1.winrate * 100) / 100 }}% ({{ team1.gameCount }})</div>
+                <div class="losses">{{ Math.round(team2.winrate * 100) / 100 }}% ({{ team2.gameCount }})</div>
+            </div>
         </div>
     </div>
+
+    
 
 </template>
 <script  lang="ts">
@@ -238,23 +313,43 @@ class AdvDetail {
     vs: {[vs: number]: BaseDetail} = {}
 }
 
+class BaseStateDetail {
+    ahead: BaseDetail = new BaseDetail
+    behind: BaseDetail = new BaseDetail
+    even: BaseDetail = new BaseDetail
+}
+
+class AdvStateDetail {
+    general: BaseStateDetail = new BaseStateDetail
+    vs: {[vs: number]: BaseStateDetail} = {}
+}
+
+class AdvStateDragonDetail {
+    general: BaseStateDetail = new BaseStateDetail
+    vs: {[vs: string]: BaseStateDetail} = {}
+}
+
 class Details{
-    rank: {[rank: string]: BaseDetail} = {}
+    rank: {[rank: string]: BaseStateDetail} = {}
     dragonCount: {[count: number]: AdvDetail} = {}
+    elderCount: {[count: number]: AdvDetail} = {}
     grubCount: {[count: number]: AdvDetail} = {}
+
+    atakhan: {[count: number]: AdvStateDetail} = {}
+    herald: {[count: number]: AdvStateDetail} = {}
+
     inhibCount: {[count: number]: AdvDetail} = {}
     towerCount: {[count: number]: AdvDetail} = {}
+
     baron: {[count: number]: AdvDetail} = {}
-    
-    herald: {[count: number]: AdvDetail} = {}
-    atakhan: {[count: number]: AdvDetail} = {}
-    feats: {[count: number]: AdvDetail} = {}
-    firstBlood: {[count: number]: AdvDetail} = {}
-    firstDragon: {[count: number]: AdvDetail} = {}
-    firstInhib: {[count: number]: AdvDetail} = {}
-    firstTower: {[count: number]: AdvDetail} = {}
-    firstBaron: {[count: number]: AdvDetail} = {}
-    soul: {[count: number]: AdvDetail} = {}
+    feats: {[count: number]: AdvStateDetail} = {}
+
+    firstBlood: {[count: number]: AdvStateDetail} = {}
+    firstDragon: {[count: number]: AdvStateDetail} = {}
+    firstInhib: {[count: number]: AdvStateDetail} = {}
+    firstTower: {[count: number]: AdvStateDetail} = {}
+    firstBaron: {[count: number]: AdvStateDetail} = {}
+    soul: {[type: string]: AdvStateDragonDetail} = {}
     totalGames: number = 0
 }
 
@@ -269,17 +364,28 @@ class Team{
     herald: boolean = false
 
     dragonCount: number = 0
+    elderCount: number = 0
     grubCount: number = 0
     inhibCount: number = 0
     towerCount: number = 0
     baron: number = 0
 
+    soul: string = "none"
     winrate: number = 50
     gameCount: number = 0
+
+    aheadWinrate: number = 50
+    aheadGameCount: number = 0
+    evenWinrate: number = 50
+    evenGameCount: number = 0
+    behindWinrate: number = 50
+    behindGameCount: number = 0
 }
 
 class Game{
     rank: string = "all"
+    advanced: boolean = false
+
     atakhan: boolean = false
     feats: boolean = false
     firstBaron: boolean = false
@@ -290,10 +396,12 @@ class Game{
     herald: boolean = false
 
     dragonCount: boolean = false
+    elderCount: boolean = false
     grubCount: boolean = false
     inhibCount: boolean = false
     towerCount: boolean = false
     baron: boolean = false
+    soul: boolean = false
 }
 export default{
     name: "WinRate",
@@ -314,26 +422,61 @@ export default{
             d3.select("#Left").transition().duration(200).style("width", `${this.team1.winrate}%`)
             d3.select("#Right").transition().duration(200).style("width", `${this.team2.winrate}%`)
         },
+        getStateGames(data: BaseStateDetail, state: string, out: BaseDetail[]){
+            if(state == "even"){
+                out.push({
+                    wins: data.even.wins,
+                    losses: data.even.losses,
+                    WR: 0
+                })
+            }else if(state == "ahead"){
+                out.push({
+                    wins: data.ahead.wins,
+                    losses: data.ahead.losses,
+                    WR: 0
+                })
+            }else if(state == "behind"){   
+                out.push({
+                    wins: data.behind.wins,
+                    losses: data.behind.losses,
+                    WR: 0
+                })
+            }
+            out.push({
+                wins: data.even.wins.concat(data.ahead.wins).concat(data.behind.wins),
+                losses: data.even.losses.concat(data.ahead.losses).concat(data.behind.losses),
+                WR: 0
+            })
+        },
+        getGames(data: BaseDetail, out: BaseDetail[]){
+            out.push({
+                wins: data.wins,
+                losses: data.losses,
+                WR: 0
+            })
+        },
         getWinrate(){
             console.log('started')
-            let qual_games: BaseDetail[] = []
+            let games: BaseDetail[] = []
+            let ahead_games: BaseDetail[] = []
+            let even_games: BaseDetail[] = []
+            let behind_games: BaseDetail[] = []
 
             if(this.game.rank != "all"){
-                qual_games.push({
-                    wins: this.gameData['rank'][this.game.rank].wins,
-                    losses: this.gameData['rank'][this.game.rank].losses,
-                    WR: this.gameData['rank'][this.game.rank].WR
-                })
+                this.getStateGames(this.gameData['rank'][this.game.rank], 'all', games)
+                this.getStateGames(this.gameData['rank'][this.game.rank], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['rank'][this.game.rank], 'even', even_games)
+                this.getStateGames(this.gameData['rank'][this.game.rank], 'behind', behind_games)
             }
 
             if(this.game.atakhan){
                 let teamAtakhan = this.team1.atakhan ? 1 : 0
                 let oppAtakhan = this.team2.atakhan ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan].wins,
-                    losses: this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan].losses,
-                    WR: this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan].WR
-                })
+
+                this.getStateGames(this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan], 'all', games)
+                this.getStateGames(this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan], 'even', even_games)
+                this.getStateGames(this.gameData['atakhan'][teamAtakhan].vs[oppAtakhan], 'behind', behind_games)
             }else{
                 this.team1.atakhan = false
                 this.team2.atakhan = false
@@ -342,11 +485,11 @@ export default{
             if(this.game.feats){
                 let teamFeats = this.team1.feats ? 1 : 0
                 let oppFeats = this.team2.feats ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['feats'][teamFeats].vs[oppFeats].wins,
-                    losses: this.gameData['feats'][teamFeats].vs[oppFeats].losses,
-                    WR: this.gameData['feats'][teamFeats].vs[oppFeats].WR
-                })
+                
+                this.getStateGames(this.gameData['feats'][teamFeats].vs[oppFeats], 'all', games)
+                this.getStateGames(this.gameData['feats'][teamFeats].vs[oppFeats], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['feats'][teamFeats].vs[oppFeats], 'even', even_games)
+                this.getStateGames(this.gameData['feats'][teamFeats].vs[oppFeats], 'behind', behind_games)
             }else{
                 this.team1.feats = false
                 this.team2.feats = false
@@ -355,11 +498,11 @@ export default{
             if(this.game.firstBaron){
                 let teamFirstBaron = this.team1.firstBaron ? 1 : 0
                 let oppFirstBaron = this.team2.firstBaron ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron].wins,
-                    losses: this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron].losses,
-                    WR: this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron].WR
-                })
+
+                this.getStateGames(this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron], 'all', games)
+                this.getStateGames(this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron], 'even', even_games)
+                this.getStateGames(this.gameData['firstBaron'][teamFirstBaron].vs[oppFirstBaron], 'behind', behind_games)
             }else{
                 this.team1.firstBaron = false
                 this.team2.firstBaron = false
@@ -368,11 +511,11 @@ export default{
             if(this.game.firstBlood){
                 let teamFirstBlood = this.team1.firstBlood ? 1 : 0
                 let oppFirstBlood = this.team2.firstBlood ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood].wins,
-                    losses: this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood].losses,
-                    WR: this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood].WR
-                })
+
+                this.getStateGames(this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood], 'all', games)
+                this.getStateGames(this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood], 'even', even_games)
+                this.getStateGames(this.gameData['firstBlood'][teamFirstBlood].vs[oppFirstBlood], 'behind', behind_games)
             }else{
                 this.team1.firstBlood = false
                 this.team2.firstBlood = false
@@ -381,11 +524,11 @@ export default{
             if(this.game.firstDragon){
                 let teamFirstDragon = this.team1.firstDragon ? 1 : 0
                 let oppFirstDragon = this.team2.firstDragon ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon].wins,
-                    losses: this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon].losses,
-                    WR: this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon].WR
-                })
+
+                this.getStateGames(this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon], 'all', games)
+                this.getStateGames(this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon], 'even', even_games)
+                this.getStateGames(this.gameData['firstDragon'][teamFirstDragon].vs[oppFirstDragon], 'behind', behind_games)
             }else{
                 this.team1.firstDragon = false
                 this.team2.firstDragon = false
@@ -394,11 +537,11 @@ export default{
             if(this.game.firstInhib){
                 let teamFirstInhib = this.team1.firstInhib ? 1 : 0
                 let oppFirstInhib = this.team2.firstInhib ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib].wins,
-                    losses: this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib].losses,
-                    WR: this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib].WR
-                })
+
+                this.getStateGames(this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib], 'all', games)
+                this.getStateGames(this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib], 'even', even_games)
+                this.getStateGames(this.gameData['firstInhib'][teamFirstInhib].vs[oppFirstInhib], 'behind', behind_games)
             }else{
                 this.team1.firstInhib = false
                 this.team2.firstInhib = false
@@ -407,11 +550,11 @@ export default{
             if(this.game.firstTower){
                 let teamFirstTower = this.team1.firstTower ? 1 : 0
                 let oppFirstTower = this.team2.firstTower ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower].wins,
-                    losses: this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower].losses,
-                    WR: this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower].WR
-                })
+
+                this.getStateGames(this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower], 'all', games)
+                this.getStateGames(this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower], 'even', even_games)
+                this.getStateGames(this.gameData['firstTower'][teamFirstTower].vs[oppFirstTower], 'behind', behind_games)
             }else{
                 this.team1.firstTower = false
                 this.team2.firstTower = false
@@ -421,14 +564,29 @@ export default{
             if(this.game.herald){
                 let teamHerald = this.team1.herald ? 1 : 0
                 let oppHerald = this.team2.herald ? 1 : 0
-                qual_games.push({
-                    wins: this.gameData['herald'][teamHerald].vs[oppHerald].wins,
-                    losses: this.gameData['herald'][teamHerald].vs[oppHerald].losses,
-                    WR: this.gameData['herald'][teamHerald].vs[oppHerald].WR
-                })
+
+                this.getStateGames(this.gameData['herald'][teamHerald].vs[oppHerald], 'all', games)
+                this.getStateGames(this.gameData['herald'][teamHerald].vs[oppHerald], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['herald'][teamHerald].vs[oppHerald], 'even', even_games)
+                this.getStateGames(this.gameData['herald'][teamHerald].vs[oppHerald], 'behind', behind_games)
             }else{
                 this.team1.herald = false
                 this.team2.herald = false
+            }
+
+            if(this.game.soul){
+                let teamSoul = this.team1.soul
+                let oppSoul = this.team2.soul
+                console.log(teamSoul, oppSoul)
+                console.log(this.gameData['soul'])
+
+                this.getStateGames(this.gameData['soul'][teamSoul].vs[oppSoul], 'all', games)
+                this.getStateGames(this.gameData['soul'][teamSoul].vs[oppSoul], 'ahead', ahead_games)
+                this.getStateGames(this.gameData['soul'][teamSoul].vs[oppSoul], 'even', even_games)
+                this.getStateGames(this.gameData['soul'][teamSoul].vs[oppSoul], 'behind', behind_games)
+            }else{
+                this.team1.soul = "none"
+                this.team2.soul = "none"
             }
 
             if(this.game.dragonCount && !(this.team1.dragonCount.toString() == "" && this.team2.dragonCount.toString() == "")){
@@ -441,24 +599,59 @@ export default{
                         game.losses = game.losses.concat(this.gameData['dragonCount'][count].vs[this.team2.dragonCount].losses)
                         
                     }
-                    qual_games.push(game)
+                    this.getGames(game, games)
+                    this.getGames(game, ahead_games)
+                    this.getGames(game, even_games)
+                    this.getGames(game, behind_games)
                 } else if(this.team2.dragonCount.toString() == ""){
-                    qual_games.push({
-                    wins: this.gameData['dragonCount'][this.team1.dragonCount].wins,
-                    losses: this.gameData['dragonCount'][this.team1.dragonCount].losses,
-                    WR: this.gameData['dragonCount'][this.team1.dragonCount].WR
-                    })
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount], games)
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount], ahead_games)
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount], even_games)
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount], behind_games)
                 }else{
-                    qual_games.push({
-                    wins: this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount].wins,
-                    losses: this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount].losses,
-                    WR: this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount].WR
-                    })
+
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount], games)
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount], ahead_games)
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount], even_games)
+                    this.getGames(this.gameData['dragonCount'][this.team1.dragonCount].vs[this.team2.dragonCount], behind_games)
+
                 }
 
             }else{
                 this.team1.dragonCount = 0
                 this.team2.dragonCount = 0
+            }
+
+            if(this.game.elderCount && !(this.team1.elderCount.toString() == "" && this.team2.elderCount.toString() == "")){
+                if(this.team1.elderCount.toString() == ""){
+                    let game: BaseDetail = new BaseDetail
+                    for(let count in  this.gameData['elderCount']){
+                        if(!this.gameData['elderCount'][count].vs[this.team2.elderCount]) continue
+                        
+                        game.wins = game.wins.concat(this.gameData['elderCount'][count].vs[this.team2.elderCount].wins)
+                        game.losses = game.losses.concat(this.gameData['elderCount'][count].vs[this.team2.elderCount].losses)
+                        
+                    }
+                    this.getGames(game, games)
+                    this.getGames(game, ahead_games)
+                    this.getGames(game, even_games)
+                    this.getGames(game, behind_games)
+
+                } else if(this.team2.elderCount.toString() == ""){
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount], games)
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount], ahead_games)
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount], even_games)
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount], behind_games)
+                }else{
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount].vs[this.team2.elderCount], games)
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount].vs[this.team2.elderCount], ahead_games)
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount].vs[this.team2.elderCount], even_games)
+                    this.getGames(this.gameData['elderCount'][this.team1.elderCount].vs[this.team2.elderCount], behind_games)
+                }
+
+            }else{
+                this.team1.elderCount = 0
+                this.team2.elderCount = 0
             }
 
             if(this.game.grubCount && !(this.team1.grubCount.toString() == "" && this.team2.grubCount.toString() == "")){
@@ -471,7 +664,10 @@ export default{
                         game.losses = game.losses.concat(this.gameData['grubCount'][count].vs[this.team2.dragonCount].losses)
                         
                     }
-                    qual_games.push(game)
+                    this.getGames(game, games)
+                    this.getGames(game, ahead_games)
+                    this.getGames(game, even_games)
+                    this.getGames(game, behind_games)
                 }  else if(this.team2.grubCount.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['grubCount'][this.team1.grubCount].wins,
@@ -501,7 +697,10 @@ export default{
                         game.losses = game.losses.concat(this.gameData['inhibCount'][count].vs[this.team2.inhibCount].losses)
                         
                     }
-                    qual_games.push(game)
+                    this.getGames(game, games)
+                    this.getGames(game, ahead_games)
+                    this.getGames(game, even_games)
+                    this.getGames(game, behind_games)
                 } else if(this.team2.inhibCount.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['inhibCount'][this.team1.inhibCount].wins,
@@ -531,7 +730,10 @@ export default{
                         game.losses = game.losses.concat(this.gameData['baron'][count].vs[this.team2.baron].losses)
                         
                     }
-                    qual_games.push(game)
+                    this.getGames(game, games)
+                    this.getGames(game, ahead_games)
+                    this.getGames(game, even_games)
+                    this.getGames(game, behind_games)
                 } else if(this.team2.baron.toString() == ""){
                     qual_games.push({
                     wins: this.gameData['baron'][this.team1.baron].wins,
@@ -589,7 +791,7 @@ export default{
             this.adjustWidth()  
         },
         readData(){
-            d3.json("http://localhost:5173/stats/overview.json").then((data: any) => {
+            d3.json("http://localhost:5173/stats/overview2.json").then((data: any) => {
                 this.gameData = data
                 console.log('loaded')
             })
@@ -632,6 +834,7 @@ export default{
 
 #rank{
     margin-bottom: 2px;
+    margin-right: 5px;
 }
 
 .team1{
@@ -682,8 +885,23 @@ export default{
     flex-direction: row;
     height: 50px;
 }
+#aheadBar{
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+}
+#evenBar{
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+}
+#behindBar{
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+}
 
-#Left{
+.wins{
     width: 50%;
     background-color: blue;
     justify-items: start;
@@ -693,7 +911,7 @@ export default{
     padding-left: 5px;
 }
 
-#Right{
+.losses{
     width: 50%;
     background-color: red;
     justify-items: end;
