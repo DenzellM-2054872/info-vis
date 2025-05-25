@@ -9,7 +9,7 @@
         </nav>
         <div class="about">
             <h1>About This Project</h1>
-            <p>This project is a visualisation tool for data from the game leage of legends.</p>
+            <p>This project is a visualisation tool for data from the game league of legends.</p>
             <p>The collected data is from the patches 15.7, 15.8 and 15.9, the dataset includes games from each region and every rank.</p>
             <p>The data was collected using the league api, due to the size of the dataset the data has been precompiled into diffrent files which we show on this site</p>
             <ul>
