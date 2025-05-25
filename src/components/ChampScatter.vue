@@ -36,8 +36,8 @@ export default{
             "Slayer": true,
         })
         const margin = {top: 10, right: 30, bottom: 30, left: 60}
-        const width = 588 - margin.left - margin.right
-        const height = 512 - margin.top - margin.bottom
+        const width = 738 - margin.left - margin.right
+        const height = 662 - margin.top - margin.bottom
         let x = d3.scaleLinear()
                         .domain([42, 58])
                         .range([ 0, width ])
@@ -204,7 +204,7 @@ export default{
 
         },
         lowLight(nodes){ 
-            let size = 20
+            let size = 25
             if(this.displayIcons){
                 nodes.selectAll("image").transition()
                     .duration(200)
@@ -243,7 +243,7 @@ export default{
             }
         },
         show(nodes){
-            let size = 25
+            let size = 35
             if(this.displayIcons){
                 nodes.selectAll("image")
                     .transition()
@@ -286,7 +286,7 @@ export default{
         },
         highlight(nodes){
             nodes.raise()
-            let size = 30
+            let size = 45
             if(this.displayIcons){
                 nodes.selectAll("image").transition()
                     .duration(200)

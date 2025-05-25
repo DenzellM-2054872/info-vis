@@ -9,12 +9,12 @@ import WinRate from '@/components/WinRate.vue';
 
     <div class="content">
         <nav>
-            <RouterLink to="/">Home</RouterLink>
-            <RouterLink to="/champstats">Champs</RouterLink>
+            <RouterLink to="/">About</RouterLink>
+            <RouterLink to="/champscatter">Champ Scatter</RouterLink>
+            <RouterLink to="/synergy">Teambuilder</RouterLink>
             <RouterLink to="/champdetail">Champ Details</RouterLink>
             <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
-        <DualScatter />
         <SynergyComp />
     </div>
 </template>

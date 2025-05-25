@@ -2,40 +2,30 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import OverView from '../views/OverView.vue'
 import Timeline from '../views/TimelineView.vue'
-import ChampStats from '../views/ChampStats.vue'
+import ChampStats from '../views/SynergyView.vue'
 import ChampDetailView from '@/views/ChampDetailView.vue'
 import GameDetails from '@/views/GameDetails.vue'
+import AboutView from '../views/AboutView.vue'
+import ChampScatter from '@/views/ChampScatterview.vue'
+import SynergyView from '../views/SynergyView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: OverView,
-    },
-    {
-      path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      component: AboutView,
     },
     {
-      path: '/page',
-      name: 'page',
-      component: () => import('../views/OverView.vue'),
+      path: '/champscatter',
+      name: 'champscatter',
+      component: ChampScatter,
     },
     {
-      path: '/timeline',
-      name: 'timeline',
-      component: Timeline,
-    },
-    {
-      path: '/champstats',
-      name: 'champstats',
-      component: ChampStats,
+      path: '/synergy',
+      name: 'synergy',
+      component: SynergyView,
     },
     {
       path: '/champdetail',

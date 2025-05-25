@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import DualScatter from '@/components/DualScatter.vue';
+import SynergyComp from '@/components/SynergyComp.vue';
+import WinRate from '@/components/WinRate.vue';
+</script>
+
 <template>
     <div class="content">
         <nav>
@@ -7,16 +13,17 @@
             <RouterLink to="/champdetail">Champ Details</RouterLink>
             <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
-        <ChampDetail />
+
+        <DualScatter />
     </div>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+
+<style lang="scss" scoped>
+
+#app{
+    width: 80%;
+    justify-content: center;
 }
+
 </style>

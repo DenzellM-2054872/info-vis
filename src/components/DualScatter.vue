@@ -144,9 +144,9 @@ export default{
         margin-top: 50px;
         margin-bottom: 25px;
         margin-inline: auto;
-        border: 1px solid lightgray;
-        padding: 10px;
-        box-shadow: 7px 5px 10px rgba(0.2, 0.2, 0.2, 0.5);
-        border-radius: 10px;
+        // border: 1px solid lightgray;
+        // padding: 10px;
+        // box-shadow: 7px 5px 10px rgba(0.2, 0.2, 0.2, 0.5);
+        // border-radius: 10px;
     }
 </style>
