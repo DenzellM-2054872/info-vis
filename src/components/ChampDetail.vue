@@ -23,13 +23,16 @@
                         </div>
                     </div>
                 </div>
+                <abilityComp v-if="abilityStats"
+                    :champStats = "abilityStats"
+                    :champion = champName />
                 <div id="positions-graph"></div>
                 <ChampMatchup ref="ChampMatchup" v-if="champStatsSet" :champStats="champStats" :key="champStats?.name"/>
-                <div v-else>
+                 <div v-else>
                     <p>Loading champion...</p>
-                </div>
-                <EloBarcharts ref="EloBarcharts" v-if="champDataSet" :champData="champData" :key="champData?.id"/>
-                <div v-else>
+                </div> 
+                 <EloBarcharts ref="EloBarcharts" v-if="champDataSet" :champData="champData" :key="champData?.id"/> 
+                 <div v-else>
                     <p>Loading champion...</p>
                 </div>
         </div>
@@ -45,6 +48,15 @@ import Champions from "@/classes/Champion.ts";
 import * as d3 from "d3";
 import EloBarcharts from '@/components/EloBarcharts.vue';
 import ChampMatchup from '@/components/ChampMatchup.vue';
+import abilityComp from '@/components/abilities.vue';
+
+class AbilitiyData{
+    champs: {[key:string]: ChampAbilities} = {}
+}
+
+class ChampAbilities{
+    rank: {[key: string]: {[order: number]: {[ability: string]: {wins: number, losses: number}}}} = {}
+}
 
 interface ChampDetailsType {
     "average_assists": {[rank: string]: number}
@@ -77,9 +89,11 @@ export default{
     name: "ChampDetail",
     components: {
         EloBarcharts,
-        ChampMatchup
+        ChampMatchup,
+        abilityComp
     },
     setup(){
+        const abilityStats = ref<ChampAbilities | null>(null);
         const champName = ref("");
         const champion: Ref<Champions | undefined> = ref();
         const champData = ref<ChampDetailsType | null>(null);
@@ -89,12 +103,13 @@ export default{
         var champStatsSet = ref(false);
 
         return {
+            abilityStats,
             champName,
             champion,
             champData,
             champStats,
             champDataSet,
-            champStatsSet
+            champStatsSet,
         };
     },
     methods: {
@@ -125,6 +140,22 @@ export default{
                         this.champData! = foundData; // Update reactive champData
                         this.champDataSet = true;
                         console.log("champData", this.champData);
+                    }).catch((error) => {
+                        console.error("Error loading JSON data:", error);
+                    });
+
+                d3.json("http://localhost:5173/stats/abilities.json")
+                    .then((data: any) => {
+                        const typedData: AbilitiyData = data;
+                        const foundData: ChampAbilities = typedData.champs[this.champName];
+                        if (!foundData) {
+                            console.warn("No data found for the selected champion: ", this.champName);
+                            return;
+                        }
+                        this.abilityStats! = foundData; // Update reactive champData
+                        this.champDataSet = true;
+                        console.log("AbilityData", this.abilityStats);
+                        this.$forceUpdate();
                     }).catch((error) => {
                         console.error("Error loading JSON data:", error);
                     });

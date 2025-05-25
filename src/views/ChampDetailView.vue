@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Abilities from "@/components/abilities.vue";
 import ChampDetail from "@/components/ChampDetail.vue";
 
 </script>
@@ -12,6 +13,8 @@ import ChampDetail from "@/components/ChampDetail.vue";
             <RouterLink to="/gamedetail">Game Details</RouterLink>
         </nav>
         <ChampDetail />
+
+
     </div>
 </template>
 
