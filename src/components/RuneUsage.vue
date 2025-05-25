@@ -892,43 +892,23 @@ export default{
             }
 
             for (var rune in defenseUsage) {
-                //console.log("Defense Rune:", rune, "Usage:", defenseUsage[rune]);
                 defenseUsage[rune] = (defenseUsage[rune] / totalPages) * 100;
             }
             for (var rune in flexUsage) {
-                //console.log("Flex Rune:", rune, "Usage:", flexUsage[rune]);
                 flexUsage[rune] = (flexUsage[rune] / totalPages) * 100;
             }
             for (var rune in offenseUsage) {
-                //console.log("Offense Rune:", rune, "Usage:", offenseUsage[rune]);
                 offenseUsage[rune] = (offenseUsage[rune] / totalPages) * 100;
             }
             for (var rune in primaryStyleUsage) {
-                //console.log("Primary Style Rune:", rune, "Usage:", primaryStyleUsage[rune]);
                 primaryStyleUsage[rune] = (primaryStyleUsage[rune] / totalPages) * 100;
             }
             for (var rune in primarySubUsage) {
-                //console.log("Primary Sub Rune:", rune, "Usage:", primarySubUsage[rune]);
                 primarySubUsage[rune] = (primarySubUsage[rune] / totalPages) * 100;
             }
             for (var rune in secondarySubUsage) {
-                //console.log("Secondary Sub Rune:", rune, "Usage:", secondarySubUsage[rune]);
                 secondarySubUsage[rune] = (secondarySubUsage[rune] / totalPages) * 100;
             }
-
-            // sort defenseUsage by key in order: 5011, 5013, 5001
-            //const defenseOrder = ["5011", "5013", "5001"]
-            // var defenseSorted: {[runes: string]: number} = {"5011": 0, "5013": 0, "5001": 0};
-            // for (const key in defenseSorted) {
-            //     defenseSorted[key] = defenseUsage[key];
-            // }
-
-            console.log("Defense Usage:", defenseUsage);
-            console.log("Flex Usage:", flexUsage);
-            console.log("Offense Usage:", offenseUsage);
-            console.log("Primary Style Usage:", primaryStyleUsage);
-            console.log("Primary Sub Usage:", primarySubUsage);
-            console.log("Secondary Sub Usage:", secondarySubUsage);
 
             this.defenseUsage = defenseUsage;
             this.flexUsage = flexUsage;
@@ -942,7 +922,6 @@ export default{
         }
     },
     mounted(){
-        //console.log("RuneUsage mounted with runes:", this.runes);
         this.calculatePercentages();
     }
 }
