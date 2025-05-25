@@ -24,11 +24,11 @@
                     </div>
                 </div>
                 <div id="positions-graph"></div>
-                <ChampMatchup ref="ChampMatchup" v-if="champStatsSet" :champStats="champStats" :key="champStats?.name"/>
+                <ChampMatchup ref="ChampMatchup" v-if="champStatsSet && champStats" :champStats="champStats!" :key="champStats?.name"/>
                 <div v-else>
                     <p>Loading champion...</p>
                 </div>
-                <EloBarcharts ref="EloBarcharts" v-if="champDataSet" :champData="champData" :key="champData?.id"/>
+                <EloBarcharts ref="EloBarcharts" v-if="champDataSet && champData" :champData="champData!" :key="champData?.id"/>
                 <div v-else>
                     <p>Loading champion...</p>
                 </div>
