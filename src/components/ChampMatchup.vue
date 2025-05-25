@@ -47,6 +47,11 @@ export default defineComponent({
       type: Object as () => ChampionStats,
       required: true,
     },
+    rank: {
+      type: String,
+      required: true,
+      default: "all"
+    }
   },
 
   setup(props) {
@@ -58,9 +63,9 @@ export default defineComponent({
       drawTreemap();
     });
 
-    watch([wrDeltaSign, showAllSamples, showAllDifferences], () => {
-      drawTreemap();
-    });
+watch([wrDeltaSign, showAllSamples, showAllDifferences, () => props.rank], () => {
+  drawTreemap();
+});
 
     const drawTreemap = () => {
         const svgContainer = d3.select("#scatter-plot");
@@ -94,7 +99,7 @@ const tooltip = d3.select("#ChampMatchup")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
         d3.json("http://localhost:5173/stats/globalWR.json").then((globalData: any) => {
-            const matchups: ChampionMatchup = globalData["all"][props.champStats.name];
+            const matchups: ChampionMatchup = globalData[props.rank][props.champStats.name];
             const champAverageWR = (props.champStats.wins / props.champStats.games) * 100 || 0;
 
             const children = [];

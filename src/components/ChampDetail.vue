@@ -42,8 +42,14 @@
 
                 <RuneUsage id="rune-usage" ref="runeUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
 
-                <!-- <div id="positions-graph"></div> -->
-                <ChampMatchup ref="ChampMatchup" v-if="champStatsSet && champStats" :champStats="champStats!" :key="champStats?.name"/>
+                <div id="positions-graph"></div>
+                    <ChampMatchup
+                    ref="ChampMatchup"
+                    v-if="champStatsSet && champStats"
+                    :champStats="champStats!"
+                    :rank="rank"
+                    :key="champStats?.name"
+                    />
                 <div v-else>
                     <p>Loading champion...</p>
                 </div>
