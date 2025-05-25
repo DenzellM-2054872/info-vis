@@ -1,5 +1,5 @@
 <template>
-    <div id="abilityComp">
+    <div id="ability_comp">
         <input v-model="winning" type="checkbox" id="winning" name="winning" value="winning" @change="$forceUpdate()">
         <label for="winning" style="margin-right: 5px;">Winning</label>
         <input v-model="popular" type="checkbox" id="popular" name="popular" value="popular" @change="$forceUpdate()">
@@ -87,7 +87,7 @@ class abilities{
 }
 
 export default{
-    name: "abilityComp",
+    name: "AbilityComp",
     props: {
         champStats: {
             type: Object as () => abilities | null,
@@ -114,6 +114,10 @@ export default{
         };
     },
     methods: {
+        setRank(rank: string){
+            this.rank = rank
+            this.$forceUpdate()
+        },
         getPopular(pos: number){
             if(!this.champStats || !this.champ) return -1;
             let highest = 0;

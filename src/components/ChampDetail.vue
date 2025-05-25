@@ -8,6 +8,22 @@
                 @keyup.enter="searchChampion"
             />
             <button @click="searchChampion">Search</button>
+
+            <select name="rank" id="rank" v-model="rank" @change="setRank">
+                <option value="all">all</option>
+                <option value="IRON">Iron</option>
+                <option value="BRONZE">Bronze</option>
+                <option value="GOLD">Gold</option>
+                <option value="PLATINUM">Platinum</option>
+                <option value="EMERALD">Emerald</option>
+                <option value="DIAMOND">Diamond</option>
+                <option value="MASTER">Master</option>
+                <option value="GRANDMASTER">Grandmaster</option>
+                <option value="PLATINUM+">Platinum+</option>
+                <option value="EMERALD+">Emerald+</option>
+                <option value="DIAMOND+">Diamond+</option>
+                <option value="MASTER+">Master+</option>
+            </select>
         </div>
         <div v-if="champion" class="champion-container">
                 <div class="champion-header">
@@ -23,7 +39,8 @@
                         </div>
                     </div>
                 </div>
-                <abilityComp v-if="abilityStats"
+                <AbilityComp v-if="abilityStats"
+                    ref="abilityComp"
                     :champStats = "abilityStats"
                     :champion = champName />
 
@@ -46,12 +63,12 @@
 </template>
 
 <script lang="ts">
-import { ref, type Ref } from "vue";
+import { ref, useTemplateRef, type Ref } from "vue";
 import Champions from "@/classes/Champion.ts"; 
 import * as d3 from "d3";
 import EloBarcharts from '@/components/EloBarcharts.vue';
 import ChampMatchup from '@/components/ChampMatchup.vue';
-import abilityComp from '@/components/abilities.vue';
+import AbilityComp from '@/components/AbilityComp.vue';
 
 class AbilitiyData{
     champs: {[key:string]: ChampAbilities} = {}
@@ -94,7 +111,7 @@ export default{
     components: {
         EloBarcharts,
         ChampMatchup,
-        abilityComp
+        AbilityComp
     },
     setup(){
         const abilityStats = ref<ChampAbilities | null>(null);
@@ -103,20 +120,28 @@ export default{
         const champData = ref<ChampDetailsType | null>(null);
         const champStats = ref<ChampionStats | null>(null);
         
+        const abilityComp = useTemplateRef<typeof AbilityComp>('abilityComp');
+    
         var champDataSet = ref(false);
         var champStatsSet = ref(false);
+        var rank = ref('all')
 
         return {
             abilityStats,
+            abilityComp,
             champName,
             champion,
             champData,
             champStats,
             champDataSet,
             champStatsSet,
+            rank
         };
     },
     methods: {
+        setRank(){
+            this.abilityComp?.setRank(this.rank)
+        },
         searchChampion() {
             try {
                 d3.json("http://localhost:5173/stats/wbpr.json")

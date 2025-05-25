@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Abilities from "@/components/abilities.vue";
+import Abilities from "@/components/AbilityComp.vue";
 import ChampDetail from "@/components/ChampDetail.vue";
 
 </script>
