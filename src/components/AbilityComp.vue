@@ -7,7 +7,7 @@
             <label for="popular">Popular</label>
         </div>
         <div class="abilityLine">
-            <img class = "abilityPic" :src="champ?.getSpellIcon(0)" alt="Champion Q" />
+            <img class = "abilityPic" :src="champion?.getSpellIcon(0)" alt="Champion Q" />
             <div class="abilitySquare" :class="[getPopular(i - 1) == 1 && popular? 'popular':'', getWinning(i - 1) == 1 && winning? 'winning':'']" v-for="i in 18" :id="'Q' + i">
                 <p>{{ 
                     (champStats?.rank?.[rank]?.[i - 1]?.[1]?.wins ?? 0) + 
@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="abilityLine">
-            <img class = "abilityPic" :src="champ?.getSpellIcon(1)" alt="Champion W" />
+            <img class = "abilityPic" :src="champion?.getSpellIcon(1)" alt="Champion W" />
                 <div class="abilitySquare" :class="[getPopular(i - 1) == 2 && popular ? 'popular':'', getWinning(i - 1) == 2 && winning? 'winning':'']" v-for="i in 18" :id="'W' + i">
                 <p>{{ 
                     (champStats?.rank?.[rank]?.[i - 1]?.[2]?.wins ?? 0) + 
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="abilityLine">
-            <img class = "abilityPic" :src="champ?.getSpellIcon(2)" alt="Champion E" />
+            <img class = "abilityPic" :src="champion?.getSpellIcon(2)" alt="Champion E" />
             <div class="abilitySquare" :class="[getPopular(i - 1) == 3 && popular ? 'popular':'', getWinning(i - 1) == 3 && winning? 'winning':'']" v-for="i in 18" :id="'E' + i">
                 <p>{{ 
                     (champStats?.rank?.[rank]?.[i - 1]?.[3]?.wins ?? 0) + 
@@ -60,7 +60,7 @@
             </div>
         </div>
         <div class="abilityLine">
-            <img class = "abilityPic" :src="champ?.getSpellIcon(3)" alt="Champion R" />
+            <img class = "abilityPic" :src="champion?.getSpellIcon(3)" alt="Champion R" />
             <div class="abilitySquare" :class="[getPopular(i - 1) == 4 && popular ? 'popular':'', getWinning(i - 1) == 4 && winning? 'winning':'']" v-for="i in 18" :id="'R' + i">
                 <p>{{ 
                     (champStats?.rank?.[rank]?.[i - 1]?.[4]?.wins ?? 0) + 
@@ -97,12 +97,11 @@ export default{
         },
 
         champion: {
-            type:  Object as () => string | null,
+            type:  Object as () => Champions | null,
             required: true
         }
     },
     setup(){
-        let champ: undefined | Champions
         let data: abilities | undefined;
         let rank = 'all';
         let popular = true;
@@ -111,7 +110,6 @@ export default{
             popular,
             winning,
             rank,
-            champ,
             data
         };
     },
@@ -121,7 +119,7 @@ export default{
             this.$forceUpdate()
         },
         getPopular(pos: number){
-            if(!this.champStats || !this.champ) return -1;
+            if(!this.champStats) return -1;
             let highest = 0;
             let highestability = 0;
             for(let i = 1; i <= 4; i++){
@@ -134,7 +132,7 @@ export default{
             return highestability
         },
         getWinning(pos: number){
-            if(!this.champStats || !this.champ) return -1;
+            if(!this.champStats) return -1;
             let highest = 0;
             let highestability = 0;
             for(let i = 1; i <= 4; i++){
@@ -149,8 +147,6 @@ export default{
     },
     mounted(){
         console.log(this.champion)
-        if(!this.champion) return;
-        this.champ = new Champions(this.champion);
         console.log("ChampMatchup mounted with champStats", this.champStats);
         this.$forceUpdate();
     }

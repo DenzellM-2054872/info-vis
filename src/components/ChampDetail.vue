@@ -38,7 +38,7 @@
                 <AbilityComp v-if="abilityStats"
                     ref="abilityComp"
                     :champStats = "abilityStats"
-                    :champion = champName />
+                    :champion = champion />
 
                 <RuneUsage id="rune-usage" ref="RuneUsage" v-if="champDataSet" :runes="champData?.highest_runes_usage" :key="champData?.id"/>
                 
